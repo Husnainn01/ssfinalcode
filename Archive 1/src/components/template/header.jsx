@@ -3,7 +3,7 @@
 import * as React from 'react'
 import { Search, ChevronDown, Heart, User, LogOut, Clock } from 'lucide-react'
 import Link from 'next/link'
-import { useAuth } from '@/hooks/useAuth'
+import { useCustomerAuth } from '@/hooks/useCustomerAuth'
 import { useRouter } from 'next/navigation'
 import { useJapanTime } from '@/hooks/useJapanTime'
 import { useCarStats } from '@/hooks/useCarStats'
@@ -24,19 +24,32 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
 import { MainNav } from '@/components/block/main-nav'
+import { toast } from "@/components/ui/use-toast"
 
 export default function NavigationHeader() {
-  const { user, isAuthenticated, logout } = useAuth()
+  const { user, isAuthenticated, isLoading } = useCustomerAuth()
   const router = useRouter()
   const { japanTime, isLoading: timeLoading } = useJapanTime()
-  const { totalCars, carsAddedToday, isLoading } = useCarStats()
+  const { totalCars, carsAddedToday, isLoading: carsLoading } = useCarStats()
 
   const handleLogout = async () => {
     try {
-      await logout()
-      window.location.href = '/'
+      const response = await fetch('/api/auth/user/logout', {
+        method: 'POST',
+        credentials: 'include'
+      });
+
+      if (response.ok) {
+        document.cookie = 'customer_token=; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT';
+        router.push('/auth/login');
+      }
     } catch (error) {
       console.error('Logout failed:', error)
+      toast({
+        variant: "destructive",
+        title: "Error",
+        description: "Logout failed. Please try again.",
+      });
     }
   }
 
@@ -117,7 +130,9 @@ export default function NavigationHeader() {
               <Button variant="ghost" className="text-theme-background hover:text-theme-secondary">
                 <Heart className="mr-2 h-5 w-5" />
                 <span>Favorites</span>
-                <span className="ml-2 rounded-full bg-theme-secondary px-2 py-0.5 text-xs">0</span>
+                <span className="ml-2 rounded-full bg-theme-secondary px-2 py-0.5 text-xs">
+                  {favoritesCount}
+                </span>
               </Button>
               
               <DropdownMenu>
@@ -128,8 +143,10 @@ export default function NavigationHeader() {
                         <User className="h-5 w-5" />
                       </div>
                       <div className="hidden md:flex flex-col items-start">
-                        <span className="text-sm font-medium">{user?.name || 'User'}</span>
-                        <span className="text-xs text-gray-400">Customer</span>
+                        <span className="text-sm font-medium">
+                          {user?.name || 'Customer'}
+                        </span>
+                        <span className="text-xs text-gray-400">Customer Account</span>
                       </div>
                       <ChevronDown className="h-4 w-4" />
                     </div>
@@ -137,8 +154,8 @@ export default function NavigationHeader() {
                 </DropdownMenuTrigger>
                 <DropdownMenuContent align="end" className="w-56">
                   <div className="px-2 py-1.5">
-                    <p className="text-sm font-medium">{user?.name || 'User'}</p>
-                    <p className="text-xs text-gray-500">{user?.email || 'user@example.com'}</p>
+                    <p className="text-sm font-medium">{user?.name || 'Customer'}</p>
+                    <p className="text-xs text-gray-500">{user?.email}</p>
                   </div>
                   <DropdownMenuSeparator />
                   <DropdownMenuItem 
@@ -185,7 +202,7 @@ export default function NavigationHeader() {
                     <div className="text-center text-sm text-gray-500">
                       Don't have an account?{' '}
                       <Link 
-                        href="/auth/login" 
+                        href="/auth/register"
                         className="text-theme-secondary hover:underline"
                       >
                         Register

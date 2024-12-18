@@ -9,7 +9,7 @@ export async function POST(req) {
     await dbConnect();
     
     const { email, password } = await req.json();
-    console.log('Login attempt for:', email);
+    console.log('Customer login attempt for:', email);
 
     if (!email || !password) {
       return NextResponse.json(
@@ -19,7 +19,6 @@ export async function POST(req) {
     }
 
     const user = await CustomerUser.findOne({ email }).select('+password');
-    console.log('User found:', user ? 'Yes' : 'No');
     
     if (!user) {
       return NextResponse.json(
@@ -29,7 +28,6 @@ export async function POST(req) {
     }
 
     const isPasswordValid = await user.comparePassword(password);
-    console.log('Password validation:', isPasswordValid ? 'Success' : 'Failed');
     
     if (!isPasswordValid) {
       return NextResponse.json(
@@ -42,16 +40,16 @@ export async function POST(req) {
     user.lastLogin = new Date();
     await user.save();
 
-    // Create token
+    // Create token with customer type
     const token = await createToken({
-      id: user._id.toString(),
+      userId: user._id.toString(),
       email: user.email,
       name: user.name,
-      role: user.role
+      type: 'customer' // Add type to distinguish from admin
     });
 
-    // Set cookie
-    cookies().set('token', token, {
+    // Set customer-specific cookie
+    cookies().set('customer_token', token, {
       httpOnly: true,
       secure: process.env.NODE_ENV === 'production',
       sameSite: 'lax',
@@ -59,20 +57,17 @@ export async function POST(req) {
       maxAge: 60 * 60 * 24 // 24 hours
     });
 
-    console.log('Login successful for:', email);
-    
     return NextResponse.json({
       message: 'Login successful',
       user: {
         id: user._id,
         email: user.email,
-        name: user.name,
-        role: user.role
+        name: user.name
       }
     });
 
   } catch (error) {
-    console.error('Login error:', error);
+    console.error('Customer login error:', error);
     return NextResponse.json(
       { error: 'Login failed' },
       { status: 500 }

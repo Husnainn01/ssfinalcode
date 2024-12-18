@@ -101,57 +101,59 @@ export default function AuthPage() {
   // Check if user is already authenticated
   useEffect(() => {
     if (isAuthenticated && !authLoading) {
-      console.log('User is authenticated, redirecting...')
-      router.replace('/customer-dashboard')
+      router.replace('/customer-dashboard');
     }
-  }, [isAuthenticated, authLoading, router])
+  }, [isAuthenticated, authLoading, router]);
 
   const onLoginSubmit = async (values) => {
-    setIsLoading(true)
+    setIsLoading(true);
     try {
       const response = await fetch('/api/auth/user/login', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         credentials: 'include',
         body: JSON.stringify(values)
-      })
+      });
 
-      const data = await response.json()
+      const data = await response.json();
 
       if (!response.ok) {
-        throw new Error(data.error || 'Login failed')
+        throw new Error(data.error || 'Login failed');
       }
 
       toast({
         title: "Success",
         description: "Login successful!",
-      })
+      });
 
-      router.push('/customer-dashboard')
-
+      router.push('/customer-dashboard');
     } catch (error) {
       toast({
         variant: "destructive",
         title: "Error",
         description: error.message || 'Login failed. Please try again.',
-      })
+      });
       
       loginForm.setError('root', { 
         message: error.message || 'Login failed. Please try again.' 
       });
     } finally {
-      setIsLoading(false)
+      setIsLoading(false);
     }
-  }
+  };
 
-  // Add logout function if needed
   const handleLogout = async () => {
     try {
-      await fetch('/api/auth/user/logout', {
-        method: 'POST'
+      const response = await fetch('/api/auth/user/logout', {
+        method: 'POST',
+        credentials: 'include'
       })
-      router.push('/login')
-      router.refresh()
+      
+      if (response.ok) {
+        // Clear customer token specifically
+        document.cookie = 'customer_token=; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT';
+        router.push('/customer/login')
+      }
     } catch (error) {
       console.error('Logout failed:', error)
     }

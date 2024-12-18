@@ -4,25 +4,27 @@ import { verifyToken } from '@/lib/jwt';
 export async function middleware(req) {
   const path = req.nextUrl.pathname;
   
-  // Skip middleware for login page and API routes
-  if (path === '/admin/login' || path.startsWith('/api/')) {
+  // Skip middleware for API routes
+  if (path.startsWith('/api/')) {
     return NextResponse.next();
   }
 
-  // Only protect /admin and its subroutes
+  // Handle admin routes
   if (path.startsWith('/admin')) {
+    // Skip middleware for admin login page
+    if (path === '/admin/login') {
+      return NextResponse.next();
+    }
+
     try {
       const token = req.cookies.get('auth_token')?.value;
-      console.log('Middleware - Token:', token ? 'Present' : 'Missing');
       
       if (!token) {
-        console.log('Middleware - No token found');
         return NextResponse.redirect(new URL('/admin/login', req.url));
       }
 
-      // Simple token verification without role checking
       const payload = await verifyToken(token);
-      if (!payload) {
+      if (!payload || payload.type !== 'admin') {
         const response = NextResponse.redirect(new URL('/admin/login', req.url));
         response.cookies.delete('auth_token');
         return response;
@@ -30,9 +32,37 @@ export async function middleware(req) {
 
       return NextResponse.next();
     } catch (err) {
-      console.error('Middleware - Token verification failed:', err);
       const response = NextResponse.redirect(new URL('/admin/login', req.url));
       response.cookies.delete('auth_token');
+      return response;
+    }
+  }
+
+  // Handle customer dashboard routes
+  if (path.startsWith('/customer-dashboard')) {
+    // Skip middleware for customer login page
+    if (path === '/auth/login') {
+      return NextResponse.next();
+    }
+
+    try {
+      const token = req.cookies.get('customer_token')?.value;
+      
+      if (!token) {
+        return NextResponse.redirect(new URL('/auth/login', req.url));
+      }
+
+      const payload = await verifyToken(token);
+      if (!payload || payload.type !== 'customer') {
+        const response = NextResponse.redirect(new URL('/auth/login', req.url));
+        response.cookies.delete('customer_token');
+        return response;
+      }
+
+      return NextResponse.next();
+    } catch (err) {
+      const response = NextResponse.redirect(new URL('/auth/login', req.url));
+      response.cookies.delete('customer_token');
       return response;
     }
   }
@@ -42,7 +72,8 @@ export async function middleware(req) {
 
 export const config = {
   matcher: [
-    '/admin',
-    '/admin/((?!login).*)' // Match all /admin routes except /admin/login
+    '/admin/:path*',
+    '/customer-dashboard/:path*',
+    '/auth/login'
   ]
 };
