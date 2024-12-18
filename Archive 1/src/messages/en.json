@@ -1,0 +1,20 @@
+{
+  "header": {
+    "company": "SS Holdings: Japanese Used Cars for Sale",
+    "totalCars": "Total Cars In Stock",
+    "carsAdded": "Cars Added Today",
+    "japanTime": "Japan Time",
+    "navigation": {
+      "usedCars": "Used Cars",
+      "reviews": "Reviews",
+      "help": "Help"
+    },
+    "auth": {
+      "login": "Login",
+      "register": "Register",
+      "welcome": "Welcome Back!",
+      "dashboard": "Dashboard",
+      "logout": "Logout"
+    }
+  }
+} 
