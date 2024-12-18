@@ -7,7 +7,7 @@ const favoriteSchema = new mongoose.Schema({
   },
   carId: {
     type: mongoose.Schema.Types.ObjectId,
-    ref: 'Car',
+    ref: 'CarListing',
     required: true
   },
   createdAt: {

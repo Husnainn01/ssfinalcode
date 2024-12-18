@@ -1,114 +1,155 @@
 "use client"
 
-import { createContext, useContext, useState, useEffect } from 'react'
-import { useAuth } from '@/hooks/useAuth'
+import { createContext, useContext, useState, useEffect, ReactNode } from 'react'
+import { useCustomerAuth } from '@/hooks/useCustomerAuth'
+import { useToast } from '@/components/ui/use-toast'
 
-interface FavoritesContextType {
-  favorites: string[]
+interface FavoriteContextType {
+  favorites: any[]
+  isLoading: boolean
+  error: string | null
   addFavorite: (carId: string) => Promise<void>
   removeFavorite: (carId: string) => Promise<void>
+  refreshFavorites: () => Promise<void>
   isFavorite: (carId: string) => boolean
-  isLoading: boolean
 }
 
-const FavoritesContext = createContext<FavoritesContextType | undefined>(undefined)
+const FavoritesContext = createContext<FavoriteContextType | undefined>(undefined)
 
-export function FavoritesProvider({ children }: { children: React.ReactNode }) {
-  const [favorites, setFavorites] = useState<string[]>([])
+export function FavoritesProvider({ children }: { children: ReactNode }) {
+  const [favorites, setFavorites] = useState<any[]>([])
   const [isLoading, setIsLoading] = useState(true)
-  const { isAuthenticated, user, isLoading: authLoading } = useAuth()
+  const [error, setError] = useState<string | null>(null)
+  const { toast } = useToast()
+  const { isAuthenticated } = useCustomerAuth()
 
-  useEffect(() => {
-    const fetchFavorites = async () => {
-      if (!isAuthenticated || !user) {
-        setIsLoading(false)
-        return
+  const isFavorite = (carId: string) => {
+    return favorites.some(fav => fav.id === carId || fav.carId === carId)
+  }
+
+  const fetchFavorites = async () => {
+    try {
+      console.log('Starting to fetch favorites...')
+      const response = await fetch('/api/favorites', {
+        method: 'GET',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        credentials: 'include'
+      })
+
+      console.log('Response status:', response.status)
+      const data = await response.json()
+      console.log('Response data:', data)
+
+      if (!response.ok) {
+        throw new Error(data.error || data.details || 'Failed to fetch favorites')
       }
 
-      try {
-        const response = await fetch('/api/favorites', {
-          credentials: 'include'
-        })
-
-        if (response.ok) {
-          const data = await response.json()
-          setFavorites(data.map((fav: any) => fav.carId))
-        }
-      } catch (error) {
-        console.error('Error fetching favorites:', error)
-      } finally {
-        setIsLoading(false)
-      }
+      setFavorites(data)
+      setError(null)
+    } catch (error) {
+      console.error('Error fetching favorites:', error)
+      setError(error instanceof Error ? error.message : 'Failed to fetch favorites')
+      toast({
+        title: "Error",
+        description: error instanceof Error ? error.message : "Failed to load favorites. Please try again.",
+        variant: "destructive"
+      })
+    } finally {
+      setIsLoading(false)
     }
-
-    if (!authLoading) {
-      fetchFavorites()
-    }
-  }, [isAuthenticated, user, authLoading])
-
-  const isFavorite = (carId: string): boolean => {
-    return favorites.includes(carId)
   }
 
   const addFavorite = async (carId: string) => {
-    if (!isAuthenticated) {
-      throw new Error('Please login to add favorites')
-    }
-
     try {
       const response = await fetch('/api/favorites', {
         method: 'POST',
         headers: {
-          'Content-Type': 'application/json'
+          'Content-Type': 'application/json',
         },
         credentials: 'include',
         body: JSON.stringify({ carId })
       })
 
+      const data = await response.json()
+
       if (!response.ok) {
-        throw new Error('Failed to add favorite')
+        throw new Error(data.error || 'Failed to add favorite')
       }
 
-      setFavorites(prev => [...prev, carId])
+      await fetchFavorites() // Refresh the favorites list
+      toast({
+        title: "Success",
+        description: "Added to favorites",
+      })
     } catch (error) {
       console.error('Error adding favorite:', error)
-      throw error
+      toast({
+        title: "Error",
+        description: error instanceof Error ? error.message : "Failed to add favorite",
+        variant: "destructive"
+      })
     }
   }
 
   const removeFavorite = async (carId: string) => {
-    if (!isAuthenticated) {
-      throw new Error('Please login to remove favorites')
-    }
-
     try {
       const response = await fetch('/api/favorites', {
         method: 'DELETE',
         headers: {
-          'Content-Type': 'application/json'
+          'Content-Type': 'application/json',
         },
         credentials: 'include',
         body: JSON.stringify({ carId })
       })
 
       if (!response.ok) {
-        throw new Error('Failed to remove favorite')
+        const data = await response.json()
+        throw new Error(data.error || 'Failed to remove favorite')
       }
 
-      setFavorites(prev => prev.filter(id => id !== carId))
+      await fetchFavorites() // Refresh the favorites list
+      toast({
+        title: "Success",
+        description: "Removed from favorites",
+      })
     } catch (error) {
       console.error('Error removing favorite:', error)
-      throw error
+      toast({
+        title: "Error",
+        description: error instanceof Error ? error.message : "Failed to remove favorite",
+        variant: "destructive"
+      })
     }
   }
 
+  const refreshFavorites = async () => {
+    setIsLoading(true)
+    await fetchFavorites()
+  }
+
+  useEffect(() => {
+    console.log('FavoritesContext auth state:', { isAuthenticated })
+    if (isAuthenticated) {
+      console.log('User is authenticated, fetching favorites')
+      fetchFavorites()
+    } else {
+      console.log('User is not authenticated, clearing favorites')
+      setFavorites([])
+      setIsLoading(false)
+    }
+  }, [isAuthenticated])
+
   return (
-    <FavoritesContext.Provider value={{ 
-      favorites, 
-      addFavorite, 
-      removeFavorite, 
-      isFavorite,
-      isLoading 
+    <FavoritesContext.Provider value={{
+      favorites,
+      isLoading,
+      error,
+      addFavorite,
+      removeFavorite,
+      refreshFavorites,
+      isFavorite
     }}>
       {children}
     </FavoritesContext.Provider>

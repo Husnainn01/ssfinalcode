@@ -1,68 +1,69 @@
-import { useState, useEffect } from 'react';
-import { useRouter } from 'next/navigation';
+"use client"
+
+import { create } from 'zustand'
+import { useEffect } from 'react'
+import { checkCustomerAuth } from '@/utils/customerAuth'
+
+interface AuthState {
+  isAuthenticated: boolean
+  user: any | null
+  isLoading: boolean
+  error: string | null
+  checkAuth: () => Promise<void>
+  setAuth: (data: { isAuthenticated: boolean; user: any }) => void
+  clearAuth: () => void
+}
+
+const useAuthStore = create<AuthState>((set) => ({
+  isAuthenticated: false,
+  user: null,
+  isLoading: true,
+  error: null,
+  checkAuth: async () => {
+    try {
+      set({ isLoading: true, error: null })
+      const response = await fetch('/api/auth/user/check', {
+        credentials: 'include'
+      })
+      const data = await response.json()
+      console.log('Auth check response:', data)
+      
+      set({ 
+        isAuthenticated: data.authenticated,
+        user: data.user, 
+        isLoading: false 
+      })
+    } catch (error) {
+      console.error('Auth check error:', error)
+      set({ 
+        isLoading: false, 
+        error: error instanceof Error ? error.message : 'Authentication check failed',
+        isAuthenticated: false,
+        user: null
+      })
+    }
+  },
+  setAuth: (data) => set({ 
+    isAuthenticated: data.isAuthenticated, 
+    user: data.user,
+    isLoading: false,
+    error: null
+  }),
+  clearAuth: () => set({ 
+    isAuthenticated: false, 
+    user: null,
+    isLoading: false,
+    error: null
+  })
+}))
 
 export function useCustomerAuth() {
-  const [user, setUser] = useState(null);
-  const [isAuthenticated, setIsAuthenticated] = useState(false);
-  const [isLoading, setIsLoading] = useState(true);
-  const router = useRouter();
+  const store = useAuthStore()
 
   useEffect(() => {
-    let mounted = true;
-    const controller = new AbortController();
+    // Check auth status when component mounts
+    store.checkAuth()
+  }, []) // Remove the interval to simplify debugging
 
-    const checkAuth = async () => {
-      try {
-        const response = await fetch('/api/auth/user/check', {
-          credentials: 'include',
-          signal: controller.signal,
-          headers: {
-            'Cache-Control': 'no-cache',
-            'Pragma': 'no-cache'
-          }
-        });
-
-        if (!response.ok) {
-          throw new Error('Not authenticated');
-        }
-
-        const data = await response.json();
-        
-        if (data.user?.type !== 'customer') {
-          throw new Error('Not a customer account');
-        }
-        
-        if (mounted) {
-          setUser(data.user);
-          setIsAuthenticated(true);
-          setIsLoading(false);
-        }
-      } catch (error) {
-        if (error.name === 'AbortError') return;
-        
-        if (mounted) {
-          setUser(null);
-          setIsAuthenticated(false);
-          setIsLoading(false);
-          
-          if (window.location.pathname.startsWith('/customer-dashboard')) {
-            router.push('/auth/login');
-          }
-        }
-      }
-    };
-
-    if (!user && !isAuthenticated) {
-      checkAuth();
-    } else {
-      setIsLoading(false);
-    }
-
-    return () => {
-      mounted = false;
-      controller.abort();
-    };
-  }, [user, isAuthenticated, router]);
-
-  return { user, isAuthenticated, isLoading };
+  return store
 } 

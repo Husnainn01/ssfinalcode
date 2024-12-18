@@ -1,11 +1,12 @@
 "use client"
 
 import { useState, useEffect } from 'react'
-import { Heart } from 'lucide-react'
+import { Heart, Loader2 } from 'lucide-react'
 import { Button } from './button'
 import { useFavorites } from '@/context/FavoritesContext'
-import { useAuth } from '@/hooks/useAuth'
+import { useCustomerAuth } from '@/hooks/useCustomerAuth'
 import { useToast } from './use-toast'
+import { useRouter } from 'next/navigation'
 
 interface FavoriteButtonProps {
   carId: string | number
@@ -13,27 +14,33 @@ interface FavoriteButtonProps {
 
 export function FavoriteButton({ carId }: FavoriteButtonProps) {
   const normalizedCarId = carId.toString()
-  const { isAuthenticated } = useAuth()
+  const { user, isAuthenticated, isLoading: authLoading } = useCustomerAuth()
+  const router = useRouter()
   const { toast } = useToast()
   const [isLoading, setIsLoading] = useState(false)
-  const { addFavorite, removeFavorite, isFavorite, favorites } = useFavorites()
+  const { addFavorite, removeFavorite, isFavorite } = useFavorites()
   const isFavorited = isFavorite(normalizedCarId)
 
   useEffect(() => {
-    console.log('FavoriteButton state:', { 
+    console.log('FavoriteButton Auth State:', { 
+      isAuthenticated, 
+      user, 
       carId: normalizedCarId, 
-      isFavorited, 
-      favorites 
+      isFav: isFavorited,
+      authLoading
     })
-  }, [normalizedCarId, isFavorited, favorites])
+  }, [isAuthenticated, user, normalizedCarId, isFavorited, authLoading])
 
   const handleClick = async () => {
+    if (authLoading) return
+
     if (!isAuthenticated) {
       toast({
         title: "Authentication Required",
         description: "Please login to add favorites",
         variant: "destructive"
       })
+      router.push('/auth/login')
       return
     }
 
@@ -64,6 +71,14 @@ export function FavoriteButton({ carId }: FavoriteButtonProps) {
     } finally {
       setIsLoading(false)
     }
+  }
+
+  if (authLoading) {
+    return (
+      <Button variant="ghost" size="icon" disabled>
+        <Loader2 className="h-5 w-5 animate-spin" />
+      </Button>
+    )
   }
 
   return (

@@ -62,7 +62,7 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog"
 import { useFavorites } from '@/context/FavoritesContext'
-import { useAuth } from '@/hooks/useAuth'
+import { useCustomerAuth } from '@/hooks/useCustomerAuth'
 
 interface FavoriteVehicle {
   id: string
@@ -93,7 +93,7 @@ interface ShareOption {
 export default function Favorites() {
   const router = useRouter()
   const [favorites, setFavorites] = useState<FavoriteVehicle[]>([])
-  const { isAuthenticated, isLoading: authLoading } = useAuth()
+  const { isAuthenticated, isLoading: authLoading } = useCustomerAuth()
   const [isLoading, setIsLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
   const [sortBy, setSortBy] = useState<SortOption>("date-desc")
@@ -103,67 +103,56 @@ export default function Favorites() {
   const { toast } = useToast()
   const [showCompareModal, setShowCompareModal] = useState(false)
 
+  useEffect(() => {
+    console.log('Auth state changed:', { isAuthenticated, authLoading })
+    if (!authLoading && !isAuthenticated) {
+      router.push('/auth/login')
+    }
+  }, [isAuthenticated, authLoading, router])
+
   const fetchFavorites = async () => {
     if (!isAuthenticated) {
+      console.log('User not authenticated, skipping fetch')
       setIsLoading(false)
       return
     }
     
     try {
       console.log('Fetching favorites...')
-      const favResponse = await fetch('/api/favorites', {
-        credentials: 'include'
-      })
-      
-      if (!favResponse.ok) {
-        throw new Error('Failed to fetch favorites')
-      }
-
-      const favData = await favResponse.json()
-      
-      if (!Array.isArray(favData)) {
-        throw new Error('Invalid favorites data format')
-      }
-
-      // Fetch car details for each favorite
-      const carPromises = favData.map(async (fav) => {
-        try {
-          const carResponse = await fetch(`/api/cars/${fav.carId}`, {
-            credentials: 'include'
-          })
-
-          if (!carResponse.ok) {
-            console.error(`Failed to fetch car ${fav.carId}:`, await carResponse.text())
-            return null
-          }
-
-          const carData = await carResponse.json()
-          return {
-            ...carData,
-            addedDate: new Date(fav.createdAt).toLocaleDateString()
-          }
-        } catch (error) {
-          console.error(`Error fetching car ${fav.carId}:`, error)
-          return null
+      const response = await fetch('/api/favorites', {
+        credentials: 'include',
+        headers: {
+          'Content-Type': 'application/json',
         }
       })
-
-      // Wait for all car fetches to complete
-      const cars = await Promise.all(carPromises)
       
-      // Filter out any null results from failed fetches
-      const validCars = cars.filter((car): car is FavoriteVehicle => car !== null)
-
-      if (validCars.length === 0) {
-        setError('No valid cars found in favorites')
-        console.log('Favorites Debug', {
-          favoritesCount: favData.length,
-          favorites: favData.map(f => f.carId)
-        })
-      } else {
-        setFavorites(validCars)
-        setError(null)
+      if (!response.ok) {
+        throw new Error(`Failed to fetch favorites: ${response.status}`)
       }
+
+      const data = await response.json()
+      console.log('Favorites data:', data)
+      
+      // Transform the data to match FavoriteVehicle interface
+      const transformedFavorites: FavoriteVehicle[] = data.map((fav: any) => ({
+        id: fav.carId,
+        name: fav.car.title,
+        image: fav.car.image || '/placeholder-car.jpg', // Add a default image
+        type: fav.car.bodyType || 'Unknown',
+        price: fav.car.price,
+        year: fav.car.year,
+        addedDate: new Date(fav.createdAt).toLocaleDateString(),
+        specifications: {
+          transmission: fav.car.vehicleTransmission || 'N/A',
+          fuelType: fav.car.fuelType || 'N/A',
+          mileage: fav.car.mileage || 'N/A',
+          engine: fav.car.vehicleEngine || 'N/A'
+        }
+      }))
+
+      console.log('Transformed favorites:', transformedFavorites)
+      setFavorites(transformedFavorites)
+      setError(null)
     } catch (error) {
       console.error('Error in fetchFavorites:', error)
       setError(error instanceof Error ? error.message : 'Failed to load favorites')
@@ -173,6 +162,7 @@ export default function Favorites() {
   }
 
   useEffect(() => {
+    console.log('Auth state changed:', { isAuthenticated, authLoading })
     if (!authLoading) {
       fetchFavorites()
     }
@@ -403,6 +393,18 @@ export default function Favorites() {
     </DropdownMenu>
   )
 
+  if (authLoading || isLoading) {
+    return <div>Loading...</div>
+  }
+
+  if (error) {
+    return <div>Error: {error}</div>
+  }
+
+  if (!isAuthenticated) {
+    return null // Router will handle redirect
+  }
+
   return (
     <div className="p-6">
       <div className="flex flex-col space-y-4 mb-6">
@@ -467,8 +469,9 @@ export default function Favorites() {
       </div>
 
       {isLoading ? (
-        <div className="flex justify-center items-center py-12">
+        <div className="flex justify-center items-center min-h-[400px]">
           <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
+          <span className="ml-3">Loading favorites...</span>
         </div>
       ) : error ? (
         <div className="text-center py-12">

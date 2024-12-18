@@ -8,20 +8,26 @@ export async function GET() {
   try {
     const cookieStore = cookies();
     const token = cookieStore.get('token');
+    const customerToken = cookieStore.get('customer_token');
 
-    console.log('Check route - Token:', token);
+    console.log('Available cookies:', cookieStore.getAll());
+    console.log('Check route - Token:', token?.value);
+    console.log('Check route - Customer Token:', customerToken?.value);
 
-    if (!token) {
+    // Try customer_token first, then fall back to token
+    const tokenToUse = customerToken || token;
+
+    if (!tokenToUse) {
       console.log('No token found');
-      return NextResponse.json({ isAuthenticated: false }, { status: 401 });
+      return NextResponse.json({ authenticated: false, user: null });
     }
 
-    const decoded = await verifyToken(token.value);
+    const decoded = await verifyToken(tokenToUse.value);
     console.log('Decoded token:', decoded);
     
-    if (!decoded || decoded.type !== 'customer') {
-      console.log('Invalid token or not a customer');
-      return NextResponse.json({ isAuthenticated: false }, { status: 401 });
+    if (!decoded || !decoded.userId) {
+      console.log('Invalid token or missing userId');
+      return NextResponse.json({ authenticated: false, user: null });
     }
 
     await dbConnect();
@@ -30,13 +36,13 @@ export async function GET() {
 
     if (!user) {
       console.log('No user found');
-      return NextResponse.json({ isAuthenticated: false }, { status: 401 });
+      return NextResponse.json({ authenticated: false, user: null });
     }
 
     return NextResponse.json({ 
-      isAuthenticated: true, 
+      authenticated: true, 
       user: {
-        id: user._id,
+        id: user._id.toString(),
         email: user.email,
         name: user.name,
         type: 'customer'
@@ -45,9 +51,6 @@ export async function GET() {
 
   } catch (error) {
     console.error('Auth check error:', error);
-    return NextResponse.json(
-      { isAuthenticated: false, error: error.message },
-      { status: 401 }
-    );
+    return NextResponse.json({ authenticated: false, user: null });
   }
 } 

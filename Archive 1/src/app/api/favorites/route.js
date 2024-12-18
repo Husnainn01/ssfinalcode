@@ -1,68 +1,94 @@
 import { cookies } from 'next/headers'
-import { verifyToken } from '@/lib/jwt'
+import { verifyCustomerAuth } from '@/lib/customerAuth'
 import { NextResponse } from "next/server"
 import dbConnect from '@/lib/dbConnect'
 import Favorite from '@/models/Favorite'
+import CarListing from '@/models/Car'
 import mongoose from 'mongoose'
-
-async function getUserFromToken() {
-  try {
-    const cookieStore = cookies()
-    const token = cookieStore.get('token')
-    
-    if (!token) {
-      console.log('No token found in cookies');
-      return null;
-    }
-
-    console.log('Token found:', token.name);
-    const payload = await verifyToken(token.value)
-    
-    if (!payload) {
-      console.log('Invalid token');
-      return null;
-    }
-    
-    console.log('Token payload:', payload);
-    return payload;
-  } catch (error) {
-    console.error('Error getting user from token:', error);
-    return null;
-  }
-}
 
 export async function GET() {
   try {
-    const user = await getUserFromToken()
+    console.log('Starting GET /api/favorites')
     
-    if (!user) {
+    const auth = await verifyCustomerAuth()
+    console.log('Auth result:', auth)
+    
+    if (!auth.success) {
+      console.log('Auth failed:', auth)
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 })
     }
 
+    console.log('Connecting to database...')
     await dbConnect()
-    const favorites = await Favorite.find({ userId: user.id })
-      .lean()
-      .exec()
+    
+    console.log('Available models:', Object.keys(mongoose.models))
+    
+    console.log('Finding favorites for user:', auth.user.id)
+    let favorites
+    try {
+      favorites = await Favorite.find({ userId: auth.user.id })
+        .populate({
+          path: 'carId',
+          model: CarListing
+        })
+        .lean()
+        .exec()
+    } catch (dbError) {
+      console.error('Database query error:', dbError)
+      throw new Error(`Database query failed: ${dbError.message}`)
+    }
 
-    // Transform the response to include string IDs
-    const transformedFavorites = favorites.map(fav => ({
-      ...fav,
-      carId: fav.carId.toString(),
-      id: fav._id.toString()
-    }))
+    console.log('Raw favorites from DB:', JSON.stringify(favorites, null, 2))
 
+    if (!favorites || favorites.length === 0) {
+      console.log('No favorites found')
+      return NextResponse.json([])
+    }
+
+    // Transform the response to include string IDs and car details
+    const transformedFavorites = favorites.map(fav => {
+      try {
+        if (!fav.carId) {
+          console.log('Warning: Favorite without car details:', fav)
+          return null
+        }
+        
+        return {
+          ...fav,
+          id: fav._id.toString(),
+          carId: fav.carId._id.toString(),
+          car: {
+            ...fav.carId,
+            id: fav.carId._id.toString()
+          }
+        }
+      } catch (transformError) {
+        console.error('Error transforming favorite:', transformError, fav)
+        return null
+      }
+    }).filter(Boolean)
+
+    console.log('Successfully transformed favorites:', transformedFavorites)
     return NextResponse.json(transformedFavorites)
   } catch (error) {
-    console.error("GET /api/favorites error:", error)
-    return NextResponse.json({ error: "Internal server error" }, { status: 500 })
+    console.error("GET /api/favorites error:", {
+      message: error.message,
+      stack: error.stack,
+      name: error.name
+    })
+    return NextResponse.json({ 
+      error: "Internal server error",
+      details: error.message,
+      type: error.name
+    }, { status: 500 })
   }
 }
 
 export async function POST(req) {
   try {
-    const user = await getUserFromToken()
+    const auth = await verifyCustomerAuth()
     
-    if (!user) {
+    if (!auth.success) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 })
     }
 
@@ -74,29 +100,44 @@ export async function POST(req) {
 
     await dbConnect()
     
+    // Check if already favorited
     const existingFavorite = await Favorite.findOne({
-      userId: user.id,
+      userId: auth.user.id,
       carId: new mongoose.Types.ObjectId(carId)
-    })
+    }).populate('carId')
 
     if (existingFavorite) {
       return NextResponse.json({ 
         error: "Car already in favorites",
-        favorite: existingFavorite 
+        favorite: {
+          ...existingFavorite.toObject(),
+          id: existingFavorite._id.toString(),
+          carId: existingFavorite.carId._id.toString(),
+          car: {
+            ...existingFavorite.carId.toObject(),
+            id: existingFavorite.carId._id.toString()
+          }
+        }
       }, { status: 400 })
     }
     
     const favorite = await Favorite.create({
-      userId: user.id,
+      userId: auth.user.id,
       carId: new mongoose.Types.ObjectId(carId)
     })
+
+    const populatedFavorite = await favorite.populate('carId')
 
     return NextResponse.json({ 
       success: true, 
       favorite: {
-        ...favorite.toObject(),
-        carId: favorite.carId.toString(),
-        id: favorite._id.toString()
+        ...populatedFavorite.toObject(),
+        id: populatedFavorite._id.toString(),
+        carId: populatedFavorite.carId._id.toString(),
+        car: {
+          ...populatedFavorite.carId.toObject(),
+          id: populatedFavorite.carId._id.toString()
+        }
       }
     })
   } catch (error) {
@@ -107,9 +148,9 @@ export async function POST(req) {
 
 export async function DELETE(req) {
   try {
-    const user = await getUserFromToken()
+    const auth = await verifyCustomerAuth()
     
-    if (!user) {
+    if (!auth.success) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 })
     }
 
@@ -122,7 +163,7 @@ export async function DELETE(req) {
     await dbConnect()
     
     await Favorite.findOneAndDelete({
-      userId: user.id,
+      userId: auth.user.id,
       carId: new mongoose.Types.ObjectId(carId)
     })
 

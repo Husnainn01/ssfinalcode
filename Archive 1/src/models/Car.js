@@ -35,8 +35,10 @@ const CarSchema = new mongoose.Schema({
   cylinders: String,
   visibility: String
 }, {
-  collection: 'CarListing' // Specify the correct collection name
+  collection: 'CarListing'
 });
 
-const Car = mongoose.models.Car || mongoose.model('Car', CarSchema);
-export default Car; 
+// Check if the model exists before creating it
+const CarListing = mongoose.models.CarListing || mongoose.model('CarListing', CarSchema);
+export default CarListing;  // Export as CarListing instead of Car
+  
