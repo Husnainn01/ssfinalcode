@@ -13,7 +13,7 @@ import {
 } from "@/components/ui/dropdown-menu"
 import { motion, AnimatePresence } from "framer-motion"
 import { cn } from "@/lib/utils"
-import { useAuth } from '@/hooks/useAuth'
+import { useCustomerAuth } from '@/hooks/useCustomerAuth'
 
 interface NavbarProps {
   toggleSidebar: () => void
@@ -101,7 +101,7 @@ const initialNotifications: Notification[] = [
 export function Navbar({ toggleSidebar }: NavbarProps) {
   const router = useRouter()
   const { toast } = useToast()
-  const { user, logout } = useAuth()
+  const { user, isAuthenticated, isLoading } = useCustomerAuth()
   const [notifications, setNotifications] = useState<Notification[]>(initialNotifications)
   const [isOpen, setIsOpen] = useState(false)
   const notificationSound = new Audio("/sounds/notification.mp3")
@@ -145,8 +145,16 @@ export function Navbar({ toggleSidebar }: NavbarProps) {
 
   const handleLogout = async () => {
     try {
-      await logout()
-      window.location.href = '/'
+      const response = await fetch('/api/auth/logout', {
+        method: 'POST',
+        credentials: 'include'
+      })
+      
+      if (response.ok) {
+        router.push('/auth/login')
+      } else {
+        throw new Error('Logout failed')
+      }
     } catch (error) {
       toast({
         title: "Error",

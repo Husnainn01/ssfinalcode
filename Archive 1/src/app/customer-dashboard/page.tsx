@@ -16,8 +16,7 @@ import { Button } from "@/components/ui/button"
 import { useToast } from "@/components/ui/use-toast"
 import { RecentOrders } from "@/components/customer-dashboard/components/RecentOrders"
 import { ShipmentTracking } from "@/components/customer-dashboard/components/ShipmentTracking"
-import { useAuth } from '@/hooks/useAuth'
-import { AuthDebug } from "@/components/AuthDebug"
+import { useCustomerAuth } from '@/hooks/useCustomerAuth'
 
 const containerVariants = {
   hidden: { opacity: 0 },
@@ -69,7 +68,7 @@ const buttonVariants = {
 export default function CustomerDashboard() {
   const router = useRouter()
   const { toast } = useToast()
-  const { user, isAuthenticated, isLoading } = useAuth()
+  const { user } = useCustomerAuth()
   const [mounted, setMounted] = useState(false)
   const [favoritesCount, setFavoritesCount] = useState(0)
 
@@ -78,20 +77,20 @@ export default function CustomerDashboard() {
     
     const fetchFavorites = async () => {
       try {
-        const response = await fetch('/api/favorites', {
+        const response = await fetch('/api/favorites/count', {
           credentials: 'include'
         })
-        const data = await response.json()
-        setFavoritesCount(data.length)
+        if (response.ok) {
+          const data = await response.json()
+          setFavoritesCount(data.count)
+        }
       } catch (error) {
         console.error("Error fetching favorites:", error)
       }
     }
 
-    if (isAuthenticated) {
-      fetchFavorites()
-    }
-  }, [isAuthenticated])
+    fetchFavorites()
+  }, [])
 
   const stats = [
     {
@@ -124,24 +123,8 @@ export default function CustomerDashboard() {
     }
   ]
 
-  if (!mounted || isLoading) {
-    return (
-      <div className="flex items-center justify-center min-h-screen">
-        <motion.div
-          animate={{
-            scale: [1, 1.2, 1],
-            rotate: [0, 180, 360],
-            borderRadius: ["50%", "25%", "50%"]
-          }}
-          transition={{
-            duration: 2,
-            repeat: Infinity,
-            ease: "easeInOut"
-          }}
-          className="w-8 h-8 border-4 border-blue-600 rounded-full border-t-transparent"
-        />
-      </div>
-    )
+  if (!mounted) {
+    return <div>Loading...</div>
   }
 
   return (
@@ -269,8 +252,6 @@ export default function CustomerDashboard() {
           <ShipmentTracking />
         </motion.div>
       </motion.div>
-
-      <AuthDebug />
     </motion.div>
   )
 }

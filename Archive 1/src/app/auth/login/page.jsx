@@ -10,7 +10,7 @@ import countries from '@/data/countries.json'
 import { useRouter } from 'next/navigation'
 import { toast } from "@/components/ui/use-toast"
 import { Toaster } from "@/components/ui/toaster"
-import { useAuth } from '@/hooks/useAuth'
+import { useCustomerAuth } from '@/hooks/useCustomerAuth'
 import RegisterForm from '../components/RegisterForm'
 
 import { Button } from "@/components/ui/button"
@@ -78,7 +78,7 @@ const getPasswordStrength = (password) => {
 
 export default function AuthPage() {
   const router = useRouter()
-  const { isAuthenticated, isLoading: authLoading } = useAuth()
+  const { isAuthenticated, isLoading: authLoading } = useCustomerAuth()
   const [isLogin, setIsLogin] = useState(true)
   const [isLoading, setIsLoading] = useState(false)
 
@@ -98,12 +98,12 @@ export default function AuthPage() {
     color: 'bg-red-500'
   });
 
-  // Check if user is already authenticated
+  // Add this useEffect to handle redirect when authenticated
   useEffect(() => {
     if (isAuthenticated && !authLoading) {
-      router.replace('/customer-dashboard');
+      router.push('/customer-dashboard')
     }
-  }, [isAuthenticated, authLoading, router]);
+  }, [isAuthenticated, authLoading, router])
 
   const onLoginSubmit = async (values) => {
     setIsLoading(true);
@@ -126,7 +126,9 @@ export default function AuthPage() {
         description: "Login successful!",
       });
 
-      router.push('/customer-dashboard');
+      // Force a hard redirect to customer dashboard
+      window.location.href = '/customer-dashboard';
+      
     } catch (error) {
       toast({
         variant: "destructive",
@@ -239,6 +241,16 @@ export default function AuthPage() {
       className="font-inter"
     />
   )
+
+  // If still checking auth status, show loading
+  if (authLoading) {
+    return <div>Loading...</div>
+  }
+
+  // If already authenticated, don't render the form
+  if (isAuthenticated) {
+    return null;
+  }
 
   return (
     <LayoutGroup>

@@ -1,6 +1,7 @@
 'use client'
 
 import * as React from 'react'
+import { useState, useEffect } from 'react'
 import { Search, ChevronDown, Heart, User, LogOut, Clock } from 'lucide-react'
 import Link from 'next/link'
 import { useCustomerAuth } from '@/hooks/useCustomerAuth'
@@ -31,6 +32,31 @@ export default function NavigationHeader() {
   const router = useRouter()
   const { japanTime, isLoading: timeLoading } = useJapanTime()
   const { totalCars, carsAddedToday, isLoading: carsLoading } = useCarStats()
+  const [favoritesCount, setFavoritesCount] = useState(0)
+
+  useEffect(() => {
+    const fetchFavoritesCount = async () => {
+      try {
+        const response = await fetch('/api/favorites/count', {
+          credentials: 'include'
+        });
+        
+        if (response.ok) {
+          const data = await response.json();
+          setFavoritesCount(data.count);
+        }
+      } catch (error) {
+        console.error('Error fetching favorites count:', error);
+        setFavoritesCount(0);
+      }
+    };
+
+    if (isAuthenticated) {
+      fetchFavoritesCount();
+    } else {
+      setFavoritesCount(0);
+    }
+  }, [isAuthenticated]);
 
   const handleLogout = async () => {
     try {
@@ -40,6 +66,7 @@ export default function NavigationHeader() {
       });
 
       if (response.ok) {
+        document.cookie = 'token=; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT';
         document.cookie = 'customer_token=; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT';
         router.push('/auth/login');
       }
@@ -131,7 +158,7 @@ export default function NavigationHeader() {
                 <Heart className="mr-2 h-5 w-5" />
                 <span>Favorites</span>
                 <span className="ml-2 rounded-full bg-theme-secondary px-2 py-0.5 text-xs">
-                  {favoritesCount}
+                  {favoritesCount || 0}
                 </span>
               </Button>
               

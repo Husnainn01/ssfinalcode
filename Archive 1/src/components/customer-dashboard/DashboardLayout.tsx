@@ -1,41 +1,28 @@
 "use client"
 
-import { useState, useEffect } from "react"
-import { Sidebar } from "./Sidebar"
+import { useState } from "react"
 import { Navbar } from "./Navbar"
-import { cn } from "@/lib/utils"
+import { Sidebar } from "./Sidebar"
 
 export default function DashboardLayout({
   children,
 }: {
   children: React.ReactNode
 }) {
-  const [mounted, setMounted] = useState(false)
-  const [isSidebarOpen, setIsSidebarOpen] = useState(true)
-
-  useEffect(() => {
-    setMounted(true)
-  }, [])
-
-  if (!mounted) {
-    return null
-  }
+  const [sidebarOpen, setSidebarOpen] = useState(false)
 
   return (
-    <div className="min-h-screen bg-gray-50">
-      <Navbar toggleSidebar={() => setIsSidebarOpen(!isSidebarOpen)} />
-      <div className="pt-16 relative">
+    <div className="min-h-screen bg-gray-100">
+      <Navbar toggleSidebar={() => setSidebarOpen(!sidebarOpen)} />
+      <div className="flex pt-16">
         <Sidebar 
-          isOpen={isSidebarOpen} 
-          setIsOpen={setIsSidebarOpen}
+          isOpen={sidebarOpen} 
+          setIsOpen={setSidebarOpen}
         />
-        <main 
-          className={cn(
-            "min-h-[calc(100vh-4rem)] transition-all duration-300 ease-in-out p-8",
-            isSidebarOpen ? "ml-64" : "ml-16"
-          )}
-        >
-          {children}
+        <main className={`flex-1 transition-all duration-300 ease-in-out ${sidebarOpen ? 'ml-64' : 'ml-16'}`}>
+          <div className="p-6">
+            {children}
+          </div>
         </main>
       </div>
     </div>

@@ -13,11 +13,8 @@ export async function POST(req) {
       );
     }
 
-    // Generate a 6-digit verification code
-    const code = Math.floor(100000 + Math.random() * 900000).toString();
-
-    // Store the verification code in the database
-    await storeVerificationSession(email, code);
+    // Generate and store verification code
+    const code = await storeVerificationSession(email);
 
     // Send verification email
     await sendVerificationEmail({ email, code });

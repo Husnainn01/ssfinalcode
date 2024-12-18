@@ -1,25 +1,37 @@
 import { cookies } from 'next/headers';
 import jwt from 'jsonwebtoken';
-import CustomerUser from '@/lib/CustomerUser';
+import CustomerUser from './CustomerUser';
 import { connectDB } from './mongodb';
 
-export async function verifyCustomerAuth(request) {
+export async function verifyCustomerAuth() {
   try {
     await connectDB();
     const cookieStore = cookies();
-    const token = cookieStore.get('customer_token');
+    const token = cookieStore.get('token');
 
+    // Check for token existence
     if (!token) {
-      return { success: false };
+      console.log('No token found');
+      return { success: false, message: 'No token found' };
     }
 
+    // Verify the token
     const decoded = jwt.verify(token.value, process.env.JWT_SECRET);
+    
+    // Verify this is a customer token
+    if (decoded.type !== 'customer') {
+      console.log('Not a customer token');
+      return { success: false, message: 'Invalid token type' };
+    }
+
+    // Find the user
     const user = await CustomerUser.findById(decoded.userId)
       .select('-password')
       .lean();
 
     if (!user || user.status !== 'active') {
-      return { success: false };
+      console.log('User not found or inactive');
+      return { success: false, message: 'User not found or inactive' };
     }
 
     return {
@@ -28,12 +40,13 @@ export async function verifyCustomerAuth(request) {
         id: user._id.toString(),
         email: user.email,
         name: user.name,
-        lastName: user.lastName
+        lastName: user.lastName,
+        type: 'customer'
       }
     };
   } catch (error) {
     console.error('Customer auth verification error:', error);
-    return { success: false };
+    return { success: false, message: 'Authentication failed' };
   }
 }
 
@@ -45,6 +58,6 @@ export async function createCustomerToken(user) {
       type: 'customer'
     },
     process.env.JWT_SECRET,
-    { expiresIn: '24h' }
+    { expiresIn: '7d' }
   );
 } 

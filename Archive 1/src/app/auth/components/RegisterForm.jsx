@@ -265,16 +265,36 @@ export default function RegisterForm({ onSuccess }) {
         throw new Error(data.error || data.details || 'Registration failed');
       }
 
+      // Set success state
       setCurrentStep(steps.SUCCESS);
       toast({
         title: "Success",
         description: "Registration successful! Redirecting to dashboard...",
       });
       
-      // Redirect after success
+      // Call the onSuccess callback (which should trigger login state update)
+      if (onSuccess) {
+        onSuccess();
+      }
+
+      // Add a login request here to get the authentication token
+      const loginResponse = await fetch('/api/auth/user/login', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          email: values.email,
+          password: values.password
+        })
+      });
+
+      if (!loginResponse.ok) {
+        throw new Error('Auto-login failed after registration');
+      }
+
+      // Redirect after ensuring login is successful
       setTimeout(() => {
         router.push('/customer-dashboard');
-      }, 2000);
+      }, 1500);
 
     } catch (error) {
       console.error('Registration error:', error);

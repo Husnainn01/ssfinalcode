@@ -5,7 +5,8 @@ export async function POST() {
   try {
     const cookieStore = cookies()
     
-    // Clear the customer auth cookie specifically
+    // Clear both possible cookie names to ensure logout
+    cookieStore.delete('token')
     cookieStore.delete('customer_token')
 
     return NextResponse.json(
@@ -13,8 +14,11 @@ export async function POST() {
       {
         status: 200,
         headers: {
-          // Also set cookie clearing header for extra security
-          'Set-Cookie': 'customer_token=; Path=/; Expires=Thu, 01 Jan 1970 00:00:00 GMT; HttpOnly; Secure; SameSite=Lax'
+          // Clear both cookies in headers
+          'Set-Cookie': [
+            'token=; Path=/; Expires=Thu, 01 Jan 1970 00:00:00 GMT; HttpOnly; Secure; SameSite=Lax',
+            'customer_token=; Path=/; Expires=Thu, 01 Jan 1970 00:00:00 GMT; HttpOnly; Secure; SameSite=Lax'
+          ]
         }
       }
     )

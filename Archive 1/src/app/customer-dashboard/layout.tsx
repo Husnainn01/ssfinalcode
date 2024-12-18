@@ -10,8 +10,12 @@ export default async function CustomerDashboardLayout({
   const auth = await verifyCustomerAuth();
   
   if (!auth.success) {
-    redirect('/customer/login');
+    redirect('/auth/login');
   }
 
-  return <DashboardLayout>{children}</DashboardLayout>
+  return (
+    <DashboardLayout>
+      {children}
+    </DashboardLayout>
+  )
 }

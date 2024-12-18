@@ -2,7 +2,7 @@ import { NextResponse } from 'next/server';
 import CustomerUser from '@/lib/CustomerUser';
 import dbConnect from '@/lib/dbConnect';
 import { cookies } from 'next/headers';
-import { createToken } from '@/lib/jwt';
+import { createCustomerToken } from '@/lib/customerAuth';
 
 export async function POST(req) {
   try {
@@ -40,29 +40,29 @@ export async function POST(req) {
     user.lastLogin = new Date();
     await user.save();
 
-    // Create token with customer type
-    const token = await createToken({
-      userId: user._id.toString(),
-      email: user.email,
-      name: user.name,
-      type: 'customer' // Add type to distinguish from admin
-    });
+    // Create customer token
+    const token = await createCustomerToken(user);
 
-    // Set customer-specific cookie
-    cookies().set('customer_token', token, {
+    // Set both cookies to ensure compatibility
+    const cookieOptions = {
       httpOnly: true,
       secure: process.env.NODE_ENV === 'production',
       sameSite: 'lax',
       path: '/',
-      maxAge: 60 * 60 * 24 // 24 hours
-    });
+      maxAge: 24 * 60 * 60 // 24 hours
+    };
+
+    cookies().set('token', token, cookieOptions);
+    cookies().set('customer_token', token, cookieOptions);
 
     return NextResponse.json({
+      success: true,
       message: 'Login successful',
       user: {
         id: user._id,
         email: user.email,
-        name: user.name
+        name: user.name,
+        type: 'customer'
       }
     });
 

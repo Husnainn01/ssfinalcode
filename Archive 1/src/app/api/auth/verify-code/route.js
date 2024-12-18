@@ -1,5 +1,5 @@
 import { NextResponse } from 'next/server';
-import { getVerificationSession, clearVerificationSession } from '@/lib/server-utils';
+import { verifyCode } from '@/lib/server-utils';
 
 export async function POST(req) {
   try {
@@ -12,26 +12,8 @@ export async function POST(req) {
       );
     }
 
-    // Get the stored verification session
-    const session = await getVerificationSession(email);
-
-    if (!session) {
-      return NextResponse.json(
-        { error: 'Verification session not found or expired' },
-        { status: 400 }
-      );
-    }
-
-    // Check if the code matches
-    if (session.code !== code) {
-      return NextResponse.json(
-        { error: 'Invalid verification code' },
-        { status: 400 }
-      );
-    }
-
-    // Clear the verification session after successful verification
-    await clearVerificationSession(email);
+    // Verify the code
+    await verifyCode(email, code);
 
     return NextResponse.json(
       { message: 'Email verified successfully' },
@@ -40,8 +22,8 @@ export async function POST(req) {
   } catch (error) {
     console.error('Error in verify-code:', error);
     return NextResponse.json(
-      { error: 'Failed to verify code' },
-      { status: 500 }
+      { error: error.message || 'Failed to verify code' },
+      { status: 400 }
     );
   }
 } 
