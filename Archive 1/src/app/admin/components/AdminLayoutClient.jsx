@@ -1,99 +1,84 @@
 "use client"
 import { useEffect, useState } from 'react'
 import { useRouter, usePathname } from 'next/navigation'
-import AdminMenu from "../components/template/adminMenu"
-import AdminHeader from "../components/template/header"
-import { Providers } from "../providers"
-import { checkAuth } from "@/utils/auth"
+import AdminMenu from "./template/adminMenu"
+import AdminHeader from "./template/header"
 import ErrorBoundary from "@/components/ErrorBoundary"
-import { useAuth } from "@/hooks/useAuth";
+import { useAuth } from "@/hooks/useAuth"
+import { checkAdminAuth } from "@/utils/auth"
 
 export default function AdminLayoutClient({ children }) {
   const pathname = usePathname();
   const router = useRouter();
   const [isLoading, setIsLoading] = useState(true);
-  const [error, setError] = useState(null);
   const isLoginPage = pathname === '/admin/login';
-  const { isAuthenticated, isLoading: authLoading, user } = useAuth();
+  const auth = useAuth();
 
   useEffect(() => {
-    console.log("Current pathname:", pathname);
-    console.log("Is login page:", isLoginPage);
-
-    const verifyAuth = async () => {
-      try {
-        console.log("Verifying auth...");
-        const authResult = await checkAuth();
-        console.log("Auth result:", authResult);
-        
-        if (!authResult.isAuthenticated && !isLoginPage) {
-          console.log("Not authenticated, redirecting to login");
-          router.replace('/admin/login');
-          return;
+    const verifyAdminAuth = async () => {
+      if (!auth.authChecked || auth.isAuthenticated) {
+        try {
+          const { isAuthenticated, user } = await checkAdminAuth();
+          
+          if (!isAuthenticated) {
+            auth.reset();
+            if (!isLoginPage) {
+              router.replace('/admin/login');
+            }
+          } else {
+            auth.setIsAuthenticated(true);
+            auth.setAuthChecked(true);
+            auth.setUser(user);
+          }
+        } catch (error) {
+          console.error('Admin verification failed:', error);
+          auth.reset();
+          if (!isLoginPage) {
+            router.replace('/admin/login');
+          }
+        } finally {
+          setIsLoading(false);
         }
-        console.log("Authentication successful");
-      } catch (error) {
-        console.error('Auth verification failed:', error);
-        setError(error.message);
-        if (!isLoginPage) {
-          router.replace('/admin/login');
-        }
-      } finally {
+      } else {
         setIsLoading(false);
       }
     };
 
-    verifyAuth();
-  }, [isLoginPage, router]);
+    verifyAdminAuth();
+  }, [pathname, auth.authChecked, auth.isAuthenticated]);
 
-  useEffect(() => {
-    console.log('AdminLayoutClient - Auth State:', {
-      isAuthenticated,
-      isLoading,
-      user,
-    });
-  }, [isAuthenticated, isLoading, user]);
-
-  if (error) {
+  if (isLoading) {
     return (
       <div className="flex items-center justify-center min-h-screen">
-        <div className="text-red-500">Error: {error}</div>
+        <div className="animate-spin rounded-full h-32 w-32 border-t-2 border-b-2 border-primary"></div>
       </div>
     );
   }
 
-  if (isLoading || authLoading) {
-    return (
-      <div className="flex items-center justify-center min-h-screen">
-        <div>Loading...</div>
-      </div>
-    );
+  // Only return children without layout for login page
+  if (isLoginPage) {
+    return children;
   }
 
-  if (!isAuthenticated && !isLoginPage) {
-    console.log('User not authenticated');
+  // Return null for unauthenticated users on non-login pages
+  if (!auth.isAuthenticated && !isLoginPage) {
     return null;
   }
 
-  if (isLoginPage) {
-    return <div className="min-h-screen bg-gray-100">{children}</div>;
-  }
-
+  // For authenticated pages, render with admin layout
   return (
-    <Providers>
-      <div className="min-h-screen bg-gray-100">
-        <AdminHeader />
-        <div className="flex">
-          <aside className="fixed left-0 top-16 w-64 h-[calc(100vh-4rem)] bg-gray-900 overflow-y-auto">
-            <AdminMenu />
-          </aside>
-          <main className="flex-1 ml-64 p-6 bg-gray-50">
-            <ErrorBoundary>
-              {children}
-            </ErrorBoundary>
-          </main>
-        </div>
+    <div className="min-h-screen bg-gray-100">
+      <AdminHeader />
+      <div className="flex">
+        <aside className="fixed left-0 top-16 w-64 h-[calc(100vh-4rem)] bg-gray-900 overflow-y-auto">
+          <AdminMenu />
+        </aside>
+        <main className="flex-1 ml-64 p-6 bg-gray-50">
+          <ErrorBoundary>
+            {children}
+          </ErrorBoundary>
+        </main>
       </div>
-    </Providers>
+    </div>
   );
 } 

@@ -7,15 +7,23 @@ export default async function CustomerDashboardLayout({
 }: {
   children: React.ReactNode
 }) {
-  const auth = await verifyCustomerAuth();
-  
-  if (!auth.success) {
+  try {
+    const auth = await verifyCustomerAuth();
+    
+    console.log('Customer auth result:', auth); // Debug log
+    
+    if (!auth.success) {
+      console.log('Auth failed, redirecting to login'); // Debug log
+      redirect('/auth/login');
+    }
+
+    return (
+      <DashboardLayout>
+        {children}
+      </DashboardLayout>
+    )
+  } catch (error) {
+    console.error('Layout error:', error); // Debug log
     redirect('/auth/login');
   }
-
-  return (
-    <DashboardLayout>
-      {children}
-    </DashboardLayout>
-  )
 }

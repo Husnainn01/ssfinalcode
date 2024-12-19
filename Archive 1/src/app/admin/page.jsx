@@ -1,42 +1,33 @@
 "use client"
-import { useEffect, useState } from 'react'
+import { useEffect } from 'react'
 import { useRouter } from 'next/navigation'
-import { checkAuth } from "@/utils/auth";
-// import { adminMetadata } from '../metadata'
+import { checkAuth } from "@/utils/auth"
 
 export default function AdminPage() {
   const router = useRouter()
-  const [isLoading, setIsLoading] = useState(true)
 
   useEffect(() => {
     const init = async () => {
       try {
-        const isAuthenticated = await checkAuth();
-        console.log('Auth status:', isAuthenticated);
-        
+        const { isAuthenticated } = await checkAuth();
         if (isAuthenticated) {
           router.replace('/admin/dashboard');
         } else {
-          router.replace('/login');
+          router.replace('/admin/login');
         }
       } catch (error) {
         console.error('Auth check failed:', error);
-        router.replace('/login');
-      } finally {
-        setIsLoading(false);
+        router.replace('/admin/login');
       }
-    }
+    };
 
     init();
-  }, [])
+  }, [router]);
 
-  if (!isLoading) {
-    return null;
-  }
-
+  // Return loading state or null
   return (
     <div className="flex items-center justify-center min-h-screen">
       <div className="animate-spin rounded-full h-32 w-32 border-t-2 border-b-2 border-primary"></div>
     </div>
-  )
+  );
 }

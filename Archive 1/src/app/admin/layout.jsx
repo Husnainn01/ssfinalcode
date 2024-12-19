@@ -1,8 +1,10 @@
 import AdminLayoutClient from './components/AdminLayoutClient'
-import { adminMetadata as metadata } from '../metadata'
-
-export { metadata }
+import { Providers } from "./providers"
 
 export default function AdminLayout({ children }) {
-  return <AdminLayoutClient>{children}</AdminLayoutClient>
+  return (
+    <Providers>
+      <AdminLayoutClient>{children}</AdminLayoutClient>
+    </Providers>
+  );
 }

@@ -1,5 +1,7 @@
 import { NextResponse } from 'next/server';
-import { verifyToken } from '@/lib/jwt';
+import { jwtVerify } from 'jose';
+
+const SECRET_KEY = new TextEncoder().encode(process.env.JWT_SECRET);
 
 export async function customerMiddleware(req) {
   const path = req.nextUrl.pathname;
@@ -23,7 +25,7 @@ export async function customerMiddleware(req) {
         return NextResponse.redirect(new URL('/auth/login', req.url));
       }
 
-      const payload = await verifyToken(token);
+      const { payload } = await jwtVerify(token, SECRET_KEY);
       if (!payload || payload.type !== 'customer') {
         const response = NextResponse.redirect(new URL('/auth/login', req.url));
         response.cookies.delete('token');
@@ -32,6 +34,7 @@ export async function customerMiddleware(req) {
 
       return NextResponse.next();
     } catch (err) {
+      console.error('Customer auth error:', err);
       const response = NextResponse.redirect(new URL('/auth/login', req.url));
       response.cookies.delete('token');
       return response;

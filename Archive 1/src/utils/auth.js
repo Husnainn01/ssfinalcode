@@ -1,32 +1,27 @@
 import { jwtVerify } from 'jose';
 
-// Increase cache duration to reduce frequency of checks
-let authCache = {
-  isAuthenticated: null,
-  timestamp: null,
-  expiresIn: 5 * 60 * 1000 // Cache for 5 minutes
-};
+const SECRET_KEY = new TextEncoder().encode('chendanvasu');
 
-// Add debounce utility
-let authCheckPromise = null;
-const debounceTime = 1000; // 1 second
-
-export async function checkAuth() {
+export async function checkAdminAuth() {
   try {
     const response = await fetch('/api/admin/auth/check', {
-      method: 'GET',
       credentials: 'include',
+      headers: {
+        'Admin-Auth': 'true'
+      }
     });
+    
+    if (!response.ok) {
+      throw new Error('Auth check failed');
+    }
 
     const data = await response.json();
-    console.log('Auth check response:', data);
-
     return {
       isAuthenticated: data.authenticated,
       user: data.user
     };
   } catch (error) {
-    console.error('Auth check error:', error);
+    console.error('Admin auth check failed:', error);
     return {
       isAuthenticated: false,
       user: null
@@ -34,17 +29,17 @@ export async function checkAuth() {
   }
 }
 
-// Clear cache when needed (e.g., on logout)
-export function clearAuthCache() {
-  authCache = {
-    isAuthenticated: null,
-    timestamp: null,
-    expiresIn: 60 * 1000
-  };
+export function getAdminToken() {
+  const cookies = document.cookie.split(';');
+  const tokenCookie = cookies.find(cookie => cookie.trim().startsWith('admin_token='));
+  return tokenCookie ? tokenCookie.split('=')[1] : null;
 }
 
-export function getToken() {
-  const cookies = document.cookie.split(';');
-  const tokenCookie = cookies.find(cookie => cookie.trim().startsWith('auth_token='));
-  return tokenCookie ? tokenCookie.split('=')[1] : null;
+export async function verifyAdminToken(token) {
+  try {
+    const { payload } = await jwtVerify(token, SECRET_KEY);
+    return payload.role === 'admin';
+  } catch {
+    return false;
+  }
 }

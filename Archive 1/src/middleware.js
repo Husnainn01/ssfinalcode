@@ -1,68 +1,43 @@
 import { NextResponse } from 'next/server';
-import { verifyToken } from '@/lib/jwt';
+import { jwtVerify } from 'jose';
+import { customerMiddleware } from './middleware/customerMiddleware';
+
+const SECRET_KEY = new TextEncoder().encode('chendanvasu');
 
 export async function middleware(req) {
   const path = req.nextUrl.pathname;
-  
-  // Skip middleware for API routes
-  if (path.startsWith('/api/')) {
-    return NextResponse.next();
+
+  // Route customer-related paths to customerMiddleware
+  if (path.startsWith('/customer-dashboard') || path.startsWith('/auth/')) {
+    return customerMiddleware(req);
   }
 
-  // Handle admin routes
+  // Handle admin routes only
   if (path.startsWith('/admin')) {
-    // Skip middleware for admin login page
+    // Skip middleware for admin login
     if (path === '/admin/login') {
       return NextResponse.next();
     }
 
     try {
-      const token = req.cookies.get('auth_token')?.value;
+      const adminToken = req.cookies.get('admin_token')?.value;
       
-      if (!token) {
+      if (!adminToken) {
         return NextResponse.redirect(new URL('/admin/login', req.url));
       }
 
-      const payload = await verifyToken(token);
-      if (!payload || payload.type !== 'admin') {
+      const { payload } = await jwtVerify(adminToken, SECRET_KEY);
+      if (!payload || payload.role !== 'admin') {
         const response = NextResponse.redirect(new URL('/admin/login', req.url));
-        response.cookies.delete('auth_token');
+        response.cookies.delete('admin_token');
         return response;
       }
 
       return NextResponse.next();
     } catch (err) {
+      console.error('Admin auth error:', err);
       const response = NextResponse.redirect(new URL('/admin/login', req.url));
-      response.cookies.delete('auth_token');
-      return response;
-    }
-  }
-
-  // Handle customer dashboard routes
-  if (path.startsWith('/customer-dashboard')) {
-    // Skip middleware for customer login page
-    if (path === '/auth/login') {
-      return NextResponse.next();
-    }
-
-    try {
-      const token = req.cookies.get('customer_token')?.value;
-      
-      if (!token) {
-        return NextResponse.redirect(new URL('/auth/login', req.url));
-      }
-
-      const payload = await verifyToken(token);
-      if (!payload || payload.type !== 'customer') {
-        const response = NextResponse.redirect(new URL('/auth/login', req.url));
-        response.cookies.delete('customer_token');
-        return response;
-      }
-
-      return NextResponse.next();
-    } catch (err) {
-      const response = NextResponse.redirect(new URL('/auth/login', req.url));
-      response.cookies.delete('customer_token');
+      response.cookies.delete('admin_token');
       return response;
     }
   }
@@ -70,10 +45,11 @@ export async function middleware(req) {
   return NextResponse.next();
 }
 
+// Update matcher to handle both admin and customer routes
 export const config = {
   matcher: [
     '/admin/:path*',
     '/customer-dashboard/:path*',
-    '/auth/login'
+    '/auth/:path*'
   ]
 };

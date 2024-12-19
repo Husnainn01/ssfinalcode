@@ -68,7 +68,7 @@ const buttonVariants = {
 export default function CustomerDashboard() {
   const router = useRouter()
   const { toast } = useToast()
-  const { user } = useCustomerAuth()
+  const { user, isLoading } = useCustomerAuth()
   const [mounted, setMounted] = useState(false)
   const [favoritesCount, setFavoritesCount] = useState(0)
 
@@ -89,8 +89,35 @@ export default function CustomerDashboard() {
       }
     }
 
-    fetchFavorites()
-  }, [])
+    if (user) {
+      fetchFavorites()
+    }
+  }, [user])
+
+  if (!mounted || isLoading) {
+    return (
+      <div className="flex items-center justify-center min-h-screen">
+        <div className="animate-spin rounded-full h-32 w-32 border-t-2 border-b-2 border-primary"></div>
+      </div>
+    )
+  }
+
+  if (!user) {
+    return (
+      <div className="flex items-center justify-center min-h-screen">
+        <div className="text-center">
+          <h2 className="text-2xl font-bold">Access Denied</h2>
+          <p className="mt-2">Please log in to view your dashboard</p>
+          <Button 
+            className="mt-4"
+            onClick={() => router.push('/auth/login')}
+          >
+            Go to Login
+          </Button>
+        </div>
+      </div>
+    )
+  }
 
   const stats = [
     {
@@ -122,10 +149,6 @@ export default function CustomerDashboard() {
       href: '/customer-dashboard/orders'
     }
   ]
-
-  if (!mounted) {
-    return <div>Loading...</div>
-  }
 
   return (
     <motion.div 

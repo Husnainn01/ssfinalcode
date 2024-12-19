@@ -1,33 +1,17 @@
 "use client"
-import { useEffect, useState } from 'react';
-import { motion } from "framer-motion";
-import { Car, FileText, BarChart3 } from 'lucide-react';
-import { Button } from "@nextui-org/react";
-import { useRouter } from 'next/navigation';
+import { motion } from "framer-motion"
+import { Car, FileText, BarChart3 } from 'lucide-react'
+import { Button } from "@nextui-org/react"
+import { useRouter } from 'next/navigation'
+import { useAuth } from "@/hooks/useAuth"
 
 export default function DashboardPage() {
-  const router = useRouter();
-  const [mounted, setMounted] = useState(false);
+  const router = useRouter()
+  const auth = useAuth()
 
-  console.log("Initial render of DashboardPage");
-
-  useEffect(() => {
-    console.log("Dashboard Page useEffect starting");
-    setMounted(true);
-    
-    try {
-      console.log("Dashboard Page Mounted Successfully");
-    } catch (error) {
-      console.error("Error in Dashboard useEffect:", error);
-    }
-  }, []);
-
-  if (!mounted) {
-    console.log("Dashboard not yet mounted");
-    return <div>Loading...</div>;
+  if (!auth.isAuthenticated) {
+    return null;
   }
-
-  console.log("Dashboard Page Rendering Content");
 
   return (
     <motion.div 
@@ -99,5 +83,5 @@ export default function DashboardPage() {
         </div>
       </div>
     </motion.div>
-  );
+  )
 }
