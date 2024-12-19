@@ -1,10 +1,8 @@
 "use client";
-import React, { useState, useRef } from "react";
+import React, { useState, useRef, forwardRef, useImperativeHandle } from "react";
 import NextImage from "next/image";
-import { Button } from "@nextui-org/react";
-import { ZoomIn, ZoomOut } from "lucide-react";
 
-export default function ImageZoom({ image, alt, className, onZoomChange }) {
+const ImageZoom = forwardRef(({ image, alt, className, onZoomChange }, ref) => {
   const [scale, setScale] = useState(1);
   const [isDragging, setIsDragging] = useState(false);
   const [position, setPosition] = useState({ x: 0, y: 0 });
@@ -20,7 +18,9 @@ export default function ImageZoom({ image, alt, className, onZoomChange }) {
       }
       return finalScale;
     });
-    setPosition({ x: 0, y: 0 });
+    if (!zoomIn && scale <= 1.5) {
+      setPosition({ x: 0, y: 0 });
+    }
   };
 
   const handleMouseDown = (e) => {
@@ -55,10 +55,29 @@ export default function ImageZoom({ image, alt, className, onZoomChange }) {
     setIsDragging(false);
   };
 
+  const handleWheel = (e) => {
+    e.preventDefault();
+    const zoomIn = e.deltaY < 0;
+    handleZoom(zoomIn);
+  };
+
+  useImperativeHandle(ref, () => ({
+    zoomIn: () => handleZoom(true),
+    zoomOut: () => handleZoom(false),
+    resetZoom: () => {
+      setScale(1);
+      setPosition({ x: 0, y: 0 });
+      if (onZoomChange) {
+        onZoomChange(false);
+      }
+    }
+  }));
+
   return (
     <div 
       ref={containerRef}
       className="relative h-full w-full bg-gray-100 rounded-lg overflow-hidden"
+      onWheel={handleWheel}
     >
       <div
         className="w-full h-full"
@@ -83,4 +102,8 @@ export default function ImageZoom({ image, alt, className, onZoomChange }) {
       </div>
     </div>
   );
-}
+});
+
+ImageZoom.displayName = 'ImageZoom';
+
+export default ImageZoom;

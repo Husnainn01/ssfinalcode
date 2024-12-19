@@ -1,5 +1,5 @@
 "use client";
-import React, { useState } from "react";
+import React, { useState, useRef } from "react";
 import { Button } from "@nextui-org/react";
 import { ChevronLeft, ChevronRight, Download, Heart, ZoomIn, ZoomOut } from "lucide-react";
 import JSZip from "jszip";
@@ -15,6 +15,7 @@ export default function ImageSlider({ images, carId }) {
   const [isLoading, setIsLoading] = useState(false);
   const [isZoomed, setIsZoomed] = useState(false);
   const { toast } = useToast();
+  const zoomRef = useRef(null);
 
   const handleImageChange = (index) => {
     setCurrentImageIndex(index);
@@ -81,10 +82,19 @@ export default function ImageSlider({ images, carId }) {
     saveAs(content, "car-images.zip");
   };
 
+  const handleZoomToggle = () => {
+    if (isZoomed) {
+      zoomRef.current?.resetZoom();
+    } else {
+      zoomRef.current?.zoomIn();
+    }
+  };
+
   return (
     <div className="relative">
       <div className="relative h-[500px]">
         <ImageZoom 
+          ref={zoomRef}
           image={images[currentImageIndex]} 
           alt={`Car image ${currentImageIndex + 1}`}
           className="object-cover w-full h-full rounded-lg"
@@ -94,7 +104,7 @@ export default function ImageSlider({ images, carId }) {
         {/* Zoom Controls - Left side */}
         <div className="absolute top-4 left-4 flex flex-col gap-2 z-20">
           <button
-            onClick={() => setIsZoomed(!isZoomed)}
+            onClick={handleZoomToggle}
             className="p-2 rounded-full bg-black/50 text-white hover:bg-black/70 transition-all duration-200"
           >
             {isZoomed ? (
