@@ -48,11 +48,11 @@ const menuItems = [
     label: "My Orders", 
     href: "/customer-dashboard/orders" 
   },
-  { 
-    icon: FileText, 
-    label: "Shipping Docs", 
-    href: "/customer-dashboard/documents" 
-  },
+  // { 
+  //   icon: FileText, 
+  //   label: "Shipping Docs", 
+  //   href: "/customer-dashboard/documents" 
+  // },
   { 
     icon: FileText, 
     label: "Invoices & Documents", 

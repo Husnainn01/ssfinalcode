@@ -203,8 +203,8 @@ export function Navbar({ toggleSidebar }: NavbarProps) {
                 height={60}
                 className="rounded-lg"
               />
-              <span className="text-xl font-semibold hidden sm:block">
-                Your Trusted Logistics Partner
+              <span className="text-xs font-semibold hidden sm:block">
+                Your's Trusted Logistics Solution
               </span>
             </div>
           </div>
