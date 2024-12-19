@@ -36,27 +36,26 @@ const menuItems = [
   { 
     icon: ShoppingBag, 
     label: "Create Order", 
-    href: "/customer-dashboard/create-order" 
+    href: "/customer-dashboard/create-order",
+    comingSoon: true
   },
   { 
     icon: Search, 
     label: "Track Shipment", 
-    href: "/customer-dashboard/track-shipment" 
+    href: "/customer-dashboard/track-shipment",
+    comingSoon: true
   },
   { 
     icon: Package, 
     label: "My Orders", 
-    href: "/customer-dashboard/orders" 
+    href: "/customer-dashboard/orders",
+    comingSoon: true
   },
-  // { 
-  //   icon: FileText, 
-  //   label: "Shipping Docs", 
-  //   href: "/customer-dashboard/documents" 
-  // },
   { 
     icon: FileText, 
     label: "Invoices & Documents", 
-    href: "/customer-dashboard/invoices" 
+    href: "/customer-dashboard/invoices",
+    comingSoon: true
   },
   { 
     icon: User, 
@@ -98,10 +97,24 @@ export function Sidebar({ isOpen, setIsOpen }: SidebarProps) {
                     )}
                   >
                     <Icon className="h-5 w-5 flex-shrink-0" />
-                    {isOpen && <span className="ml-3">{item.label}</span>}
+                    {isOpen && (
+                      <div className="flex items-center ml-3">
+                        <span>{item.label}</span>
+                        {item.comingSoon && (
+                          <span className="ml-2 text-xs px-1.5 py-0.5 bg-primary/10 text-primary rounded-full">
+                            Soon
+                          </span>
+                        )}
+                      </div>
+                    )}
                     {!isOpen && (
                       <div className="absolute left-full ml-2 px-2 py-1 bg-gray-900 text-white text-sm rounded-md opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap z-50">
                         {item.label}
+                        {item.comingSoon && (
+                          <span className="ml-1 text-xs px-1.5 py-0.5 bg-primary/20 text-primary-foreground rounded-full">
+                            Soon
+                          </span>
+                        )}
                       </div>
                     )}
                   </Link>
