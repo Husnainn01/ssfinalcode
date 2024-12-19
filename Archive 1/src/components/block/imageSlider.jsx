@@ -1,15 +1,20 @@
 "use client";
 import React, { useState } from "react";
 import { Button } from "@nextui-org/react";
-import { ChevronLeft, ChevronRight, Download } from "lucide-react";
+import { ChevronLeft, ChevronRight, Download, Heart, ZoomIn, ZoomOut } from "lucide-react";
 import JSZip from "jszip";
 import { saveAs } from "file-saver";
 import ImageZoom from "./ImageZoom";
 import NextImage from "next/image";
+import { useToast } from "@/components/ui/use-toast";
 
-export default function ImageSlider({ images }) {
+export default function ImageSlider({ images, carId }) {
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
   const [showThumbnails, setShowThumbnails] = useState(true);
+  const [isFavorite, setIsFavorite] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
+  const [isZoomed, setIsZoomed] = useState(false);
+  const { toast } = useToast();
 
   const handleImageChange = (index) => {
     setCurrentImageIndex(index);
@@ -21,6 +26,46 @@ export default function ImageSlider({ images }) {
 
   const handleNext = () => {
     setCurrentImageIndex((prev) => (prev === images.length - 1 ? 0 : prev + 1));
+  };
+
+  const toggleFavorite = async () => {
+    try {
+      setIsLoading(true);
+      const response = await fetch('/api/favorites/toggle', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ carId }),
+        credentials: 'include'
+      });
+
+      if (!response.ok) {
+        throw new Error('Failed to toggle favorite');
+      }
+
+      const data = await response.json();
+      setIsFavorite(data.isFavorited);
+      
+      toast({
+        title: data.isFavorited ? "Added to favorites" : "Removed from favorites",
+        description: data.isFavorited 
+          ? "This car has been added to your favorites list" 
+          : "This car has been removed from your favorites list",
+        duration: 3000,
+      });
+
+    } catch (error) {
+      console.error('Error toggling favorite:', error);
+      toast({
+        title: "Error",
+        description: "Please login to add favorites",
+        variant: "destructive",
+        duration: 3000,
+      });
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   const downloadImages = async () => {
@@ -38,12 +83,42 @@ export default function ImageSlider({ images }) {
 
   return (
     <div className="relative">
-      <div className="relative h-[300px]">
+      <div className="relative h-[500px]">
         <ImageZoom 
           image={images[currentImageIndex]} 
           alt={`Car image ${currentImageIndex + 1}`}
           className="object-cover w-full h-full rounded-lg"
+          onZoomChange={(zoomed) => setIsZoomed(zoomed)}
         />
+
+        {/* Zoom Controls - Left side */}
+        <div className="absolute top-4 left-4 flex flex-col gap-2 z-20">
+          <button
+            onClick={() => setIsZoomed(!isZoomed)}
+            className="p-2 rounded-full bg-black/50 text-white hover:bg-black/70 transition-all duration-200"
+          >
+            {isZoomed ? (
+              <ZoomOut className="h-6 w-6" />
+            ) : (
+              <ZoomIn className="h-6 w-6" />
+            )}
+          </button>
+        </div>
+
+        {/* Favorite Button - Right side */}
+        <button
+          onClick={toggleFavorite}
+          disabled={isLoading}
+          className={`absolute top-4 right-4 p-2 rounded-full z-20 transition-all duration-200 ${
+            isFavorite 
+              ? 'bg-red-500 text-white hover:bg-red-600' 
+              : 'bg-black/50 text-white hover:bg-black/70'
+          }`}
+        >
+          <Heart 
+            className={`h-6 w-6 ${isFavorite ? 'fill-current' : ''}`} 
+          />
+        </button>
 
         {/* Image Counter */}
         <div className="absolute bottom-4 right-4 bg-black/70 text-white px-3 py-1 rounded-full text-sm z-20">

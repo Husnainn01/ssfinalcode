@@ -4,7 +4,7 @@ import NextImage from "next/image";
 import { Button } from "@nextui-org/react";
 import { ZoomIn, ZoomOut } from "lucide-react";
 
-export default function ImageZoom({ image, alt }) {
+export default function ImageZoom({ image, alt, className, onZoomChange }) {
   const [scale, setScale] = useState(1);
   const [isDragging, setIsDragging] = useState(false);
   const [position, setPosition] = useState({ x: 0, y: 0 });
@@ -14,7 +14,11 @@ export default function ImageZoom({ image, alt }) {
   const handleZoom = (zoomIn) => {
     setScale(prev => {
       const newScale = zoomIn ? prev + 0.5 : prev - 0.5;
-      return Math.min(Math.max(newScale, 1), 3);
+      const finalScale = Math.min(Math.max(newScale, 1), 3);
+      if (onZoomChange) {
+        onZoomChange(finalScale > 1);
+      }
+      return finalScale;
     });
     setPosition({ x: 0, y: 0 });
   };
@@ -56,29 +60,6 @@ export default function ImageZoom({ image, alt }) {
       ref={containerRef}
       className="relative h-full w-full bg-gray-100 rounded-lg overflow-hidden"
     >
-      <div className="absolute top-4 right-4 z-20 flex gap-2">
-        <Button
-          isIconOnly
-          size="sm"
-          variant="flat"
-          className="bg-black/50 text-white"
-          onClick={() => handleZoom(true)}
-          disabled={scale >= 3}
-        >
-          <ZoomIn className="h-4 w-4" />
-        </Button>
-        <Button
-          isIconOnly
-          size="sm"
-          variant="flat"
-          className="bg-black/50 text-white"
-          onClick={() => handleZoom(false)}
-          disabled={scale <= 1}
-        >
-          <ZoomOut className="h-4 w-4" />
-        </Button>
-      </div>
-
       <div
         className="w-full h-full"
         onMouseDown={handleMouseDown}
@@ -94,7 +75,7 @@ export default function ImageZoom({ image, alt }) {
           src={image}
           alt={alt}
           fill
-          className="object-contain transition-transform duration-200"
+          className={`object-contain transition-transform duration-200 ${className || ''}`}
           style={{
             transform: `scale(${scale}) translate(${position.x}px, ${position.y}px)`,
           }}
