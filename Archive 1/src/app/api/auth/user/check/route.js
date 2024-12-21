@@ -10,32 +10,32 @@ export async function GET() {
     const token = cookieStore.get('token');
     const customerToken = cookieStore.get('customer_token');
 
-    console.log('Available cookies:', cookieStore.getAll());
-    console.log('Check route - Token:', token?.value);
-    console.log('Check route - Customer Token:', customerToken?.value);
+    // console.log('Available cookies:', cookieStore.getAll());
+    // console.log('Check route - Token:', token?.value);
+    // console.log('Check route - Customer Token:', customerToken?.value);
 
     // Try customer_token first, then fall back to token
     const tokenToUse = customerToken || token;
 
     if (!tokenToUse) {
-      console.log('No token found');
+    //   console.log('No token found');
       return NextResponse.json({ authenticated: false, user: null });
     }
 
     const decoded = await verifyToken(tokenToUse.value);
-    console.log('Decoded token:', decoded);
+    // console.log('Decoded token:', decoded);
     
     if (!decoded || !decoded.userId) {
-      console.log('Invalid token or missing userId');
+    //   console.log('Invalid token or missing userId');
       return NextResponse.json({ authenticated: false, user: null });
     }
 
     await dbConnect();
     const user = await CustomerUser.findById(decoded.userId).select('-password');
-    console.log('Found user:', user);
+    // console.log('Found user:', user);
 
     if (!user) {
-      console.log('No user found');
+    //   console.log('No user found');
       return NextResponse.json({ authenticated: false, user: null });
     }
 
@@ -50,7 +50,7 @@ export async function GET() {
     });
 
   } catch (error) {
-    console.error('Auth check error:', error);
+    // console.error('Auth check error:', error);
     return NextResponse.json({ authenticated: false, user: null });
   }
 } 

@@ -60,7 +60,8 @@ const menuItems = [
   { 
     icon: User, 
     label: "Profile", 
-    href: "/customer-dashboard/profile" 
+    href: "/customer-dashboard/profile",
+    comingSoon: true
   },
   { 
     icon: Settings, 

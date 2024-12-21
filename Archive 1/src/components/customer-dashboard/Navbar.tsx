@@ -1,6 +1,6 @@
 "use client"
 
-import { useState } from "react"
+import { useState, useEffect } from "react"
 import { useRouter } from "next/navigation"
 import { Bell, User, LogOut, Menu, CheckCircle, Trash2, ExternalLink, ChevronDown, ChevronUp } from "lucide-react"
 import { useToast } from "@/components/ui/use-toast"
@@ -104,8 +104,15 @@ export function Navbar({ toggleSidebar }: NavbarProps) {
   const { user, isAuthenticated, isLoading } = useCustomerAuth()
   const [notifications, setNotifications] = useState<Notification[]>(initialNotifications)
   const [isOpen, setIsOpen] = useState(false)
-  const notificationSound = new Audio("/sounds/notification.mp3")
+  const [notificationSound, setNotificationSound] = useState<HTMLAudioElement | null>(null)
   const [expandedNotification, setExpandedNotification] = useState<number | null>(null)
+
+  useEffect(() => {
+    // Initialize Audio object on client side only
+    if (typeof window !== 'undefined') {
+      setNotificationSound(new Audio("/sounds/notification.mp3"))
+    }
+  }, [])
 
   const unreadCount = notifications.filter(n => !n.isRead).length
 
@@ -145,17 +152,48 @@ export function Navbar({ toggleSidebar }: NavbarProps) {
 
   const handleLogout = async () => {
     try {
-      const response = await fetch('/api/auth/logout', {
-        method: 'POST',
-        credentials: 'include'
-      })
-      
-      if (response.ok) {
-        router.push('/auth/login')
-      } else {
-        throw new Error('Logout failed')
+      // First, clear all client-side cookies
+      if (typeof window !== 'undefined') {
+        document.cookie.split(';').forEach(cookie => {
+          document.cookie = cookie
+            .replace(/^ +/, '')
+            .replace(/=.*/, `=;expires=${new Date().toUTCString()};path=/`)
+        })
       }
+
+      const response = await fetch('/api/auth/user/logout', {
+        method: 'POST',
+        credentials: 'include',
+        headers: {
+          'Content-Type': 'application/json'
+        }
+      })
+
+      const data = await response.json()
+
+      if (!response.ok) {
+        throw new Error(data.error || 'Logout failed')
+      }
+
+      // Clear any local storage or session storage data
+      localStorage.clear()
+      sessionStorage.clear()
+
+      // Show success message
+      toast({
+        title: "Success",
+        description: "Logged out successfully",
+      })
+
+      // Add a small delay before redirect
+      await new Promise(resolve => setTimeout(resolve, 500))
+      
+      // Redirect to login page
+      router.push('/auth/login')
+      router.refresh()
+
     } catch (error) {
+      console.error('Logout error:', error)
       toast({
         title: "Error",
         description: "Failed to logout. Please try again.",
@@ -165,9 +203,11 @@ export function Navbar({ toggleSidebar }: NavbarProps) {
   }
 
   const playNotificationSound = () => {
-    notificationSound.play().catch(error => {
-      console.log("Audio playback failed:", error)
-    })
+    if (notificationSound) {
+      notificationSound.play().catch(error => {
+        console.log('Error playing notification sound:', error)
+      })
+    }
   }
 
   const addNotification = (newNotification: Notification) => {

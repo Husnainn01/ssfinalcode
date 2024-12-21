@@ -8,22 +8,22 @@ import mongoose from 'mongoose'
 
 export async function GET() {
   try {
-    console.log('Starting GET /api/favorites')
+    // console.log('Starting GET /api/favorites')
     
     const auth = await verifyCustomerAuth()
-    console.log('Auth result:', auth)
+    // console.log('Auth result:', auth)
     
-    if (!auth.success) {
-      console.log('Auth failed:', auth)
-      return NextResponse.json({ error: "Unauthorized" }, { status: 401 })
-    }
+    // if (!auth.success) {
+    //   console.log('Auth failed:', auth)
+    //   return NextResponse.json({ error: "Unauthorized" }, { status: 401 })
+    // }
 
-    console.log('Connecting to database...')
+    // console.log('Connecting to database...')
     await dbConnect()
     
-    console.log('Available models:', Object.keys(mongoose.models))
+    // console.log('Available models:', Object.keys(mongoose.models))
     
-    console.log('Finding favorites for user:', auth.user.id)
+    // console.log('Finding favorites for user:', auth.user.id)
     let favorites
     try {
       favorites = await Favorite.find({ userId: auth.user.id })
@@ -34,14 +34,14 @@ export async function GET() {
         .lean()
         .exec()
     } catch (dbError) {
-      console.error('Database query error:', dbError)
+      // console.error('Database query error:', dbError)
       throw new Error(`Database query failed: ${dbError.message}`)
     }
 
-    console.log('Raw favorites from DB:', JSON.stringify(favorites, null, 2))
+    // console.log('Raw favorites from DB:', JSON.stringify(favorites, null, 2))
 
     if (!favorites || favorites.length === 0) {
-      console.log('No favorites found')
+      // console.log('No favorites found')
       return NextResponse.json([])
     }
 
@@ -49,7 +49,7 @@ export async function GET() {
     const transformedFavorites = favorites.map(fav => {
       try {
         if (!fav.carId) {
-          console.log('Warning: Favorite without car details:', fav)
+          // console.log('Warning: Favorite without car details:', fav)
           return null
         }
         
@@ -68,7 +68,7 @@ export async function GET() {
       }
     }).filter(Boolean)
 
-    console.log('Successfully transformed favorites:', transformedFavorites)
+    // console.log('Successfully transformed favorites:', transformedFavorites)
     return NextResponse.json(transformedFavorites)
   } catch (error) {
     console.error("GET /api/favorites error:", {

@@ -15,14 +15,14 @@ export async function verifyAuth(request) {
     await connectDB();
     const cookieStore = cookies();
     const token = cookieStore.get('admin_token');
-    console.log('Admin token:', token);
+    // console.log('Admin token:', token);
 
     if (!token) {
       return { success: false };
     }
 
     const decoded = jwt.verify(token.value, process.env.JWT_SECRET);
-    console.log('Decoded token:', decoded);
+    // console.log('Decoded token:', decoded);
 
     const user = await AdminUser.findById(decoded.userId)
       .select('-password')

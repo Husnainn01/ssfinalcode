@@ -1,6 +1,5 @@
 import { SignJWT, jwtVerify } from 'jose';
 
-// Create a consistent secret key
 const getSecretKey = () => {
   const secret = process.env.JWT_SECRET || 'chendanvasu';
   return new TextEncoder().encode(secret);
@@ -10,7 +9,7 @@ export async function createToken(payload) {
   try {
     const token = await new SignJWT(payload)
       .setProtectedHeader({ alg: 'HS256' })
-      .setExpirationTime('24h')
+      .setExpirationTime('7d')
       .sign(getSecretKey());
     return token;
   } catch (error) {
@@ -21,17 +20,15 @@ export async function createToken(payload) {
 
 export async function verifyToken(token) {
   try {
+    console.log('Verifying token:', token.substring(0, 20) + '...');
     const secretKey = getSecretKey();
-    console.log('Secret key length:', secretKey.length); // Debug line
     const { payload } = await jwtVerify(token, secretKey);
+    console.log('Token verified successfully:', payload);
     return payload;
   } catch (error) {
-    console.error('Token verification error details:', error);
+    console.error('Token verification error:', error);
     return null;
   }
 }
 
-// Export the secret key getter for consistency
-export function getJwtSecretKey() {
-  return getSecretKey();
-} 
+export { getSecretKey }; 

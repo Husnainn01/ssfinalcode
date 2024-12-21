@@ -9,7 +9,8 @@ import {
   Clock, 
   CheckCircle, 
   Truck,
-  Plus
+  Plus,
+  Construction
 } from "lucide-react"
 import { DashboardCard } from "@/components/customer-dashboard/DashboardCard"
 import { Button } from "@/components/ui/button"
@@ -129,23 +130,23 @@ export default function CustomerDashboard() {
     },
     {
       title: "Active Shipments",
-      value: "5",
+      value: "Coming Soon",
       icon: <Truck className="h-4 w-4 text-blue-500" />,
-      trend: { value: 12, label: "from last month" },
+      comingSoon: true,
       href: '/customer-dashboard/track-shipment'
     },
     {
       title: "Pending Orders",
-      value: "3",
+      value: "Coming Soon",
       icon: <Clock className="h-4 w-4 text-yellow-500" />,
-      trend: { value: -2, label: "from last month" },
+      comingSoon: true,
       href: '/customer-dashboard/orders'
     },
     {
       title: "Total Orders",
-      value: "28",
+      value: "Coming Soon",
       icon: <Package className="h-4 w-4 text-green-500" />,
-      trend: { value: 8, label: "from last month" },
+      comingSoon: true,
       href: '/customer-dashboard/orders'
     }
   ]
@@ -214,7 +215,7 @@ export default function CustomerDashboard() {
           >
             <DashboardCard
               {...card}
-              onClick={() => {
+              onClick={card.comingSoon ? undefined : () => {
                 router.push(card.href)
                 toast({
                   title: `Navigating to ${card.title}`,
@@ -233,16 +234,22 @@ export default function CustomerDashboard() {
       >
         <motion.div
           variants={itemVariants}
-          whileHover={{ 
-            y: -5,
-            transition: {
-              type: "spring",
-              stiffness: 300
-            }
-          }}
-          whileTap={{ scale: 0.99 }}
-          className="bg-white rounded-xl shadow-sm p-6 transition-all hover:shadow-md"
+          className="relative bg-white rounded-xl shadow-sm p-6 transition-all hover:shadow-md"
         >
+          {/* Blur overlay */}
+          <div className="absolute inset-0 bg-white/80 backdrop-blur-sm rounded-xl z-10 flex items-center justify-center">
+            <motion.div
+              initial={{ opacity: 0, scale: 0.9 }}
+              animate={{ opacity: 1, scale: 1 }}
+              className="text-center"
+            >
+              <Construction className="w-12 h-12 text-primary mx-auto mb-3" />
+              <h3 className="text-xl font-semibold text-gray-900 mb-2">Coming Soon</h3>
+              <p className="text-sm text-gray-500">Recent orders will be available shortly</p>
+            </motion.div>
+          </div>
+          
+          {/* Original content (blurred) */}
           <motion.h3 
             className="text-lg font-semibold mb-4"
             whileHover={{ x: 5 }}
@@ -255,16 +262,22 @@ export default function CustomerDashboard() {
         
         <motion.div
           variants={itemVariants}
-          whileHover={{ 
-            y: -5,
-            transition: {
-              type: "spring",
-              stiffness: 300
-            }
-          }}
-          whileTap={{ scale: 0.99 }}
-          className="bg-white rounded-xl shadow-sm p-6 transition-all hover:shadow-md"
+          className="relative bg-white rounded-xl shadow-sm p-6 transition-all hover:shadow-md"
         >
+          {/* Blur overlay */}
+          <div className="absolute inset-0 bg-white/80 backdrop-blur-sm rounded-xl z-10 flex items-center justify-center">
+            <motion.div
+              initial={{ opacity: 0, scale: 0.9 }}
+              animate={{ opacity: 1, scale: 1 }}
+              className="text-center"
+            >
+              <Construction className="w-12 h-12 text-primary mx-auto mb-3" />
+              <h3 className="text-xl font-semibold text-gray-900 mb-2">Coming Soon</h3>
+              <p className="text-sm text-gray-500">Shipment tracking will be available shortly</p>
+            </motion.div>
+          </div>
+
+          {/* Original content (blurred) */}
           <motion.h3 
             className="text-lg font-semibold mb-4"
             whileHover={{ x: 5 }}

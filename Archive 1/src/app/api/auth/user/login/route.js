@@ -9,7 +9,7 @@ export async function POST(req) {
     await dbConnect();
     
     const { email, password } = await req.json();
-    console.log('Customer login attempt for:', email);
+    // console.log('Login attempt for:', email);
 
     if (!email || !password) {
       return NextResponse.json(
@@ -42,20 +42,19 @@ export async function POST(req) {
 
     // Create customer token
     const token = await createCustomerToken(user);
+    // console.log('Token created:', token ? 'Yes' : 'No'); // Debug log
 
-    // Set both cookies to ensure compatibility
+    // Set cookie options
     const cookieOptions = {
       httpOnly: true,
       secure: process.env.NODE_ENV === 'production',
       sameSite: 'lax',
       path: '/',
-      maxAge: 24 * 60 * 60 // 24 hours
+      maxAge: 7 * 24 * 60 * 60 // 7 days in seconds
     };
 
-    cookies().set('token', token, cookieOptions);
-    cookies().set('customer_token', token, cookieOptions);
-
-    return NextResponse.json({
+    // Create the response
+    const response = NextResponse.json({
       success: true,
       message: 'Login successful',
       user: {
@@ -66,8 +65,19 @@ export async function POST(req) {
       }
     });
 
+    // Set cookies on the response
+    response.cookies.set('token', token, cookieOptions);
+    response.cookies.set('customer_token', token, cookieOptions);
+
+    // console.log('Cookies set:', {
+    //   token: token ? 'Present' : 'Missing',
+    //   cookieOptions
+    // });
+
+    return response;
+
   } catch (error) {
-    console.error('Customer login error:', error);
+    // console.error('Login error:', error);
     return NextResponse.json(
       { error: 'Login failed' },
       { status: 500 }

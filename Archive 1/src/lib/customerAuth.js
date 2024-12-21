@@ -51,13 +51,20 @@ export async function verifyCustomerAuth() {
 }
 
 export async function createCustomerToken(user) {
-  return jwt.sign(
-    { 
-      userId: user._id,
-      email: user.email,
-      type: 'customer'
-    },
-    process.env.JWT_SECRET,
-    { expiresIn: '7d' }
-  );
+  try {
+    const token = jwt.sign(
+      { 
+        userId: user._id.toString(),
+        email: user.email,
+        type: 'customer'
+      },
+      process.env.JWT_SECRET || 'chendanvasu',
+      { expiresIn: '7d' }
+    );
+    console.log('Customer token created:', !!token);
+    return token;
+  } catch (error) {
+    console.error('Token creation error:', error);
+    throw error;
+  }
 } 

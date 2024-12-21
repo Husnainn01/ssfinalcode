@@ -6,9 +6,19 @@ let customerAuthCache = {
   
   export async function checkCustomerAuth() {
     try {
-      console.log('Starting auth check...');
-      console.log('Current cookies:', document.cookie);
-      
+      // Check cache first
+      const now = Date.now()
+      if (
+        customerAuthCache.isAuthenticated !== null &&
+        customerAuthCache.timestamp &&
+        (now - customerAuthCache.timestamp) < customerAuthCache.expiresIn
+      ) {
+        return {
+          isAuthenticated: customerAuthCache.isAuthenticated,
+          user: customerAuthCache.user
+        }
+      }
+  
       const response = await fetch('/api/auth/user/check', {
         method: 'GET',
         credentials: 'include',
@@ -18,22 +28,28 @@ let customerAuthCache = {
       });
   
       if (!response.ok) {
-        console.error('Auth check failed:', response.status, response.statusText);
-        throw new Error('Auth check failed');
+        throw new Error('Auth check failed')
       }
   
       const data = await response.json();
-      console.log('Auth check raw response:', data);
+    //   console.log('Auth check raw response:', data);
   
-      const authState = {
+      // Update cache
+      customerAuthCache = {
+        isAuthenticated: Boolean(data.isAuthenticated),
+        user: data.user,
+        timestamp: now,
+        expiresIn: 5 * 60 * 1000
+      }
+  
+      return {
         isAuthenticated: Boolean(data.isAuthenticated),
         user: data.user
       };
-      
-      console.log('Processed auth state:', authState);
-      return authState;
     } catch (error) {
-      console.error('Customer auth check error:', error);
+      console.error('Customer auth check error:', error)
+      // Clear cache on error
+      clearCustomerAuthCache()
       return {
         isAuthenticated: false,
         user: null
@@ -44,12 +60,14 @@ let customerAuthCache = {
   export function clearCustomerAuthCache() {
     customerAuthCache = {
       isAuthenticated: null,
+      user: null,
       timestamp: null,
-      expiresIn: 60 * 1000
+      expiresIn: 5 * 60 * 1000
     };
   }
   
   export function getCustomerToken() {
+    if (typeof window === 'undefined') return null
     const cookies = document.cookie.split(';');
     const tokenCookie = cookies.find(cookie => cookie.trim().startsWith('customer_token='));
     return tokenCookie ? tokenCookie.split('=')[1] : null;

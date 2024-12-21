@@ -5,28 +5,55 @@ export async function POST() {
   try {
     const cookieStore = cookies()
     
-    // Clear both possible cookie names to ensure logout
-    cookieStore.delete('token')
-    cookieStore.delete('customer_token')
+    // List of all cookies to clear
+    const cookiesToClear = [
+      'token',
+      'customer_token',
+      'next-auth.session-token',
+      'next-auth.csrf-token',
+      'next-auth.callback-url'
+    ]
 
-    return NextResponse.json(
-      { message: 'Logged out successfully' },
+    // Clear cookies using cookieStore
+    cookiesToClear.forEach(name => {
+      cookieStore.delete(name)
+    })
+
+    // Create Set-Cookie headers for each cookie
+    const clearCookieHeaders = cookiesToClear.map(name => 
+      `${name}=; Path=/; Expires=Thu, 01 Jan 1970 00:00:00 GMT; HttpOnly; Secure; SameSite=Lax`
+    )
+
+    // Log for debugging
+    console.log('Clearing cookies:', cookiesToClear)
+
+    return new NextResponse(
+      JSON.stringify({ 
+        success: true,
+        message: 'Logged out successfully' 
+      }),
       {
         status: 200,
         headers: {
-          // Clear both cookies in headers
-          'Set-Cookie': [
-            'token=; Path=/; Expires=Thu, 01 Jan 1970 00:00:00 GMT; HttpOnly; Secure; SameSite=Lax',
-            'customer_token=; Path=/; Expires=Thu, 01 Jan 1970 00:00:00 GMT; HttpOnly; Secure; SameSite=Lax'
-          ]
+          'Content-Type': 'application/json',
+          'Set-Cookie': clearCookieHeaders
         }
       }
     )
   } catch (error) {
-    console.error('Customer logout error:', error)
-    return NextResponse.json(
-      { error: 'Logout failed' },
-      { status: 500 }
+    console.error('Logout error:', error)
+    return new NextResponse(
+      JSON.stringify({ 
+        success: false,
+        error: 'Logout failed',
+        details: error instanceof Error ? error.message : 'Unknown error'
+      }),
+      { 
+        status: 500,
+        headers: {
+          'Content-Type': 'application/json'
+        }
+      }
     )
   }
 } 
