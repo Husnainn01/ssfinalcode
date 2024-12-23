@@ -1,7 +1,7 @@
 "use client"
 import { useEffect } from 'react'
 import { useRouter } from 'next/navigation'
-import { checkAuth } from "@/utils/auth"
+import { checkAdminAuth } from "@/utils/auth"
 
 export default function AdminPage() {
   const router = useRouter()
@@ -9,7 +9,7 @@ export default function AdminPage() {
   useEffect(() => {
     const init = async () => {
       try {
-        const { isAuthenticated } = await checkAuth();
+        const { isAuthenticated, user } = await checkAdminAuth();
         if (isAuthenticated) {
           router.replace('/admin/dashboard');
         } else {

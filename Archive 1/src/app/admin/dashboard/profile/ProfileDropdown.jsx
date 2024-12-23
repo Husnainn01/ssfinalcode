@@ -14,20 +14,29 @@ import { toast } from 'react-toastify'
 import { motion } from "framer-motion"
 import { useTheme } from "@/context/ThemeProvider"
 import { User, Key, LogOut, Camera, ChevronDown, Settings } from 'lucide-react'
+import { useAuth } from '@/hooks/useAuth'
 
 export default function ProfileDropdown() {
   const router = useRouter()
   const { theme } = useTheme()
+  const { user } = useAuth()
   const [userData, setUserData] = useState({
-    name: 'Admin',
-    email: process.env.ADMIN_ID || 'admin@example.com',
+    name: user?.name || 'Admin',
+    email: user?.email || process.env.ADMIN_ID || 'admin@example.com',
     avatar: '/default-avatar.png'
   })
   const [isOpen, setIsOpen] = useState(false)
 
   useEffect(() => {
+    if (user) {
+      setUserData(prevData => ({
+        ...prevData,
+        name: user.name || prevData.name,
+        email: user.email || prevData.email
+      }))
+    }
     fetchUserProfile()
-  }, [])
+  }, [user])
 
   const fetchUserProfile = async () => {
     try {

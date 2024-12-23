@@ -1,7 +1,7 @@
 import { NextResponse } from 'next/server';
 import { jwtVerify } from 'jose';
 import dbConnect from '@/lib/dbConnect';
-import User from '@/lib/User';
+import User from '@/models/User';
 import mongoose from 'mongoose';
 
 const SECRET_KEY = new TextEncoder().encode('chendanvasu');

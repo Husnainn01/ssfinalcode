@@ -5,10 +5,12 @@ import { FiMenu, FiX, FiBell, FiSettings } from "react-icons/fi";
 import { motion, AnimatePresence } from "framer-motion";
 import { useRouter } from 'next/navigation';
 import ProfileDropdown from "@/app/admin/dashboard/profile/ProfileDropdown";
+import { useAuth } from '@/hooks/useAuth';
 
 export default function Header() {
   const [menuOpen, setMenuOpen] = useState(false);
   const router = useRouter();
+  const { user } = useAuth();
 
   const handleLogout = async () => {
     try {
@@ -58,7 +60,12 @@ export default function Header() {
 
               {/* Profile Dropdown */}
               <div className="relative z-50">
-                <ProfileDropdown onLogout={handleLogout} />
+                <ProfileDropdown 
+                  onLogout={handleLogout} 
+                  userEmail={user?.email}
+                  userName={user?.name}
+                  userRole={user?.role}
+                />
               </div>
 
               {/* Mobile Menu Button */}

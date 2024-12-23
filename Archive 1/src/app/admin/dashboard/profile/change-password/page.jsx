@@ -37,10 +37,16 @@ export default function ChangePasswordForm() {
   const onSubmit = async (values) => {
     try {
       setIsLoading(true);
+      
+      // Log to verify the request is being made
+      console.log('Submitting password change request');
+
       const response = await fetch('/api/users/change-password', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        credentials: 'include',
+        headers: { 
+          'Content-Type': 'application/json'
+        },
+        credentials: 'include', // This is important for sending cookies
         body: JSON.stringify({
           currentPassword: values.currentPassword,
           newPassword: values.newPassword
@@ -50,12 +56,18 @@ export default function ChangePasswordForm() {
       const data = await response.json();
       
       if (!response.ok) {
-        throw new Error(data.error);
+        console.error('Error response:', data); // Debug log
+        throw new Error(data.error || 'Failed to change password');
       }
 
       toast.success('Password changed successfully');
       form.reset();
+      
+      // Redirect to the admin dashboard profile page
+      router.push('/admin/dashboard/profile');
+      
     } catch (error) {
+      console.error('Submit error:', error); // Debug log
       toast.error(error.message);
     } finally {
       setIsLoading(false);
