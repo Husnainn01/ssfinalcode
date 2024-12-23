@@ -170,7 +170,8 @@ export async function POST(request) {
 
     return NextResponse.json({ 
       success: true, 
-      message: 'Inquiry submitted successfully' 
+      message: 'Inquiry submitted successfully',
+      referenceId: inquiryId
     });
 
   } catch (error) {

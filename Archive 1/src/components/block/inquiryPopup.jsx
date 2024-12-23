@@ -18,6 +18,7 @@ import {
 } from "@nextui-org/react";
 import { useToast } from "@/hooks/use-toast";
 import { ToastAction } from "@/components/ui/toast";
+import countries from '@/data/countries.json';
 
 export default function InquiryPopup({ carDetails }) {
   const {isOpen, onOpen, onClose} = useDisclosure();
@@ -35,6 +36,8 @@ export default function InquiryPopup({ carDetails }) {
   const [errors, setErrors] = useState({});
   const [isSubmitting, setIsSubmitting] = useState(false);
   const { toast } = useToast();
+  const [showSuccessModal, setShowSuccessModal] = useState(false);
+  const [referenceId, setReferenceId] = useState('');
 
   const vehicleDetails = {
     model: carDetails?.title || "",
@@ -92,36 +95,89 @@ export default function InquiryPopup({ carDetails }) {
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({
-          ...formData,
-          shippingMethod,
+          name: formData.name,
+          email: formData.email,
+          country: formData.country,
+          city: formData.city,
+          telephone: formData.telephone,
           carDetails: {
             id: carDetails._id,
             model: carDetails.title,
             year: carDetails.year,
-            price: carDetails.price
+            price: carDetails.price,
+            make: carDetails.make || carDetails.brand,
+            mileage: carDetails.mileage,
+            fuelType: carDetails.fuelType || carDetails.vehicleEngine,
+            transmission: carDetails.transmission || carDetails.vehicleTransmission,
+            color: carDetails.color || carDetails.vehicleColor,
+            stockNo: carDetails.stockNumber || carDetails.stockNo,
+            images: carDetails.images || [carDetails.image], // Handle both single and multiple images
+            // Additional details from popup form
+            insurance: vehicleDetails.insurance,
+            warranty: vehicleDetails.warranty,
+            shippingMethod: shippingMethod,
+            location: vehicleDetails.location,
+            steering: vehicleDetails.steering,
+            address: formData.address,
+            receiveNews: formData.receiveNews,
+            discountCoupon: formData.discountCoupon
           }
         }),
       });
 
-      if (response.ok) {
-        toast({
-          title: "Success!",
-          description: "Your inquiry has been submitted successfully.",
-          action: <ToastAction altText="Close">Close</ToastAction>,
-        });
-        onClose();
-      } else {
-        throw new Error('Failed to submit inquiry');
+      const data = await response.json();
+
+      if (!response.ok) {
+        throw new Error(data.error || 'Failed to submit inquiry');
       }
+
+      // Set the reference ID from the response
+      setReferenceId(data.referenceId);
+      
+      // Reset form
+      setFormData({
+        name: "",
+        email: "",
+        country: "",
+        city: "",
+        address: "",
+        telephone: "",
+        discountCoupon: "",
+        receiveNews: false
+      });
+      setShippingMethod("RORO");
+      
+      // Close inquiry modal and show success modal
+      onClose();
+      setShowSuccessModal(true);
+
     } catch (error) {
       console.error('Error submitting inquiry:', error);
       toast({
         title: "Error",
         description: "Failed to submit inquiry. Please try again.",
+        variant: "destructive",
         action: <ToastAction altText="Try again">Try again</ToastAction>,
       });
     } finally {
       setIsSubmitting(false);
+    }
+  };
+
+  // Function to copy reference ID
+  const copyReferenceId = async () => {
+    try {
+      await navigator.clipboard.writeText(referenceId);
+      toast({
+        title: "Copied!",
+        description: "Reference ID copied to clipboard",
+      });
+    } catch (err) {
+      toast({
+        title: "Error",
+        description: "Failed to copy reference ID",
+        variant: "destructive",
+      });
     }
   };
 
@@ -282,9 +338,22 @@ export default function InquiryPopup({ carDetails }) {
                       value: "text-sm",
                       trigger: "shadow-sm"
                     }}
+                    filterValue
+                    items={countries}
                   >
-                    <SelectItem key="japan" value="japan">Japan</SelectItem>
-                    <SelectItem key="other" value="other">Other Countries</SelectItem>
+                    {(country) => (
+                      <SelectItem 
+                        key={country.code} 
+                        value={country.code}
+                        textValue={country.name}
+                        startContent={<span className="text-xl">{country.flag}</span>}
+                      >
+                        <div className="flex items-center gap-2">
+                          <span>{country.name}</span>
+                          <span className="text-gray-400 text-sm">({country.phone})</span>
+                        </div>
+                      </SelectItem>
+                    )}
                   </Select>
                   <Input
                     size="sm"
@@ -324,10 +393,15 @@ export default function InquiryPopup({ carDetails }) {
                     onChange={(e) => handleInputChange('telephone', e.target.value)}
                     isInvalid={!!errors.telephone}
                     errorMessage={errors.telephone}
+                    startContent={
+                      <span className="text-gray-500 text-sm">
+                        {countries.find(c => c.code === formData.country)?.phone || '+'}
+                      </span>
+                    }
                     isRequired
                     classNames={{
                       label: "text-sm font-medium text-gray-700",
-                      input: "text-sm",
+                      input: "pl-1",
                       inputWrapper: "shadow-sm"
                     }}
                   />
@@ -365,6 +439,82 @@ export default function InquiryPopup({ carDetails }) {
               GET A PRICE QUOTE NOW
             </Button>
           </ModalFooter>
+        </ModalContent>
+      </Modal>
+
+      {/* Success Modal */}
+      <Modal 
+        size="md" 
+        isOpen={showSuccessModal} 
+        onClose={() => setShowSuccessModal(false)}
+      >
+        <ModalContent>
+          <div className="p-6 text-center">
+            <div className="w-16 h-16 rounded-full bg-green-100 flex items-center justify-center mx-auto mb-4">
+              <svg 
+                className="w-8 h-8 text-green-500" 
+                fill="none" 
+                stroke="currentColor" 
+                viewBox="0 0 24 24"
+              >
+                <path 
+                  strokeLinecap="round" 
+                  strokeLinejoin="round" 
+                  strokeWidth={2} 
+                  d="M5 13l4 4L19 7" 
+                />
+              </svg>
+            </div>
+            
+            <h3 className="text-lg font-semibold text-gray-900 mb-2">
+              Inquiry Submitted Successfully!
+            </h3>
+            
+            <p className="text-gray-600 mb-4">
+              Thank you for your inquiry. Our team will get back to you soon.
+            </p>
+
+            <div className="bg-gray-50 rounded-lg p-4 mb-4">
+              <p className="text-sm text-gray-600 mb-2">Your Reference ID:</p>
+              <div className="flex items-center justify-center gap-2">
+                <code className="bg-white px-4 py-2 rounded border text-lg font-mono">
+                  {referenceId}
+                </code>
+                <Button
+                  isIconOnly
+                  size="sm"
+                  variant="flat"
+                  onClick={copyReferenceId}
+                  className="text-gray-600 hover:text-gray-900"
+                >
+                  <svg 
+                    className="w-4 h-4" 
+                    fill="none" 
+                    stroke="currentColor" 
+                    viewBox="0 0 24 24"
+                  >
+                    <path 
+                      strokeLinecap="round" 
+                      strokeLinejoin="round" 
+                      strokeWidth={2} 
+                      d="M8 5H6a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2v-1M8 5a2 2 0 002 2h2a2 2 0 002-2M8 5a2 2 0 012-2h2a2 2 0 012 2m0 0h2a2 2 0 012 2v3m2 4H10m0 0l3-3m-3 3l3 3" 
+                    />
+                  </svg>
+                </Button>
+              </div>
+            </div>
+
+            <p className="text-sm text-gray-500 mb-4">
+              Please save this reference ID for future communication.
+            </p>
+
+            <Button
+              className="w-full bg-[#629584] hover:bg-[#4A7164] text-white"
+              onClick={() => setShowSuccessModal(false)}
+            >
+              Close
+            </Button>
+          </div>
         </ModalContent>
       </Modal>
     </>
