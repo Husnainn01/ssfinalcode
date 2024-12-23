@@ -41,7 +41,7 @@ export default async function CarDetailsPage({ params }) {
         <ListingPage 
           car={car} 
           slug={params.slug}
-          favoriteButton={<FavoriteButton carId={params.slug} />} 
+          // favoriteButton={<FavoriteButton carId={params.slug} />} 
         />
       </div>
     );

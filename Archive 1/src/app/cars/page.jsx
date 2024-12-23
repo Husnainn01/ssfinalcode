@@ -212,13 +212,22 @@ function Listing() {
                                             </div>
                                         </div>
 
-                                        {/* Features - Reduced margin */}
+                                        {/* Features - Using carFeature from database */}
                                         <div className="flex flex-wrap gap-1.5 mt-1.5">
-                                            {['Power Steering', 'A/C', 'Airbag', 'CD Player', 'Radio', 'Power Window'].map((feature) => (
-                                                <span key={feature} className="text-[10px] bg-gray-100 text-gray-600 px-1.5 py-0.5 rounded">
-                                                    {feature}
+                                            {item.carFeature && item.carFeature.length > 0 ? (
+                                                item.carFeature.map((feature, index) => (
+                                                    <span 
+                                                        key={index} 
+                                                        className="text-[10px] bg-gray-100 text-gray-600 px-1.5 py-0.5 rounded"
+                                                    >
+                                                        {feature.trim()}
+                                                    </span>
+                                                ))
+                                            ) : (
+                                                <span className="text-[10px] text-gray-400">
+                                                    No features available
                                                 </span>
-                                            ))}
+                                            )}
                                         </div>
                                     </div>
 
