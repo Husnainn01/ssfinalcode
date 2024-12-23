@@ -14,7 +14,7 @@ export default function RootLayout({ children }) {
       <body className={inter.className}>
         <FavoritesProvider>
           <RootLayoutClient>
-            {children}
+              {children}
           </RootLayoutClient>
         </FavoritesProvider>
       </body>
