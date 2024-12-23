@@ -120,7 +120,7 @@ function Listing() {
                                         </svg>
                                     </button>
                                     <div className="absolute bottom-4 left-4 text-[10px] bg-gray-900/80 text-white px-2 py-0.5 rounded">
-                                        Ref No. {item.stockNumber}
+                                        Stock No. {item.stockNumber}
                                     </div>
                                 </div>
 

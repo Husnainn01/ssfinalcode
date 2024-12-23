@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 
 const countries = [
   { name: 'All', flag: '🌎' },
@@ -11,37 +11,79 @@ const countries = [
 ];
 
 function CountryFlags() {
+  const [selectedCountry, setSelectedCountry] = useState('All');
+
   const handleCountryClick = (countryName) => {
+    setSelectedCountry(countryName);
     console.log(`Selected country: ${countryName}`);
-    // Add your country selection logic here
   };
 
   const handleViewMore = () => {
     console.log('View More clicked');
-    // Add your view more logic here
   };
 
   return (
-    <div className="flex justify-center items-center space-x-4">
-      {countries.map((country) => (
+    <div className="w-full flex flex-col items-center">
+      <h3 className="text-sm font-semibold text-gray-700 mb-3 text-center">
+        Select Region
+      </h3>
+      
+      <div className="flex flex-wrap justify-center gap-2 items-center">
+        {countries.map((country) => (
+          <button
+            key={country.name}
+            onClick={() => handleCountryClick(country.name)}
+            className={`flex items-center gap-2 px-3 py-1.5 rounded-md
+              transition-all duration-200 hover:bg-gray-50
+              ${selectedCountry === country.name 
+                ? 'bg-blue-50 text-blue-600 border border-blue-200' 
+                : 'border border-gray-200 text-gray-600 hover:border-gray-300'
+              }`}
+          >
+            <span className="text-lg">{country.flag}</span>
+            <span className="text-xs font-medium">{country.name}</span>
+          </button>
+        ))}
+        
         <button
-          key={country.name}
-          onClick={() => handleCountryClick(country.name)}
-          className="flex items-center space-x-2 px-4 py-2 rounded-lg bg-theme-secondary-hover border-2 border-white shadow-md 
-                     transition-transform duration-200 hover:scale-105 hover:opacity-90 hover:shadow-lg"
+          onClick={handleViewMore}
+          className="flex items-center gap-2 px-3 py-1.5 rounded-md
+            border border-gray-200 text-gray-600
+            transition-all duration-200 hover:bg-gray-50 hover:border-gray-300"
         >
-          <span className="text-xl">{country.flag}</span>
-          <span className="font-medium text-gray-700">{country.name}</span>
+          <svg 
+            xmlns="http://www.w3.org/2000/svg" 
+            className="h-4 w-4" 
+            fill="none" 
+            viewBox="0 0 24 24" 
+            stroke="currentColor"
+          >
+            <path 
+              strokeLinecap="round" 
+              strokeLinejoin="round" 
+              strokeWidth={2} 
+              d="M9 5l7 7-7 7" 
+            />
+          </svg>
+          <span className="text-xs font-medium">More Regions</span>
         </button>
-      ))}
-      <button
-        onClick={handleViewMore}
-        className="flex items-center space-x-2 px-4 py-2 rounded-lg bg-theme-secondary-hover border-2 border-white shadow-md 
-                   transition-transform duration-200 hover:scale-105 hover:opacity-90 hover:shadow-lg"
-      >
-        <span className="text-xl">👆</span>
-        <span className="font-medium text-gray-700">View More</span>
-      </button>
+      </div>
+
+      <div className="mt-4 pt-3 border-t border-gray-100 w-full flex justify-center">
+        <div className="flex items-center gap-2 justify-center">
+          <span className="text-xs text-gray-500">Popular:</span>
+          <div className="flex gap-1">
+            {['Guyana', 'Trinidad', 'Jamaica'].map((region) => (
+              <button
+                key={region}
+                className="text-xs text-gray-600 hover:text-blue-600 transition-colors px-2"
+              >
+                {region}
+              </button>
+            ))}
+          </div>
+        </div>
+      </div>
     </div>
   );
 }
