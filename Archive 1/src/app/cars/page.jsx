@@ -2,7 +2,7 @@
 import React, { useState, useEffect } from 'react';
 import { FaCar, FaGasPump } from 'react-icons/fa';
 import { TbSteeringWheel } from 'react-icons/tb';
-import { Image, Skeleton } from "@nextui-org/react";
+import { Image, Skeleton, Button } from "@nextui-org/react";
 import Link from 'next/link';
 import SidebarComponent from "@/components/template/leftsidebar";
 import PaginationComponent from "@/components/block/pagination";
@@ -103,102 +103,137 @@ function Listing() {
                 <div className="space-y-3 px-4">
                     {currentItems.map(item => (
                         <div key={item.id} className="bg-white rounded-lg overflow-hidden shadow-sm hover:shadow-md transition-all duration-300">
-                            <div className="flex h-[160px]">
-                                {/* Image Section */}
-                                <div className="relative w-[240px]">
+                            {/* Main Container - Increased height */}
+                            <div className="flex h-[230px]">
+                                {/* Left Image Section */}
+                                <div className="relative w-[220px] p-2">
                                     <Link href={`/cars/${item._id}`}>
                                         <img
                                             src={item.image}
                                             alt={item.title}
-                                            className="w-full h-full object-cover"
+                                            className="w-full h-full object-cover rounded-lg"
                                         />
                                     </Link>
-                                    <div className="absolute top-2 left-2 flex flex-col gap-1">
-                                        {item.stockNumber && (
-                                            <span className="bg-gray-800 text-white px-2 py-0.5 text-[10px] rounded">
-                                                Stock #{item.stockNumber}
-                                            </span>
-                                        )}
+                                    <button className="absolute top-4 left-4 bg-white/90 p-1.5 rounded-full hover:bg-white">
+                                        <svg className="w-3.5 h-3.5 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z" />
+                                        </svg>
+                                    </button>
+                                    <div className="absolute bottom-4 left-4 text-[10px] bg-gray-900/80 text-white px-2 py-0.5 rounded">
+                                        Ref No. {item.stockNumber}
                                     </div>
                                 </div>
 
-                                {/* Content Section */}
-                                <div className="flex-1 p-4">
-                                    <div className="flex justify-between items-start">
-                                        <div>
-                                            <Link href={`/cars/${item._id}`}>
-                                                <h2 className="text-base font-semibold text-gray-800 hover:text-theme-secondary">
-                                                    {item.make} {item.model}
-                                                </h2>
-                                            </Link>
+                                {/* Right Content Section */}
+                                <div className="flex-1 p-3 flex flex-col">
+                                    {/* Upper Content Section - Reduced spacing */}
+                                    <div className="space-y-1.5">
+                                        {/* Title and Price Row */}
+                                        <div className="flex justify-between items-start border-b border-gray-100 pb-1.5">
+                                            <h2 className="text-blue-600 text-base font-bold hover:text-blue-700">
+                                                <Link href={`/cars/${item._id}`}>
+                                                    {item.year} {item.make} {item.model}
+                                                </Link>
+                                            </h2>
+                                            <div className="text-right">
+                                                <div className="text-xl font-bold text-red-600">
+                                                    ${item.price?.toLocaleString()}
+                                                </div>
+                                                <div className="text-xs text-gray-600">
+                                                    Total Price: ${(item.price * 1.15)?.toLocaleString()}
+                                                </div>
+                                                <div className="text-[10px] text-gray-500">
+                                                    CIF to Belize (Container)
+                                                </div>
+                                            </div>
                                         </div>
-                                        <div className="text-right">
-                                            <div className="text-lg font-bold text-orange-600">
-                                                ${item.price?.toLocaleString()}
+
+                                        {/* Specs Grid - Reduced margin */}
+                                        <div className="grid grid-cols-5 gap-x-3 mt-1.5">
+                                            {/* First Row */}
+                                            <div className="space-y-1 border-r border-gray-100">
+                                                <div className="text-[10px] text-gray-500">Mileage</div>
+                                                <div className="text-xs font-medium">{item.mileage?.toLocaleString()} km</div>
                                             </div>
-                                            <div className="text-xs text-gray-500">
-                                                {item.priceType || 'FOB'}
+                                            <div className="space-y-1 border-r border-gray-100">
+                                                <div className="text-[10px] text-gray-500">Year</div>
+                                                <div className="text-xs font-medium">{item.year}</div>
                                             </div>
+                                            <div className="space-y-1 border-r border-gray-100">
+                                                <div className="text-[10px] text-gray-500">Engine</div>
+                                                <div className="text-xs font-medium">{item.engineSize || '650cc'}</div>
+                                            </div>
+                                            <div className="space-y-1 border-r border-gray-100">
+                                                <div className="text-[10px] text-gray-500">Trans.</div>
+                                                <div className="text-xs font-medium">{item.vehicleTransmission}</div>
+                                            </div>
+                                            <div className="space-y-1">
+                                                <div className="text-[10px] text-gray-500">Location</div>
+                                                <div className="text-xs font-medium flex items-center gap-1">
+                                                    <span className="w-3 h-3 rounded-full bg-red-500" />
+                                                    {item.location || 'Nagoya'}
+                                                </div>
+                                            </div>
+                                        </div>
+
+                                        {/* Details Grid - Reduced gaps */}
+                                        <div className="grid grid-cols-4 gap-x-3 gap-y-0.5 text-xs mt-1.5">
+                                            <div className="flex justify-between border-b border-gray-100 pb-0.5">
+                                                <span className="text-gray-500">Model code</span>
+                                                <span>{item.modelCode || '-'}</span>
+                                            </div>
+                                            <div className="flex justify-between border-b border-gray-100 pb-0.5">
+                                                <span className="text-gray-500">Steering</span>
+                                                <span>{item.steering || 'Right'}</span>
+                                            </div>
+                                            <div className="flex justify-between border-b border-gray-100 pb-0.5">
+                                                <span className="text-gray-500">Fuel</span>
+                                                <span>{item.fuelType || 'Petrol'}</span>
+                                            </div>
+                                            <div className="flex justify-between border-b border-gray-100 pb-0.5">
+                                                <span className="text-gray-500">Seats</span>
+                                                <span>{item.seats || '4'}</span>
+                                            </div>
+                                            <div className="flex justify-between border-b border-gray-100 pb-0.5">
+                                                <span className="text-gray-500">Engine code</span>
+                                                <span>{item.engineCode || '-'}</span>
+                                            </div>
+                                            <div className="flex justify-between border-b border-gray-100 pb-0.5">
+                                                <span className="text-gray-500">Color</span>
+                                                <span>{item.color || 'Black'}</span>
+                                            </div>
+                                            <div className="flex justify-between border-b border-gray-100 pb-0.5">
+                                                <span className="text-gray-500">Drive</span>
+                                                <span>{item.driveType || '2WD'}</span>
+                                            </div>
+                                            <div className="flex justify-between border-b border-gray-100 pb-0.5">
+                                                <span className="text-gray-500">Doors</span>
+                                                <span>{item.doors || '5'}</span>
+                                            </div>
+                                        </div>
+
+                                        {/* Features - Reduced margin */}
+                                        <div className="flex flex-wrap gap-1.5 mt-1.5">
+                                            {['Power Steering', 'A/C', 'Airbag', 'CD Player', 'Radio', 'Power Window'].map((feature) => (
+                                                <span key={feature} className="text-[10px] bg-gray-100 text-gray-600 px-1.5 py-0.5 rounded">
+                                                    {feature}
+                                                </span>
+                                            ))}
                                         </div>
                                     </div>
 
-                                    {/* Car Details Grid */}
-                                    <div className="grid grid-cols-3 gap-x-4 gap-y-2 mt-4">
-                                        <div className="flex items-center text-xs text-gray-600">
-                                            <span className="font-semibold mr-2">Make:</span>
-                                            {item.make}
-                                        </div>
-                                        <div className="flex items-center text-xs text-gray-600">
-                                            <span className="font-semibold mr-2">Model:</span>
-                                            {item.model}
-                                        </div>
-                                        <div className="flex items-center text-xs text-gray-600">
-                                            <span className="font-semibold mr-2">Year:</span>
-                                            {item.year}
-                                        </div>
-                                        <div className="flex items-center text-xs text-gray-600">
-                                            <FaCar className="mr-2 h-3 w-3" />
-                                            {item.bodyType}
-                                        </div>
-                                        <div className="flex items-center text-xs text-gray-600">
-                                            <TbSteeringWheel className="mr-2 h-3 w-3" />
-                                            {item.vehicleTransmission}
-                                        </div>
-                                        <div className="flex items-center text-xs text-gray-600">
-                                            <FaGasPump className="mr-2 h-3 w-3" />
-                                            {item.fuelType}
-                                        </div>
-                                    </div>
-
-                                    {/* Action Buttons */}
-                                    <div className="flex justify-end gap-2 mt-4">
+                                    {/* Action Buttons - Matched sizes including height */}
+                                    <div className="flex justify-end items-center gap-2 mt-1">
                                         <InquiryPopup 
                                             carDetails={item} 
-                                            className="bg-[#14225D] hover:bg-[#0F1A4A] text-white text-xs rounded-md 
-                                                flex items-center gap-2 px-4 py-1.5 transition-all duration-200 
-                                                shadow-sm hover:shadow-md active:shadow-inner
-                                                border border-[#14225D]/10"
+                                            className="bg-[#EB843F] hover:bg-[#d66201] text-white px-8 h-[30px] rounded text-xs font-medium transition-colors duration-200 min-w-[100px] text-center flex items-center justify-center"
                                         >
-                                            <div className="flex items-center gap-2">
-                                                <svg 
-                                                    xmlns="http://www.w3.org/2000/svg" 
-                                                    className="h-3.5 w-3.5" 
-                                                    viewBox="0 0 24 24" 
-                                                    fill="none" 
-                                                    stroke="currentColor" 
-                                                    strokeWidth="2" 
-                                                    strokeLinecap="round" 
-                                                    strokeLinejoin="round"
-                                                >
-                                                    <path d="M21 5h-18v14h18v-14z" />
-                                                    <path d="M3 5l9 7 9-7" />
-                                                </svg>
-                                                <span className="font-medium tracking-wide">Send Inquiry</span>
-                                            </div>
+                                            INQUIRY
                                         </InquiryPopup>
+                                        
                                         <Link href={`/cars/${item._id}`}>
-                                            <button className="bg-theme-secondary hover:bg-theme-secondary-hover text-white px-4 py-1.5 rounded text-xs transition-colors duration-200">
-                                                View Details
+                                            <button className="bg-[#EB843F] hover:bg-[#0F1A4A] text-white px-8 h-[30px] rounded text-xs font-medium transition-colors duration-200 min-w-[100px] text-center flex items-center justify-center">
+                                                VIEW MORE
                                             </button>
                                         </Link>
                                     </div>
