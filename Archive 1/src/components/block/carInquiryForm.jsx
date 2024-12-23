@@ -71,7 +71,14 @@ export default function CarInquiryForm({ carDetails }) {
             id: carDetails._id,
             model: carDetails.title,
             year: carDetails.year,
-            price: carDetails.price
+            price: carDetails.price,
+            make: carDetails.make,
+            mileage: carDetails.mileage,
+            fuelType: carDetails.fuelType,
+            transmission: carDetails.transmission,
+            color: carDetails.color,
+            stockNo: carDetails.stockNumber || carDetails.stockNo || 'N/A',
+            images: carDetails.images || []
           }
         }),
       });
