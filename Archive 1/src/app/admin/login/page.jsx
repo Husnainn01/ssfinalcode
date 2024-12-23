@@ -31,12 +31,11 @@ const LoginPage = () => {
       });
 
       const data = await response.json();
-      console.log('Login response:', data);
       
       if (response.ok && data.success) {
-        console.log('Login successful');
         auth.setIsAuthenticated(true);
         auth.setAuthChecked(true);
+        auth.setUser(data.user);
         router.replace('/admin/dashboard');
       } else {
         setError(data.message || 'Invalid credentials');

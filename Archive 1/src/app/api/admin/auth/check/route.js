@@ -1,68 +1,55 @@
 import { NextResponse } from 'next/server';
-import { cookies } from 'next/headers';
 import { jwtVerify } from 'jose';
-import AdminUser from '@/models/AdminUser';
-import { connectDB } from '@/lib/mongodb';
 
 const SECRET_KEY = new TextEncoder().encode('chendanvasu');
 
-export async function GET() {
+const VALID_ROLES = ['admin', 'editor', 'moderator', 'viewer'];
+
+export async function GET(request) {
   try {
-    const cookieStore = cookies();
-    const token = cookieStore.get('admin_token');
+    console.log('Starting auth check...');
+    const adminToken = request.cookies.get('admin_token')?.value;
+    console.log('Token present:', !!adminToken);
 
-    console.log('Admin auth check - Token:', token?.value ? 'Present' : 'Missing');
-
-    if (!token) {
-      return NextResponse.json({
-        authenticated: false,
-        message: 'No admin token found'
-      }, { status: 401 });
+    if (!adminToken) {
+      console.log('No token found');
+      return NextResponse.json(
+        { success: false, message: 'No token found' },
+        { status: 401 }
+      );
     }
 
-    try {
-      const { payload } = await jwtVerify(token.value, SECRET_KEY);
-      
-      if (payload.role !== 'admin') {
-        return NextResponse.json({
-          authenticated: false,
-          message: 'Not an admin user'
-        }, { status: 401 });
-      }
+    const { payload } = await jwtVerify(adminToken, SECRET_KEY);
+    console.log('Decoded payload:', {
+      email: payload.email,
+      role: payload.role
+    });
 
-      await connectDB();
-      const user = await AdminUser.findById(payload.userId).select('-password');
-
-      if (!user) {
-        return NextResponse.json({
-          authenticated: false,
-          message: 'Admin user not found'
-        }, { status: 401 });
-      }
-
-      return NextResponse.json({
-        authenticated: true,
-        user: {
-          id: user._id,
-          email: user.email,
-          name: user.name,
-          role: user.role
-        }
-      });
-
-    } catch (verifyError) {
-      console.error('Admin token verification error:', verifyError);
-      return NextResponse.json({
-        authenticated: false,
-        message: 'Invalid admin token'
-      }, { status: 401 });
+    // Verify the role
+    if (!VALID_ROLES.includes(payload.role)) {
+      console.log('Invalid role:', payload.role);
+      return NextResponse.json(
+        { success: false, message: 'Invalid role' },
+        { status: 403 }
+      );
     }
+
+    console.log('Auth check successful');
+    return NextResponse.json({
+      success: true,
+      user: {
+        id: payload.userId,
+        email: payload.email,
+        role: payload.role,
+        name: payload.name
+      }
+    });
 
   } catch (error) {
-    console.error('Admin auth check error:', error);
-    return NextResponse.json({
-      authenticated: false,
-      message: 'Admin authentication check failed'
-    }, { status: 500 });
+    console.error('Auth check error:', error);
+    return NextResponse.json(
+      { success: false, message: 'Invalid token' },
+      { status: 401 }
+    );
   }
 }

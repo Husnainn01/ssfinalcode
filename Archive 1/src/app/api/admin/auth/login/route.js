@@ -2,9 +2,15 @@ import { NextResponse } from 'next/server';
 import { connectDB } from '@/lib/mongodb';
 import AdminUser from '@/models/AdminUser';
 import { SignJWT } from 'jose';
-import mongoose from 'mongoose';
 
 const SECRET_KEY = new TextEncoder().encode('chendanvasu');
+
+const VALID_ROLES = {
+  'role_admin': 'admin',
+  'role_editor': 'editor',
+  'role_moderator': 'moderator',
+  'role_viewer': 'viewer'
+};
 
 export async function POST(request) {
   try {
@@ -17,14 +23,13 @@ export async function POST(request) {
 
     // Find user with detailed logging
     console.log('Searching for user in database...');
-    
-    // Debug query - Use the correct collection name 'users'
-    const usersCollection = mongoose.connection.db.collection('users');
-    const userDoc = await usersCollection.findOne({ email });
-    console.log('Direct MongoDB query result:', userDoc);
-
     const user = await AdminUser.findOne({ email });
-    console.log('Mongoose query result:', user);
+    console.log('User details:', {
+      email: user.email,
+      role: user.role,
+      name: user.name,
+      _id: user._id
+    });
     
     if (!user) {
       return NextResponse.json(
@@ -44,10 +49,23 @@ export async function POST(request) {
       );
     }
 
+    // Check if user has a valid role
+    console.log('Checking role:', user.role);
+    const normalizedRole = VALID_ROLES[user.role];
+    console.log('Normalized role:', normalizedRole);
+    
+    if (!normalizedRole) {
+      console.log('Invalid role detected:', user.role);
+      return NextResponse.json(
+        { success: false, message: `Invalid user role: ${user.role}` },
+        { status: 403 }
+      );
+    }
+
     // Create token using jose with the same secret key
     const token = await new SignJWT({ 
       userId: user._id.toString(),
-      role: user.role,
+      role: normalizedRole,
       email: user.email,
       name: user.name
     })
@@ -66,14 +84,13 @@ export async function POST(request) {
         user: {
           id: user._id,
           email: user.email,
-          role: user.role,
+          role: normalizedRole,
           name: user.name
         }
       },
       { status: 200 }
     );
 
-    // Use admin_token to match existing cookies
     response.cookies.set('admin_token', token, {
       httpOnly: true,
       secure: process.env.NODE_ENV === 'production',

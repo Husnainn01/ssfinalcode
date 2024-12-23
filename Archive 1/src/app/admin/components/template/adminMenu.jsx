@@ -1,5 +1,5 @@
 "use client";
-import { FaHome, FaCar, FaPlus, FaList, FaBlogger, FaTags } from 'react-icons/fa';
+import { FaHome, FaCar, FaPlus, FaList, FaBlogger, FaTags, FaUserShield } from 'react-icons/fa';
 import { IoIosColorPalette } from "react-icons/io";
 import { SiRollsroyce } from "react-icons/si";
 import { GiCarDoor } from "react-icons/gi";
@@ -93,6 +93,14 @@ const AdminMenu = ({ children }) => {
                 href="/admin/dashboard/blog/cat" 
                 icon={FaTags} 
                 label="Categories" 
+              />
+            </MenuSection>
+
+            <MenuSection title="Settings">
+              <MenuItem 
+                href="/admin/dashboard/roles" 
+                icon={FaUserShield} 
+                label="Role Management" 
               />
             </MenuSection>
           </div>

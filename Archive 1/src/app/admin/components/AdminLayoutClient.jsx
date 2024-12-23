@@ -16,16 +16,18 @@ export default function AdminLayoutClient({ children }) {
 
   useEffect(() => {
     const verifyAdminAuth = async () => {
-      if (!auth.authChecked || auth.isAuthenticated) {
+      if (!isLoginPage) {
         try {
+          console.log('Verifying admin auth...');
           const { isAuthenticated, user } = await checkAdminAuth();
+          console.log('Auth verification result:', { isAuthenticated, user });
           
           if (!isAuthenticated) {
+            console.log('Not authenticated, redirecting to login...');
             auth.reset();
-            if (!isLoginPage) {
-              router.replace('/admin/login');
-            }
+            router.replace('/admin/login');
           } else {
+            console.log('Authentication successful, updating state...');
             auth.setIsAuthenticated(true);
             auth.setAuthChecked(true);
             auth.setUser(user);
@@ -33,9 +35,7 @@ export default function AdminLayoutClient({ children }) {
         } catch (error) {
           console.error('Admin verification failed:', error);
           auth.reset();
-          if (!isLoginPage) {
-            router.replace('/admin/login');
-          }
+          router.replace('/admin/login');
         } finally {
           setIsLoading(false);
         }
@@ -45,7 +45,7 @@ export default function AdminLayoutClient({ children }) {
     };
 
     verifyAdminAuth();
-  }, [pathname, auth.authChecked, auth.isAuthenticated]);
+  }, [pathname]);
 
   if (isLoading) {
     return (
@@ -55,17 +55,14 @@ export default function AdminLayoutClient({ children }) {
     );
   }
 
-  // Only return children without layout for login page
   if (isLoginPage) {
     return children;
   }
 
-  // Return null for unauthenticated users on non-login pages
   if (!auth.isAuthenticated && !isLoginPage) {
     return null;
   }
 
-  // For authenticated pages, render with admin layout
   return (
     <div className="min-h-screen bg-gray-100">
       <AdminHeader />

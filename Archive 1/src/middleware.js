@@ -3,6 +3,7 @@ import { jwtVerify } from 'jose';
 import { customerMiddleware } from './middleware/customerMiddleware';
 
 const SECRET_KEY = new TextEncoder().encode('chendanvasu');
+const VALID_ROLES = ['admin', 'editor', 'moderator', 'viewer'];
 
 export async function middleware(req) {
   const path = req.nextUrl.pathname;
@@ -27,7 +28,9 @@ export async function middleware(req) {
       }
 
       const { payload } = await jwtVerify(adminToken, SECRET_KEY);
-      if (!payload || payload.role !== 'admin') {
+      
+      // Check if user has any admin role
+      if (!payload || !VALID_ROLES.includes(payload.role)) {
         const response = NextResponse.redirect(new URL('/admin/login', req.url));
         response.cookies.delete('admin_token');
         return response;

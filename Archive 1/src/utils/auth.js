@@ -4,28 +4,30 @@ const SECRET_KEY = new TextEncoder().encode('chendanvasu');
 
 export async function checkAdminAuth() {
   try {
+    console.log('Checking admin auth...');
     const response = await fetch('/api/admin/auth/check', {
+      method: 'GET',
       credentials: 'include',
       headers: {
-        'Admin-Auth': 'true'
+        'Cache-Control': 'no-cache'
       }
     });
-    
-    if (!response.ok) {
-      throw new Error('Auth check failed');
-    }
 
     const data = await response.json();
+    console.log('Auth check response:', data);
+
+    if (!response.ok) {
+      console.log('Auth check failed:', data.message);
+      return { isAuthenticated: false, user: null };
+    }
+
     return {
-      isAuthenticated: data.authenticated,
+      isAuthenticated: true,
       user: data.user
     };
   } catch (error) {
-    console.error('Admin auth check failed:', error);
-    return {
-      isAuthenticated: false,
-      user: null
-    };
+    console.error('Auth check error:', error);
+    return { isAuthenticated: false, user: null };
   }
 }
 
