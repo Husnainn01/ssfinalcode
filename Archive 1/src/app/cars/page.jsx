@@ -23,8 +23,37 @@ function Listing() {
     const router = useRouter();
 
     useEffect(() => {
-        fetchListings();
+        const searchQuery = searchParams.get('search');
+        if (searchQuery) {
+            // If there's a search query, fetch search results
+            fetchSearchResults(searchQuery);
+        } else {
+            // If no search query, fetch all listings
+            fetchListings();
+        }
     }, [searchParams]);
+
+    const fetchSearchResults = async (query) => {
+        setLoading(true);
+        try {
+            const response = await fetch(`/api/cars/search?q=${encodeURIComponent(query)}&type=keyword`);
+            const data = await response.json();
+            
+            if (data.cars && Array.isArray(data.cars)) {
+                // Filter active listings and sort by date
+                const filteredData = data.cars.filter(car => car.visibility === "Active");
+                filteredData.sort((a, b) => new Date(b.date) - new Date(a.date));
+                setListing(filteredData);
+            } else {
+                setListing([]);
+            }
+        } catch (error) {
+            console.error("Error fetching search results:", error);
+            setListing([]);
+        } finally {
+            setLoading(false);
+        }
+    };
 
     const fetchListings = async () => {
         setLoading(true);
@@ -99,6 +128,15 @@ function Listing() {
                     <CountryFlags />
                 </div>
                 
+                {/* Show search results count if searching */}
+                {searchParams.get('search') && (
+                    <div className="px-4 py-2 mb-4 bg-white rounded-lg shadow-sm">
+                        <p className="text-sm text-gray-600">
+                            Found {listing.length} results for "{searchParams.get('search')}"
+                        </p>
+                    </div>
+                )}
+
                 {/* Car Listings Grid */}
                 <div className="space-y-3 px-4">
                     {currentItems.map(item => (
