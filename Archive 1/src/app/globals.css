@@ -6866,3 +6866,18 @@ a.ck.ck-button:not(.ck-button_with-text) {
 .scrollbar-hide::-webkit-scrollbar {
   display: none;
 }
+
+@keyframes fadeInUp {
+  from {
+      opacity: 0;
+      transform: translateY(10px);
+  }
+  to {
+      opacity: 1;
+      transform: translateY(0);
+  }
+}
+
+.animate-fade-in-up {
+  animation: fadeInUp 0.3s ease-out;
+}
