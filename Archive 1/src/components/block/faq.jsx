@@ -74,91 +74,114 @@ const faqs = [
 
 export default function FAQ() {
   const [openCategory, setOpenCategory] = useState(null)
-  const [openQuestion, setOpenQuestion] = useState(null)
+  const [openQuestions, setOpenQuestions] = useState({})
 
   const handleCategoryClick = (categoryIndex) => {
-    if (openCategory === categoryIndex) {
-      setOpenCategory(null)
-      setOpenQuestion(null)
-    } else {
-      setOpenCategory(categoryIndex)
-      setOpenQuestion(null)
-    }
+    setOpenCategory(openCategory === categoryIndex ? null : categoryIndex)
   }
 
-  const handleQuestionClick = (questionIndex) => {
-    setOpenQuestion(openQuestion === questionIndex ? null : questionIndex)
+  const handleQuestionClick = (categoryIndex, questionIndex) => {
+    setOpenQuestions(prev => ({
+      ...prev,
+      [categoryIndex]: prev[categoryIndex] === questionIndex ? null : questionIndex
+    }))
   }
 
   return (
-    <div className="bg-gray-50 border-y border-gray-200">
-      <div className="max-w-5xl mx-auto px-4 py-12">
+    <div className="relative py-16">
+      <div className="relative max-w-5xl mx-auto px-4">
         <div className="text-center mb-12">
-          <h2 className="text-3xl font-bold text-gray-900 mb-4">Frequently Asked Questions</h2>
-          <p className="text-gray-600 max-w-2xl mx-auto">
+          <h2 className="text-4xl font-bold text-blue-950 mb-4">
+            Frequently Asked Questions
+          </h2>
+          <p className="text-gray-600 max-w-2xl mx-auto text-lg">
             Find answers to common questions about our services, shipping, and vehicle purchasing process
           </p>
         </div>
 
-        <div className="grid gap-4 md:grid-cols-2">
+        <div className="grid gap-6 md:grid-cols-2">
           {faqs.map((category, categoryIndex) => (
             <div 
               key={categoryIndex}
-              className="bg-white rounded-lg shadow hover:shadow-md transition-shadow duration-200"
+              className="bg-white rounded-xl shadow-lg overflow-hidden"
             >
               <button
                 onClick={() => handleCategoryClick(categoryIndex)}
-                className="w-full px-6 py-4 flex items-center justify-between text-left bg-white rounded-lg"
+                className={`w-full px-6 py-5 flex items-center justify-between text-left
+                  bg-gradient-to-r from-blue-950 to-blue-900 text-white
+                  transition-all duration-300 ${openCategory === categoryIndex ? 'shadow-lg' : ''}`}
               >
                 <div className="flex items-center gap-3">
                   <category.icon 
-                    className="w-6 h-6 text-orange-500" 
+                    className="w-6 h-6 text-orange-400" 
                   />
-                  <span className="font-semibold text-gray-900">{category.category}</span>
+                  <span className="font-semibold text-lg">{category.category}</span>
                 </div>
-                {openCategory === categoryIndex ? (
-                  <Minus className="w-5 h-5 text-orange-500" />
-                ) : (
-                  <Plus className="w-5 h-5 text-gray-400" />
-                )}
+                <motion.div
+                  animate={{ rotate: openCategory === categoryIndex ? 180 : 0 }}
+                  transition={{ duration: 0.2 }}
+                >
+                  <ChevronDown className="w-5 h-5 text-orange-400" />
+                </motion.div>
               </button>
 
               <AnimatePresence initial={false}>
                 {openCategory === categoryIndex && (
                   <motion.div
-                    initial={{ height: 0, opacity: 0 }}
-                    animate={{ height: 'auto', opacity: 1 }}
-                    exit={{ height: 0, opacity: 0 }}
-                    transition={{ duration: 0.3 }}
+                    initial={{ height: 0 }}
+                    animate={{ height: 'auto' }}
+                    exit={{ height: 0 }}
+                    transition={{ duration: 0.3, ease: 'easeInOut' }}
+                    className="overflow-hidden"
                   >
-                    <div className="px-6 pb-4">
+                    <div className="divide-y divide-gray-100">
                       {category.items.map((item, questionIndex) => (
-                        <div key={questionIndex} className="border-b border-black/10 last:border-0">
+                        <div key={questionIndex} className="bg-white">
                           <button
-                            onClick={() => handleQuestionClick(questionIndex)}
-                            className="w-full py-4 flex items-center justify-between text-left"
+                            onClick={() => handleQuestionClick(categoryIndex, questionIndex)}
+                            className="w-full px-6 py-4 flex items-center justify-between text-left
+                              hover:bg-gray-50 transition-colors duration-200"
                           >
-                            <div className="flex items-center gap-3">
+                            <div className="flex items-center gap-3 flex-1">
                               <HelpCircle className="w-5 h-5 text-orange-500 flex-shrink-0" />
-                              <span className="text-gray-700">{item.question}</span>
+                              <span className="text-gray-700 font-medium">{item.question}</span>
                             </div>
-                            <ChevronDown
-                              className={`w-5 h-5 text-gray-400 transition-transform duration-200 ${
-                                openQuestion === questionIndex ? 'rotate-180' : ''
-                              }`}
-                            />
+                            <motion.div
+                              animate={{ 
+                                rotate: openQuestions[categoryIndex] === questionIndex ? 180 : 0 
+                              }}
+                              transition={{ duration: 0.2 }}
+                            >
+                              <ChevronDown className="w-4 h-4 text-gray-400" />
+                            </motion.div>
                           </button>
 
                           <AnimatePresence initial={false}>
-                            {openQuestion === questionIndex && (
+                            {openQuestions[categoryIndex] === questionIndex && (
                               <motion.div
                                 initial={{ height: 0, opacity: 0 }}
-                                animate={{ height: 'auto', opacity: 1 }}
-                                exit={{ height: 0, opacity: 0 }}
-                                transition={{ duration: 0.2 }}
-                                className="pl-11 pr-4 pb-4"
+                                animate={{ 
+                                  height: 'auto', 
+                                  opacity: 1,
+                                  transition: {
+                                    height: { duration: 0.3 },
+                                    opacity: { duration: 0.3, delay: 0.1 }
+                                  }
+                                }}
+                                exit={{ 
+                                  height: 0, 
+                                  opacity: 0,
+                                  transition: {
+                                    height: { duration: 0.3 },
+                                    opacity: { duration: 0.2 }
+                                  }
+                                }}
                               >
-                                <p className="text-gray-600">{item.answer}</p>
+                                <div className="px-6 pb-4 pt-2">
+                                  <div className="pl-8 text-gray-600 leading-relaxed">
+                                    {item.answer}
+                                  </div>
+                                </div>
                               </motion.div>
                             )}
                           </AnimatePresence>
@@ -173,10 +196,12 @@ export default function FAQ() {
         </div>
 
         <div className="mt-12 text-center">
-          <p className="text-gray-600 mb-4">Still have questions?</p>
+          <p className="text-gray-600 mb-4 text-lg">Still have questions?</p>
           <a
             href="/contact"
-            className="inline-flex items-center justify-center px-6 py-3 bg-orange-500 text-white font-medium rounded-lg hover:bg-orange-600 transition-colors duration-200"
+            className="inline-flex items-center justify-center px-8 py-4 bg-blue-950 text-white 
+              font-medium rounded-xl hover:bg-blue-900 transition-all duration-300 
+              shadow-lg hover:shadow-xl"
           >
             Contact Support
           </a>

@@ -41,7 +41,7 @@ export default function Footer() {
               Subscribe
             </button>
           </form>
-          <a href="#" className="text-sm text-[#E2F1E7] transition-colors hover:text-[#629584] hover:underline">
+          <a href="/legal/privacy" className="text-sm text-[#E2F1E7] transition-colors hover:text-[#629584] hover:underline">
             Privacy Policy
           </a>
         </div>
@@ -67,28 +67,28 @@ export default function Footer() {
                 {[
                   { 
                     icon: Facebook, 
-                    href: "https://facebook.com",
+                    href: "https://facebook.com/ss-holdings",
                     label: "Facebook",
                     color: "#1877F2",
                     hoverBg: "#1864D9"
                   },
                   { 
                     icon: Twitter, 
-                    href: "https://twitter.com",
+                    href: "https://twitter.com/ss_holdings",
                     label: "Twitter",
                     color: "#1DA1F2",
                     hoverBg: "#1A8CD8"
                   },
                   { 
                     icon: Instagram, 
-                    href: "https://instagram.com",
+                    href: "https://instagram.com/ss_holdings",
                     label: "Instagram",
                     color: "#E4405F",
                     hoverBg: "#D62E4C"
                   },
                   { 
                     icon: Youtube, 
-                    href: "https://youtube.com",
+                    href: "https://youtube.com/ss_holdings",
                     label: "Youtube",
                     color: "#FF0000",
                     hoverBg: "#DC0000"
@@ -159,12 +159,12 @@ export default function Footer() {
               <h6 className="mb-6 text-lg font-semibold text-[#629584]">Browse Stock</h6>
               <ul className="space-y-3 text-sm">
                 <li>
-                  <a href="#" className="group inline-flex items-center text-[#E2F1E7] transition-all hover:text-[#629584]">
+                  <a href="/cars" className="group inline-flex items-center text-[#E2F1E7] transition-all hover:text-[#629584]">
                     <span className="translate-x-0 transition-transform group-hover:translate-x-1">Browse All Cars</span>
                   </a>
                 </li>
                 <li>
-                  <a href="#" className="group inline-flex items-center text-[#E2F1E7] transition-all hover:text-[#629584]">
+                  <a href="/" className="group inline-flex items-center text-[#E2F1E7] transition-all hover:text-[#629584]">
                     <span className="translate-x-0 transition-transform group-hover:translate-x-1">New Arrivals</span>
                   </a>
                 </li>
@@ -218,27 +218,27 @@ export default function Footer() {
               <h6 className="mb-6 text-lg font-semibold text-[#629584]">Quick Links</h6>
               <ul className="space-y-3 text-sm">
                 <li>
-                  <a href="#" className="group inline-flex items-center text-[#E2F1E7] transition-all hover:text-[#629584]">
+                  <a href="/about" className="group inline-flex items-center text-[#E2F1E7] transition-all hover:text-[#629584]">
                     <span className="translate-x-0 transition-transform group-hover:translate-x-1">About Us</span>
                   </a>
                 </li>
                 <li>
-                  <a href="#" className="group inline-flex items-center text-[#E2F1E7] transition-all hover:text-[#629584]">
-                    <span className="translate-x-0 transition-transform group-hover:translate-x-1">Our Services</span>
+                  <a href="/how-to-buy" className="group inline-flex items-center text-[#E2F1E7] transition-all hover:text-[#629584]">
+                    <span className="translate-x-0 transition-transform group-hover:translate-x-1">How to Buy</span>
                   </a>
                 </li>
                 <li>
-                  <a href="#" className="group inline-flex items-center text-[#E2F1E7] transition-all hover:text-[#629584]">
+                  <a href="/contact-us" className="group inline-flex items-center text-[#E2F1E7] transition-all hover:text-[#629584]">
                     <span className="translate-x-0 transition-transform group-hover:translate-x-1">Contact Us</span>
                   </a>
                 </li>
                 <li>
-                  <a href="#" className="group inline-flex items-center text-[#E2F1E7] transition-all hover:text-[#629584]">
+                  <a href="/FAQ" className="group inline-flex items-center text-[#E2F1E7] transition-all hover:text-[#629584]">
                     <span className="translate-x-0 transition-transform group-hover:translate-x-1">FAQ</span>
                   </a>
                 </li>
                 <li>
-                  <a href="#" className="group inline-flex items-center text-[#E2F1E7] transition-all hover:text-[#629584]">
+                  <a href="/blog" className="group inline-flex items-center text-[#E2F1E7] transition-all hover:text-[#629584]">
                     <span className="translate-x-0 transition-transform group-hover:translate-x-1">Blog</span>
                   </a>
                 </li>
@@ -250,27 +250,27 @@ export default function Footer() {
               <h6 className="mb-6 text-lg font-semibold text-[#629584]">Customer Support</h6>
               <ul className="space-y-3 text-sm">
                 <li>
-                  <a href="#" className="group inline-flex items-center text-[#E2F1E7] transition-all hover:text-[#629584]">
+                  <a href="/contact-us" className="group inline-flex items-center text-[#E2F1E7] transition-all hover:text-[#629584]">
                     <span className="translate-x-0 transition-transform group-hover:translate-x-1">Help Center</span>
                   </a>
                 </li>
                 <li>
-                  <a href="#" className="group inline-flex items-center text-[#E2F1E7] transition-all hover:text-[#629584]">
+                  <a href="/shipping-schedule" className="group inline-flex items-center text-[#E2F1E7] transition-all hover:text-[#629584]">
                     <span className="translate-x-0 transition-transform group-hover:translate-x-1">Shipping Information</span>
                   </a>
                 </li>
                 <li>
-                  <a href="#" className="group inline-flex items-center text-[#E2F1E7] transition-all hover:text-[#629584]">
+                  <a href="/auth/login" className="group inline-flex items-center text-[#E2F1E7] transition-all hover:text-[#629584]">
                     <span className="translate-x-0 transition-transform group-hover:translate-x-1">Track Your Order</span>
                   </a>
                 </li>
                 <li>
-                  <a href="#" className="group inline-flex items-center text-[#E2F1E7] transition-all hover:text-[#629584]">
+                  <a href="/returns-refunds" className="group inline-flex items-center text-[#E2F1E7] transition-all hover:text-[#629584]">
                     <span className="translate-x-0 transition-transform group-hover:translate-x-1">Returns & Refunds</span>
                   </a>
                 </li>
                 <li>
-                  <a href="#" className="group inline-flex items-center text-[#E2F1E7] transition-all hover:text-[#629584]">
+                  <a href="/contact-us" className="group inline-flex items-center text-[#E2F1E7] transition-all hover:text-[#629584]">
                     <span className="translate-x-0 transition-transform group-hover:translate-x-1">24/7 Support</span>
                   </a>
                 </li>

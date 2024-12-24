@@ -81,9 +81,9 @@ export default function NavigationHeader() {
   }
 
   return (
-    <header className="bg-theme-primary text-theme-background">
+    <header className="bg-theme-primary text-theme-background relative z-50">
       {/* Top Bar */}
-      <div className="border-b border-theme-primary-hover px-4 py-1 text-sm">
+      <div className="border-b border-theme-primary-hover px-4 py-1 text-sm relative z-50">
         <div className="mx-auto flex max-w-7xl items-center justify-between">
           <div className="flex items-center gap-4">
             <span className="font-semibold">SS Holdings Trusted - Used Car Dealer</span>
@@ -116,7 +116,7 @@ export default function NavigationHeader() {
       </div>
 
       {/* Main Navigation */}
-      <div className="mx-auto flex max-w-7xl items-center justify-between px-4 py-1 relative">
+      <div className="mx-auto flex max-w-7xl items-center justify-between px-4 py-1 relative z-50">
         {/* Logo and Search */}
         <div className="flex items-center gap-8">
           <div className="flex-shrink-0 -my-60">
@@ -151,7 +151,7 @@ export default function NavigationHeader() {
         </div>
 
         {/* User Actions */}
-        <div className="flex items-center gap-4">
+        <div className="flex items-center gap-4 relative z-50">
           {isAuthenticated && user ? (
             <div className="flex items-center gap-4">
               <Button variant="ghost" className="text-theme-background hover:text-theme-secondary">
@@ -179,7 +179,11 @@ export default function NavigationHeader() {
                     </div>
                   </Button>
                 </DropdownMenuTrigger>
-                <DropdownMenuContent align="end" className="w-56">
+                <DropdownMenuContent 
+                  align="end" 
+                  className="w-56 z-[60]"
+                  sideOffset={5}
+                >
                   <div className="px-2 py-1.5">
                     <p className="text-sm font-medium">{user?.name || 'Customer'}</p>
                     <p className="text-xs text-gray-500">{user?.email}</p>
@@ -211,7 +215,11 @@ export default function NavigationHeader() {
                   <ChevronDown className="h-4 w-4" />
                 </div>
               </DropdownMenuTrigger>
-              <DropdownMenuContent align="end" className="w-72">
+              <DropdownMenuContent 
+                align="end" 
+                className="w-72 z-[60]"
+                sideOffset={5}
+              >
                 <div className="p-4">
                   <div className="text-center mb-4">
                     <h3 className="font-medium text-lg">Welcome Back!</h3>
@@ -243,8 +251,10 @@ export default function NavigationHeader() {
         </div>
       </div>
 
-      {/* Navigation Menu - Now using the MainNav component */}
-      <MainNav />
+      {/* Navigation Menu */}
+      <nav className="relative z-50">
+        <MainNav />
+      </nav>
     </header>
   )
 }

@@ -6881,3 +6881,77 @@ a.ck.ck-button:not(.ck-button_with-text) {
 .animate-fade-in-up {
   animation: fadeInUp 0.3s ease-out;
 }
+
+.text-shadow-lg {
+  text-shadow: 
+      2px 2px 4px rgba(0,0,0,0.3),
+      0 0 40px rgba(255,255,255,0.1);
+}
+
+/* Optional: Add this if you want a smoother font rendering */
+* {
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+@font-face {
+  font-family: 'GoldenWings';
+  src: url('/fonts/GoldenWings.ttf') format('truetype');
+  font-display: swap;
+}
+
+.gradient-text {
+  background: linear-gradient(90deg, 
+      rgba(131,58,180,1) 0%, 
+      rgba(253,29,29,1) 50%, 
+      rgba(252,176,69,1) 100%
+  );
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+  /* Optional: add some pop with a subtle text shadow */
+  filter: drop-shadow(2px 2px 2px rgba(0,0,0,0.3));
+}
+
+/* Optional: Add hover effect */
+.gradient-text:hover {
+  background: linear-gradient(90deg, 
+      rgba(252,176,69,1) 0%, 
+      rgba(253,29,29,1) 50%, 
+      rgba(131,58,180,1) 100%
+  );
+  -webkit-background-clip: text;
+  background-clip: text;
+}
+
+/* Add these z-index utilities */
+.dropdown-layer {
+  z-index: 60;
+}
+
+/* Ensure header stays on top */
+.header-fixed {
+  position: relative;
+  z-index: 50;
+}
+
+/* Lower z-index for hero banner */
+.hero-banner {
+  position: relative;
+  z-index: 0;
+}
+
+/* Add these styles for navigation menu */
+.navigation-menu-content {
+  z-index: 60;
+}
+
+.navigation-menu-viewport {
+  z-index: 60;
+  position: relative;
+}
+
+/* Ensure proper stacking for nested elements */
+.navigation-menu-sub-content {
+  z-index: 61;
+}

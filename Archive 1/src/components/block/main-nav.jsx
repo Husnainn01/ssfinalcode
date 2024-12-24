@@ -64,18 +64,21 @@ export function MainNav() {
   
 
   return (
-    <div className="mx-auto max-w-7xl px-4 py-2">
-      <NavigationMenu>
+    <div className="mx-auto max-w-7xl px-4 py-2 relative z-50">
+      <NavigationMenu className="relative z-50">
         <NavigationMenuList className="gap-8">
           {/* About Dropdown */}
           <NavigationMenuItem>
             <NavigationMenuTrigger 
-              className="text-base font-medium bg-transparent text-white hover:bg-white/10 data-[state=open]:bg-white/10 hover:text-theme-secondary-hover data-[state=open]:text-theme-secondary-hover transition-all duration-200"
+              className="text-base font-medium bg-transparent text-white hover:bg-white/10 
+                data-[state=open]:bg-white/10 hover:text-theme-secondary-hover 
+                data-[state=open]:text-theme-secondary-hover transition-all duration-200"
             >
               About
             </NavigationMenuTrigger>
-            <NavigationMenuContent>
-              <div className="w-64 p-3 bg-white/95 backdrop-blur-sm rounded-lg shadow-[0_4px_20px_rgba(0,0,0,0.15)] border border-gray-100/50">
+            <NavigationMenuContent className="z-[60]">
+              <div className="w-64 p-3 bg-white/95 backdrop-blur-sm rounded-lg 
+                shadow-[0_4px_20px_rgba(0,0,0,0.15)] border border-gray-100/50">
                 <Link 
                   href="/about" 
                   className="block px-4 py-2.5 text-[15px] text-gray-700 rounded-md hover:bg-gradient-to-r from-theme-secondary-hover to-transparent hover:text-theme-primary transition-all duration-200"
@@ -107,12 +110,15 @@ export function MainNav() {
           {/* Stock List Mega Menu */}
           <NavigationMenuItem>
             <NavigationMenuTrigger 
-              className="text-base font-medium bg-transparent text-white hover:bg-white/10 data-[state=open]:bg-white/10 hover:text-theme-secondary-hover data-[state=open]:text-theme-secondary-hover transition-all duration-200"
+              className="text-base font-medium bg-transparent text-white hover:bg-white/10 
+                data-[state=open]:bg-white/10 hover:text-theme-secondary-hover 
+                data-[state=open]:text-theme-secondary-hover transition-all duration-200"
             >
               Stock List
             </NavigationMenuTrigger>
-            <NavigationMenuContent>
-              <div className="w-[700px] p-3 bg-white/95 backdrop-blur-sm rounded-lg shadow-[0_4px_20px_rgba(0,0,0,0.15)] border border-gray-100/50">
+            <NavigationMenuContent className="z-[60]">
+              <div className="w-[700px] p-3 bg-white/95 backdrop-blur-sm rounded-lg 
+                shadow-[0_4px_20px_rgba(0,0,0,0.15)] border border-gray-100/50">
                 <div className="grid grid-cols-[2fr_2fr_1.5fr] divide-x divide-gray-200/60">
                   {/* Search By Make */}
                   <div className="pr-3 border-r border-gray-200/60">

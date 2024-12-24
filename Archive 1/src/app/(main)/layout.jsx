@@ -7,14 +7,14 @@ import { Toaster } from "@/components/ui/toaster"
 
 export default function MainLayout({ children }) {
   return (
-    <>
+    <div className="flex flex-col min-h-screen">
       <Banner />
       <Header />
-      <main>{children}</main>
+      <main className="flex-grow bg-[#E2F1E7]">{children}</main>
       <Footer />
       <ScrollToTop />
       <WhatsAppChat />
       <Toaster />
-    </>
+    </div>
   );
 }
