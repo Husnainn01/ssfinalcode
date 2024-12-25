@@ -14,20 +14,14 @@ export async function POST() {
       'next-auth.callback-url'
     ]
 
-    // Clear cookies using cookieStore
-    cookiesToClear.forEach(name => {
+    // Create Set-Cookie headers for each cookie with proper expiration
+    const clearCookieHeaders = cookiesToClear.map(name => {
       cookieStore.delete(name)
+      return `${name}=; Path=/; Expires=Thu, 01 Jan 1970 00:00:00 GMT; HttpOnly; Secure; SameSite=Lax; Domain=${process.env.NEXT_PUBLIC_DOMAIN || ''}`
     })
 
-    // Create Set-Cookie headers for each cookie
-    const clearCookieHeaders = cookiesToClear.map(name => 
-      `${name}=; Path=/; Expires=Thu, 01 Jan 1970 00:00:00 GMT; HttpOnly; Secure; SameSite=Lax`
-    )
-
-    // Log for debugging
-    console.log('Clearing cookies:', cookiesToClear)
-
-    return new NextResponse(
+    // Create response with all cookie clearing headers
+    const response = new NextResponse(
       JSON.stringify({ 
         success: true,
         message: 'Logged out successfully' 
@@ -36,10 +30,17 @@ export async function POST() {
         status: 200,
         headers: {
           'Content-Type': 'application/json',
-          'Set-Cookie': clearCookieHeaders
         }
       }
     )
+
+    // Add all Set-Cookie headers
+    clearCookieHeaders.forEach(header => {
+      response.headers.append('Set-Cookie', header)
+    })
+
+    return response
+
   } catch (error) {
     console.error('Logout error:', error)
     return new NextResponse(

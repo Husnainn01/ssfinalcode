@@ -70,19 +70,30 @@ export default function NavigationHeader() {
       });
 
       if (response.ok) {
-        document.cookie = 'token=; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT';
-        document.cookie = 'customer_token=; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT';
-        router.push('/auth/login');
+        // Clear local storage if you're using it
+        localStorage.clear();
+        
+        // Clear cookies from client side as well
+        document.cookie.split(";").forEach((c) => {
+          document.cookie = c
+            .replace(/^ +/, "")
+            .replace(/=.*/, "=;expires=" + new Date().toUTCString() + ";path=/");
+        });
+
+        // Force reload to clear any cached state
+        window.location.href = '/auth/login';
+      } else {
+        throw new Error('Logout failed');
       }
     } catch (error) {
-      console.error('Logout failed:', error)
+      console.error('Logout failed:', error);
       toast({
         variant: "destructive",
         title: "Error",
         description: "Logout failed. Please try again.",
       });
     }
-  }
+  };
 
   const handleSearch = async (e) => {
     e.preventDefault()
@@ -312,12 +323,15 @@ export default function NavigationHeader() {
                     
                     <div className="text-center text-sm text-gray-500">
                       Don't have an account?{' '}
-                      <Link 
-                        href="/auth/register"
+                      <button 
+                        onClick={() => {
+                          router.push('/auth/login?register=true');
+                          // This will open the login page with registration form active
+                        }}
                         className="text-theme-secondary hover:underline"
                       >
                         Register
-                      </Link>
+                      </button>
                     </div>
                   </div>
                 </div>

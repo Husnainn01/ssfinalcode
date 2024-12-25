@@ -12,6 +12,7 @@ import {
   Minus, 
   HelpCircle 
 } from "lucide-react"
+import Link from 'next/link'
 
 const faqs = [
   {
@@ -197,14 +198,14 @@ export default function FAQ() {
 
         <div className="mt-12 text-center">
           <p className="text-gray-600 mb-4 text-lg">Still have questions?</p>
-          <a
-            href="/contact"
+          <Link
+            href="/contact-us"
             className="inline-flex items-center justify-center px-8 py-4 bg-blue-950 text-white 
               font-medium rounded-xl hover:bg-blue-900 transition-all duration-300 
               shadow-lg hover:shadow-xl"
           >
             Contact Support
-          </a>
+          </Link>
         </div>
       </div>
     </div>

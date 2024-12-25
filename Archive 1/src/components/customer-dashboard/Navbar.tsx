@@ -14,6 +14,7 @@ import {
 import { motion, AnimatePresence } from "framer-motion"
 import { cn } from "@/lib/utils"
 import { useCustomerAuth } from '@/hooks/useCustomerAuth'
+import Link from "next/link"
 
 interface NavbarProps {
   toggleSidebar: () => void
@@ -236,13 +237,15 @@ export function Navbar({ toggleSidebar }: NavbarProps) {
               <Menu className="h-6 w-6" />
             </button>
             <div className="flex items-center space-x-3">
-              <Image
-                src="/sss-logo.png"
-                alt="Logo"
-                width={200}
-                height={60}
-                className="rounded-lg"
-              />
+              <Link href="/" className="hover:opacity-90 transition-opacity">
+                <Image
+                  src="/sss-logo.png"
+                  alt="Logo"
+                  width={200}
+                  height={60}
+                  className="rounded-lg"
+                />
+              </Link>
               <span className="text-xs font-semibold hidden sm:block">
                 Your's Trusted Logistics Solution
               </span>

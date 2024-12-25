@@ -294,7 +294,7 @@ export default function AuctionInformation() {
         </div>
 
         {/* Navigation Bar */}
-        <nav className="sticky top-0 z-50 bg-white/80 backdrop-blur-md shadow-md">
+        <nav className="sticky top-0 z-50 backdrop-blur-md">
           <div className="container mx-auto px-4">
             <div className="flex items-center justify-center space-x-1 md:space-x-4 py-2">
               {[

@@ -15,6 +15,7 @@ import {
   AccordionItem,
   AccordionTrigger,
 } from '@/components/ui/accordion'
+import Link from 'next/link'
 
 export default function InteractiveAboutUs() {
   const [activeSection, setActiveSection] = useState('history')
@@ -389,12 +390,13 @@ export default function InteractiveAboutUs() {
               viewport={{ once: true }}
               transition={{ delay: 0.4 }}
             >
-              <Button 
-                className="bg-[#629584] hover:bg-[#629584]/90 text-white px-12 py-6 text-lg rounded-xl"
-                onClick={() => {/* handle action */}}
-              >
-                Contact Us Today
-              </Button>
+              <Link href="/contact-us">
+                <Button
+                  className="bg-[#629584] hover:bg-[#629584]/90 text-white px-12 py-6 text-lg rounded-xl"
+                >
+                  Contact Us Today
+                </Button>
+              </Link>
             </motion.div>
           </div>
         </footer>

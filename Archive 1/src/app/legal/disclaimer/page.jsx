@@ -11,7 +11,7 @@ import {
   Scale,
   HelpCircle
 } from 'lucide-react'
-
+import Link from 'next/link'
 
 export default function Disclaimer() {
   const lastUpdated = '2024-03-20'
@@ -91,8 +91,8 @@ export default function Disclaimer() {
   ]
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-gray-50 to-white py-12">
-      <div className="mx-auto max-w-4xl px-4">
+    <div className="bg-gradient-to-b from-gray-50 to-white">
+      <div className="mx-auto max-w-4xl px-4 py-8">
         <Breadcrumbs items={breadcrumbItems} />
         
         <div className="mb-12 text-center">
@@ -140,12 +140,12 @@ export default function Disclaimer() {
           <p className="mb-6 text-gray-600">
             If you need clarification about any part of our disclaimer, our team is here to help.
           </p>
-          <a
-            href="/contact"
+          <Link
+            href="/contact-us"
             className="inline-flex items-center justify-center rounded-lg bg-[#629584] px-6 py-3 text-sm font-medium text-white transition-all hover:bg-[#4a7164] focus:outline-none focus:ring-2 focus:ring-[#629584] focus:ring-offset-2"
           >
             Contact Us
-          </a>
+          </Link>
         </div>
       </div>
     </div>

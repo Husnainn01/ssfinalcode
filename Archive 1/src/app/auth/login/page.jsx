@@ -105,6 +105,15 @@ export default function AuthPage() {
     }
   }, [isAuthenticated, authLoading, router])
 
+  // Add this useEffect to handle registration form
+  useEffect(() => {
+    // Check if we should show registration form
+    const params = new URLSearchParams(window.location.search);
+    if (params.get('register') === 'true') {
+      setIsLogin(false);
+    }
+  }, []);
+
   const onLoginSubmit = async (values) => {
     setIsLoading(true);
     try {

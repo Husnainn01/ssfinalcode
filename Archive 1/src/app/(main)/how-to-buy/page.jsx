@@ -15,6 +15,7 @@ import {
 import LeftSidebar from "@/components/template/leftsidebar"
 import RightSidebar from "@/components/template/rightsidebar"
 import Breadcrumbs from '@/components/ui/breadcrumbs'
+import Link from 'next/link'
 
 export default function HowToBuy() {
   const [activeStep, setActiveStep] = useState(0)
@@ -111,7 +112,7 @@ export default function HowToBuy() {
   // Sticky navigation bar
   const renderNavigation = () => (
     <motion.div 
-      className="sticky top-0 bg-white/90 backdrop-blur-md z-10 border-b border-gray-200/80 shadow-sm"
+      className="sticky top-0 backdrop-blur-md z-10 border-b border-gray-200/80"
       initial={{ opacity: 0, y: -20 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.5 }}
@@ -257,20 +258,22 @@ export default function HowToBuy() {
               Browse our inventory or contact our team to begin your car buying journey today.
             </p>
             <div className="flex justify-center gap-6">
-              <motion.a
-                href="/cars"
-                className="bg-gradient-to-r from-[#14225D] to-[#1a2d7c] text-white px-10 py-4 rounded-xl hover:shadow-xl transition-all duration-300 text-lg font-medium transform hover:scale-105"
-                whileHover={{ y: -2 }}
-              >
-                View Inventory
-              </motion.a>
-              <motion.a
-                href="/contact"
-                className="bg-white text-[#14225D] border-2 border-[#14225D] px-10 py-4 rounded-xl hover:shadow-xl transition-all duration-300 text-lg font-medium transform hover:scale-105"
-                whileHover={{ y: -2 }}
-              >
-                Contact Us
-              </motion.a>
+              <Link href="/cars">
+                <motion.button
+                  className="bg-gradient-to-r from-[#14225D] to-[#1a2d7c] text-white px-10 py-4 rounded-xl hover:shadow-xl transition-all duration-300 text-lg font-medium transform hover:scale-105"
+                  whileHover={{ y: -2 }}
+                >
+                  View Inventory
+                </motion.button>
+              </Link>
+              <Link href="/contact-us">
+                <motion.button
+                  className="bg-white text-[#14225D] border-2 border-[#14225D] px-10 py-4 rounded-xl hover:shadow-xl transition-all duration-300 text-lg font-medium transform hover:scale-105"
+                  whileHover={{ y: -2 }}
+                >
+                  Contact Us
+                </motion.button>
+              </Link>
             </div>
           </motion.div>
         </div>

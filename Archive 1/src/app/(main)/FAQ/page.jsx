@@ -288,7 +288,7 @@ export default function FAQ() {
               Can't find the answer you're looking for? Please contact our support team.
             </p>
             <motion.a
-              href="/contact"
+              href="/contact-us"
               className="inline-flex items-center justify-center px-8 py-4 bg-gradient-to-r from-[#14225D] to-[#1a2d7c] text-white rounded-xl hover:shadow-xl transition-all duration-300 transform hover:scale-105"
               whileHover={{ y: -2 }}
             >
