@@ -175,16 +175,19 @@ export default function NavigationHeader() {
       {/* Main Navigation */}
       <div className="mx-auto flex max-w-7xl items-center justify-between px-4 py-1 relative z-50">
         {/* Logo and Search */}
-        <div className="flex items-center gap-8">
-          <div className="flex-shrink-0 -my-60">
+        <div className="flex items-center gap-2" style={{ width: '60%' }}>
+          <Link 
+            href="/" 
+            className="flex-shrink-0 -my-60 hover:opacity-80 transition-opacity cursor-pointer"
+          >
             <img
               src="/sss-logo.png"
               alt="SS Holdings"
               className="h-[40px] w-auto"
             />
-          </div>
+          </Link>
           
-          <form onSubmit={handleSearch} className="flex">
+          <form onSubmit={handleSearch} className="flex w-full max-w-2xl">
             <Select 
               value={searchType}
               onValueChange={setSearchType}
@@ -194,9 +197,9 @@ export default function NavigationHeader() {
                   {searchType === 'keyword' ? 'By Keyword' : 'By Stock No.'}
                 </SelectValue>
               </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="keyword">By Keyword</SelectItem>
-                <SelectItem value="stockNumber">By Stock No.</SelectItem>
+              <SelectContent className="bg-white border border-gray-200 shadow-lg">
+                <SelectItem value="keyword" className="hover:bg-gray-100">By Keyword</SelectItem>
+                <SelectItem value="stockNumber" className="hover:bg-gray-100">By Stock No.</SelectItem>
               </SelectContent>
             </Select>
             <div className="relative flex flex-1">
@@ -220,13 +223,17 @@ export default function NavigationHeader() {
         </div>
 
         {/* User Actions */}
-        <div className="flex items-center gap-4 relative z-50">
+        <div className="flex items-center justify-end gap-8" style={{ width: '40%' }}>
           {isAuthenticated && user ? (
-            <div className="flex items-center gap-4">
-              <Button variant="ghost" className="text-theme-background hover:text-theme-secondary">
+            <div className="flex items-center gap-8">
+              <Button 
+                variant="ghost" 
+                className="text-theme-background hover:text-theme-secondary whitespace-nowrap ml-auto"
+                onClick={() => router.push('/customer-dashboard/favorites')}
+              >
                 <Heart className="mr-2 h-5 w-5" />
                 <span>Favorites</span>
-                <span className="ml-2 rounded-full bg-theme-secondary px-2 py-0.5 text-xs">
+                <span className="ml-2 rounded-full bg-theme-secondary px-2 py-0.5 text-xs text-theme-primary">
                   {favoritesCount || 0}
                 </span>
               </Button>
