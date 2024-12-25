@@ -1,6 +1,6 @@
 import { notFound } from 'next/navigation';
 import ListingPage from "./carPost";
-import { FavoriteButton } from '@/components/FavoriteButton';
+import { FavoriteButton } from '@/components/ui/FavoriteButton';
 
 async function fetchCar(slug) {
   try {
@@ -41,7 +41,7 @@ export default async function CarDetailsPage({ params }) {
         <ListingPage 
           car={car} 
           slug={params.slug}
-          // favoriteButton={<FavoriteButton carId={params.slug} />} 
+          favoriteButton={<FavoriteButton carId={car._id} />} 
         />
       </div>
     );

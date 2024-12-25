@@ -12,6 +12,7 @@ import CountryFlags from "@/components/block/CountryFlags";
 import { useRouter, useSearchParams } from 'next/navigation';
 import PriceCalculator from "@/components/block/PriceCalculator";
 import CurrentSearch from "@/components/block/CurrentSearch";
+import { FavoriteButton } from '@/components/ui/FavoriteButton';
 
 function Listing() {
     const [listing, setListing] = useState([]);
@@ -152,11 +153,9 @@ function Listing() {
                                             className="w-full h-full object-cover rounded-lg"
                                         />
                                     </Link>
-                                    <button className="absolute top-4 left-4 bg-white/90 p-1.5 rounded-full hover:bg-white">
-                                        <svg className="w-3.5 h-3.5 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                            <path d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z" />
-                                        </svg>
-                                    </button>
+                                    <div className="absolute top-4 left-4 bg-black/50 rounded">
+                                        <FavoriteButton carId={item._id} />
+                                    </div>
                                     <div className="absolute bottom-4 left-4 text-[10px] bg-gray-900/80 text-white px-2 py-0.5 rounded">
                                         Stock No. {item.stockNumber}
                                     </div>

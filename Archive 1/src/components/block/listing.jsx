@@ -186,7 +186,7 @@ function Listing() {
                                 >
                                     <div className="bg-white rounded-xl overflow-hidden shadow-sm 
                                         hover:shadow-xl transition-all duration-300">
-                                        {/* Image Container with Stock Number */}
+                                        {/* Image Container with Stock Number and Favorite Button */}
                                         <div className="relative">
                                             <img
                                                 src={item.image}
@@ -196,6 +196,10 @@ function Listing() {
                                             <div className="absolute top-2 right-2 bg-black/70 px-2 py-1 
                                                 rounded text-xs text-white backdrop-blur-sm font-medium">
                                                 Stock: #{item.stockNumber}
+                                            </div>
+                                            {/* Add Favorite Button */}
+                                            <div className="absolute top-2 left-2 bg-black/90 rounded">
+                                                <FavoriteButton carId={item._id} />
                                             </div>
                                         </div>
 
@@ -287,7 +291,7 @@ function Listing() {
                                 >
                                     <div className="bg-white rounded-xl overflow-hidden shadow-sm 
                                         hover:shadow-xl transition-all duration-300">
-                                        {/* Image Container with Stock Number */}
+                                        {/* Image Container with Stock Number and Favorite Button */}
                                         <div className="relative">
                                             <img
                                                 src={item.image}
@@ -297,6 +301,10 @@ function Listing() {
                                             <div className="absolute top-2 right-2 bg-black/70 px-2 py-1 
                                                 rounded text-xs text-white backdrop-blur-sm font-medium">
                                                 Stock: #{item.stockNumber}
+                                            </div>
+                                            {/* Add Favorite Button */}
+                                            <div className="absolute top-2 left-2 bg-black/90 rounded">
+                                                <FavoriteButton carId={item._id} />
                                             </div>
                                         </div>
 

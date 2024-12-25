@@ -9,10 +9,14 @@ import { useToast } from './use-toast'
 import { useRouter } from 'next/navigation'
 
 interface FavoriteButtonProps {
-  carId: string | number
+  carId: string | number | undefined
 }
 
 export function FavoriteButton({ carId }: FavoriteButtonProps) {
+  if (!carId) {
+    return null;
+  }
+
   const normalizedCarId = carId.toString()
   const { user, isAuthenticated, isLoading: authLoading } = useCustomerAuth()
   const router = useRouter()

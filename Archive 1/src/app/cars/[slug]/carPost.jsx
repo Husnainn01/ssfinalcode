@@ -52,7 +52,10 @@ export default function ListingPage({ car, slug, favoriteButton }) {
         <div className="flex flex-col lg:flex-row gap-8">
           <div className="w-full lg:w-3/5">
             <div className="relative w-full">
-              <ImageSlider images={car.images || [car.image]} />
+              <ImageSlider 
+                images={car.images || [car.image]} 
+                carId={car._id}
+              />
             </div>
             <div>
               <div className="flex flex-col lg:flex-row lg:justify-between lg:items-center mt-4 px-4 rounded-md">
@@ -126,10 +129,6 @@ export default function ListingPage({ car, slug, favoriteButton }) {
             </div>
           </div>
         </div>
-      </div>
-      <div className="flex items-center gap-2">
-        {favoriteButton}
-        {/* Other buttons/actions */}
       </div>
     </div>
   );
