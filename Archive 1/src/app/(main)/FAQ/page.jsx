@@ -191,7 +191,7 @@ export default function FAQ() {
         </div>
 
         {/* Navigation */}
-        <div className="sticky top-0 bg-white/90 backdrop-blur-md z-10 border-b border-gray-200/80 shadow-sm">
+        <div className="sticky top-0 backdrop-blur-md z-10 border-b border-gray-200/80">
           <div className="max-w-7xl mx-auto px-4">
             <div className="overflow-x-auto">
               <div className="flex justify-center space-x-4 py-4">

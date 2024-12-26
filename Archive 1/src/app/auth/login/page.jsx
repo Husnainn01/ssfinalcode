@@ -263,9 +263,9 @@ export default function AuthPage() {
 
   return (
     <LayoutGroup>
-      <div className="flex min-h-screen bg-gradient-to-br from-gray-50 to-gray-100 overflow-hidden">
+      <div className="flex min-h-screen overflow-hidden">
         <motion.div
-          className="flex-1 bg-gradient-to-br from-gray-900 via-slate-800 to-slate-900"
+          className="flex-1 bg-gradient-to-br from-gray-900 via-slate-800 to-slate-900 min-w-[50%]"
           initial={false}
           animate={{
             x: isLogin ? "0%" : "100%",
@@ -273,7 +273,7 @@ export default function AuthPage() {
           transition={{ type: "spring", stiffness: 300, damping: 30 }}
         >
           <motion.div
-            className={`h-full flex items-center justify-center text-white p-10 backdrop-blur-sm ${inter.variable}`}
+            className="h-full w-full flex items-center justify-center text-white p-10 backdrop-blur-sm"
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
@@ -313,14 +313,14 @@ export default function AuthPage() {
         </motion.div>
 
         <motion.div
-          className="flex-1 flex items-center justify-center p-8"
+          className="flex-1 flex items-center justify-center p-8 bg-[#629583] min-w-[50%]"
           initial={false}
           animate={{
             x: isLogin ? "0%" : "-100%",
           }}
           transition={{ type: "spring", stiffness: 300, damping: 30 }}
         >
-          <Card className="w-full max-w-md shadow-xl border-0">
+          <Card className="w-full max-w-md shadow-xl border-0 bg-white">
             <CardHeader className="space-y-2 pb-2">
               <motion.div initial={false}>
                 <CardTitle className="text-2xl font-bold">
@@ -348,7 +348,7 @@ export default function AuthPage() {
                         <FormField
                           control={loginForm.control}
                           name="email"
-                          render={({ field }) => (
+                          render={({ field, fieldState }) => (
                             <FormItem>
                               <FormLabel className="text-gray-700">Email</FormLabel>
                               <FormControl>
@@ -357,17 +357,36 @@ export default function AuthPage() {
                                   type="email" 
                                   {...field} 
                                   disabled={isLoading}
-                                  className="h-11"
+                                  className={`h-11 ${fieldState.error ? 'border-red-500 focus-visible:ring-red-500' : ''}`}
                                 />
                               </FormControl>
-                              <FormMessage className="text-sm" />
+                              {fieldState.error && (
+                                <div className="bg-red-50 border-l-4 border-red-500 p-2 mt-1 rounded-md">
+                                  <div className="flex items-center gap-2">
+                                    <svg 
+                                      className="h-4 w-4 text-red-600" 
+                                      viewBox="0 0 20 20" 
+                                      fill="currentColor"
+                                    >
+                                      <path 
+                                        fillRule="evenodd" 
+                                        d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" 
+                                        clipRule="evenodd" 
+                                      />
+                                    </svg>
+                                    <p className="text-sm text-red-600 font-medium">
+                                      {fieldState.error.message}
+                                    </p>
+                                  </div>
+                                </div>
+                              )}
                             </FormItem>
                           )}
                         />
                         <FormField
                           control={loginForm.control}
                           name="password"
-                          render={({ field }) => (
+                          render={({ field, fieldState }) => (
                             <FormItem>
                               <FormLabel className="text-gray-700">Password</FormLabel>
                               <FormControl>
@@ -376,10 +395,29 @@ export default function AuthPage() {
                                   placeholder="Enter your password" 
                                   {...field} 
                                   disabled={isLoading}
-                                  className="h-11"
+                                  className={`h-11 ${fieldState.error ? 'border-red-500 focus-visible:ring-red-500' : ''}`}
                                 />
                               </FormControl>
-                              <FormMessage className="text-sm" />
+                              {fieldState.error && (
+                                <div className="bg-red-50 border-l-4 border-red-500 p-2 mt-1 rounded-md">
+                                  <div className="flex items-center gap-2">
+                                    <svg 
+                                      className="h-4 w-4 text-red-600" 
+                                      viewBox="0 0 20 20" 
+                                      fill="currentColor"
+                                    >
+                                      <path 
+                                        fillRule="evenodd" 
+                                        d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" 
+                                        clipRule="evenodd" 
+                                      />
+                                    </svg>
+                                    <p className="text-sm text-red-600 font-medium">
+                                      {fieldState.error.message}
+                                    </p>
+                                  </div>
+                                </div>
+                              )}
                             </FormItem>
                           )}
                         />
@@ -394,8 +432,8 @@ export default function AuthPage() {
                         )}
                         <Button 
                           type="submit" 
-                          className="w-full h-11 text-base font-medium"
-                          disabled={isLoading || !loginForm.formState.isValid}
+                          className="w-full bg-[#182454] hover:bg-[#182454]/90" 
+                          disabled={isLoading}
                         >
                           {isLoading ? (
                             <>

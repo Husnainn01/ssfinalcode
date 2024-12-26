@@ -29,42 +29,50 @@ import {
   FormMessage,
 } from "@/components/ui/form"
 
-import { useAuth0 } from '@auth0/auth0-react';
-import { FcGoogle } from "react-icons/fc";  // Google icon
-import { FaFacebook } from "react-icons/fa"; // Facebook icon
-
 // Separate schemas for each step
 const emailSchema = z.object({
-  email: z.string().email({ message: "Invalid email address" }),
+  email: z.string().email({ 
+    message: "Please enter a valid email address" 
+  }),
 })
 
 const verificationSchema = z.object({
-  code: z.string().length(6, { message: "Verification code must be 6 digits" }),
+  code: z.string().length(6, { 
+    message: "Verification code must be 6 digits" 
+  }),
 })
 
 const registrationSchema = z.object({
-  firstName: z.string().min(2, { message: "First name must be at least 2 characters" }),
-  lastName: z.string().min(2, { message: "Last name must be at least 2 characters" }),
-  email: z.string().email({ message: "Invalid email address" }),
+  firstName: z.string().min(2, { 
+    message: "First name should be at least 2 characters" 
+  }),
+  lastName: z.string().min(2, { 
+    message: "Last name should be at least 2 characters" 
+  }),
+  email: z.string().email({ 
+    message: "Please enter a valid email address" 
+  }),
   phoneNumber: z.object({
-    countryCode: z.string().min(2, { message: "Please select a country code" }),
+    countryCode: z.string().min(2, { 
+      message: "Please select your country code" 
+    }),
     number: z.string()
-      .min(5, { message: "Phone number is required" })
-      .regex(/^\d+$/, { message: "Please enter only numbers" })
+      .min(5, { message: "Please enter your phone number" })
+      .regex(/^\d+$/, { message: "Phone number should contain only digits" })
   }),
   address: z.object({
-    country: z.string().min(1, { message: "Country is required" }),
-    port: z.string().min(1, { message: "Port is required" }),
-    postCode: z.string().min(1, { message: "Post code is required" })
+    country: z.string().min(1, { message: "Please select your country" }),
+    port: z.string().min(1, { message: "Please enter your port" }),
+    postCode: z.string().min(1, { message: "Please enter your post code" })
   }),
   password: z.string()
-    .min(8, { message: "Password must be at least 8 characters" })
-    .regex(/[A-Z]/, { message: "Password must contain at least one uppercase letter" })
-    .regex(/[a-z]/, { message: "Password must contain at least one lowercase letter" })
-    .regex(/[0-9]/, { message: "Password must contain at least one number" }),
+    .min(8, { message: "Password must be at least 8 characters long" })
+    .regex(/[A-Z]/, { message: "Password requires at least one uppercase letter" })
+    .regex(/[a-z]/, { message: "Password requires at least one lowercase letter" })
+    .regex(/[0-9]/, { message: "Password requires at least one number" }),
   confirmPassword: z.string(),
 }).refine((data) => data.password === data.confirmPassword, {
-  message: "Passwords don't match",
+  message: "Passwords do not match",
   path: ["confirmPassword"],
 })
 
@@ -124,7 +132,10 @@ const VerificationInput = ({ value, onChange, isLoading }) => {
           onKeyDown={(e) => handleKeyDown(index, e)}
           onPaste={handlePaste}
           disabled={isLoading}
-          className="w-12 h-12 text-center text-2xl font-semibold border rounded-lg focus:border-primary focus:ring-1 focus:ring-primary disabled:opacity-50"
+          className="w-12 h-12 text-center text-2xl font-semibold border rounded-lg 
+            focus:border-green-500 focus:ring-2 focus:ring-green-500/20 
+            outline-none transition-all duration-200
+            disabled:opacity-50"
         />
       ))}
     </div>
@@ -137,9 +148,6 @@ export default function RegisterForm({ onSuccess }) {
   const [isLoading, setIsLoading] = useState(false)
   const [verifiedEmail, setVerifiedEmail] = useState("")
   const [countrySearch, setCountrySearch] = useState("")
-  const { loginWithRedirect, isAuthenticated } = useAuth0();
-  const [localLoading, setLocalLoading] = useState(false);
-  const [socialLoading, setSocialLoading] = useState({ google: false, facebook: false });
 
   // Separate forms for each step
   const emailForm = useForm({
@@ -316,43 +324,6 @@ export default function RegisterForm({ onSuccess }) {
     ).sort((a, b) => a.name.localeCompare(b.name));
   }, [countrySearch]);
 
-  const handleLocalSignIn = async () => {
-    setLocalLoading(true);
-    try {
-      // Your local authentication logic here
-    } catch (error) {
-      console.error('Local sign-in error:', error);
-      toast({
-        variant: "destructive",
-        title: "Error",
-        description: "Failed to sign in locally. Please try again.",
-      });
-    } finally {
-      setLocalLoading(false);
-    }
-  };
-
-  const handleSocialSignIn = useCallback(async (provider) => {
-    try {
-      setSocialLoading(prev => ({ ...prev, [provider]: true }));
-      await loginWithRedirect({
-        connection: provider,
-        appState: {
-          returnTo: '/customer-dashboard'
-        }
-      });
-    } catch (error) {
-      console.error('Social sign-in error:', error);
-      toast({
-        variant: "destructive",
-        title: "Error",
-        description: `Failed to sign in with ${provider}. Please try again.`,
-      });
-    } finally {
-      setSocialLoading(prev => ({ ...prev, [provider]: false }));
-    }
-  }, [loginWithRedirect]);
-
   return (
     <div className="space-y-6">
       <AnimatePresence mode="wait">
@@ -373,7 +344,7 @@ export default function RegisterForm({ onSuccess }) {
                 <FormField
                   control={emailForm.control}
                   name="email"
-                  render={({ field }) => (
+                  render={({ field, fieldState }) => (
                     <FormItem>
                       <FormLabel>Email</FormLabel>
                       <FormControl>
@@ -382,12 +353,31 @@ export default function RegisterForm({ onSuccess }) {
                           <Input 
                             {...field}
                             placeholder="Enter your email"
-                            className="pl-10"
+                            className={`pl-10 ${fieldState.error ? 'border-red-500 focus-visible:ring-red-500' : ''}`}
                             disabled={isLoading}
                           />
                         </div>
                       </FormControl>
-                      <FormMessage />
+                      {fieldState.error && (
+                        <div className="bg-red-50 border-l-4 border-red-500 p-2 mt-1 rounded-md">
+                          <div className="flex items-center gap-2">
+                            <svg 
+                              className="h-4 w-4 text-red-600" 
+                              viewBox="0 0 20 20" 
+                              fill="currentColor"
+                            >
+                              <path 
+                                fillRule="evenodd" 
+                                d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" 
+                                clipRule="evenodd" 
+                              />
+                            </svg>
+                            <p className="text-sm text-red-600 font-medium">
+                              {fieldState.error.message}
+                            </p>
+                          </div>
+                        </div>
+                      )}
                     </FormItem>
                   )}
                 />
@@ -439,7 +429,28 @@ export default function RegisterForm({ onSuccess }) {
                           isLoading={isLoading}
                         />
                       </FormControl>
-                      <FormMessage />
+                      <FormMessage>
+                        {field.error && (
+                          <div className="bg-red-50 border-l-4 border-red-500 p-2 mt-1 rounded-md">
+                            <div className="flex items-center gap-2">
+                              <svg 
+                                className="h-4 w-4 text-red-600" 
+                                viewBox="0 0 20 20" 
+                                fill="currentColor"
+                              >
+                                <path 
+                                  fillRule="evenodd" 
+                                  d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" 
+                                  clipRule="evenodd" 
+                                />
+                              </svg>
+                              <p className="text-sm text-red-600 font-medium">
+                                {field.error.message}
+                              </p>
+                            </div>
+                          </div>
+                        )}
+                      </FormMessage>
                     </FormItem>
                   )}
                 />
@@ -491,26 +502,78 @@ export default function RegisterForm({ onSuccess }) {
                   <FormField
                     control={registrationForm.control}
                     name="firstName"
-                    render={({ field }) => (
+                    render={({ field, fieldState }) => (
                       <FormItem>
                         <FormLabel>First Name</FormLabel>
                         <FormControl>
-                          <Input {...field} placeholder="First name" />
+                          <div className="relative">
+                            <User className="absolute left-3 top-3 h-4 w-4 text-gray-400" />
+                            <Input 
+                              {...field} 
+                              className={`pl-10 ${fieldState.error ? 'border-red-500 focus-visible:ring-red-500' : ''}`}
+                              placeholder="Enter your first name"
+                            />
+                          </div>
                         </FormControl>
-                        <FormMessage />
+                        {fieldState.error && (
+                          <div className="bg-red-50 border-l-4 border-red-500 p-2 mt-1 rounded-md">
+                            <div className="flex items-center gap-2">
+                              <svg 
+                                className="h-4 w-4 text-red-600" 
+                                viewBox="0 0 20 20" 
+                                fill="currentColor"
+                              >
+                                <path 
+                                  fillRule="evenodd" 
+                                  d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" 
+                                  clipRule="evenodd" 
+                                />
+                              </svg>
+                              <p className="text-sm text-red-600 font-medium">
+                                {fieldState.error.message}
+                              </p>
+                            </div>
+                          </div>
+                        )}
                       </FormItem>
                     )}
                   />
                   <FormField
                     control={registrationForm.control}
                     name="lastName"
-                    render={({ field }) => (
+                    render={({ field, fieldState }) => (
                       <FormItem>
                         <FormLabel>Last Name</FormLabel>
                         <FormControl>
-                          <Input {...field} placeholder="Last name" />
+                          <div className="relative">
+                            <User className="absolute left-3 top-3 h-4 w-4 text-gray-400" />
+                            <Input 
+                              {...field} 
+                              className={`pl-10 ${fieldState.error ? 'border-red-500 focus-visible:ring-red-500' : ''}`}
+                              placeholder="Enter your last name"
+                            />
+                          </div>
                         </FormControl>
-                        <FormMessage />
+                        {fieldState.error && (
+                          <div className="bg-red-50 border-l-4 border-red-500 p-2 mt-1 rounded-md">
+                            <div className="flex items-center gap-2">
+                              <svg 
+                                className="h-4 w-4 text-red-600" 
+                                viewBox="0 0 20 20" 
+                                fill="currentColor"
+                              >
+                                <path 
+                                  fillRule="evenodd" 
+                                  d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" 
+                                  clipRule="evenodd" 
+                                />
+                              </svg>
+                              <p className="text-sm text-red-600 font-medium">
+                                {fieldState.error.message}
+                              </p>
+                            </div>
+                          </div>
+                        )}
                       </FormItem>
                     )}
                   />
@@ -521,12 +584,12 @@ export default function RegisterForm({ onSuccess }) {
                   <FormField
                     control={registrationForm.control}
                     name="phoneNumber.countryCode"
-                    render={({ field }) => (
+                    render={({ field, fieldState }) => (
                       <FormItem>
                         <FormLabel>Country Code</FormLabel>
                         <Select onValueChange={field.onChange} defaultValue={field.value}>
                           <FormControl>
-                            <SelectTrigger className="bg-background">
+                            <SelectTrigger className={`bg-background ${fieldState.error ? 'border-red-500 focus-visible:ring-red-500' : ''}`}>
                               <SelectValue placeholder="Select" />
                             </SelectTrigger>
                           </FormControl>
@@ -559,14 +622,33 @@ export default function RegisterForm({ onSuccess }) {
                             </div>
                           </SelectContent>
                         </Select>
-                        <FormMessage />
+                        {fieldState.error && (
+                          <div className="bg-red-50 border-l-4 border-red-500 p-2 mt-1 rounded-md">
+                            <div className="flex items-center gap-2">
+                              <svg 
+                                className="h-4 w-4 text-red-600" 
+                                viewBox="0 0 20 20" 
+                                fill="currentColor"
+                              >
+                                <path 
+                                  fillRule="evenodd" 
+                                  d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" 
+                                  clipRule="evenodd" 
+                                />
+                              </svg>
+                              <p className="text-sm text-red-600 font-medium">
+                                {fieldState.error.message}
+                              </p>
+                            </div>
+                          </div>
+                        )}
                       </FormItem>
                     )}
                   />
                   <FormField
                     control={registrationForm.control}
                     name="phoneNumber.number"
-                    render={({ field }) => (
+                    render={({ field, fieldState }) => (
                       <FormItem className="col-span-2">
                         <FormLabel>Phone Number</FormLabel>
                         <FormControl>
@@ -574,10 +656,29 @@ export default function RegisterForm({ onSuccess }) {
                             {...field} 
                             type="tel"
                             placeholder="Phone number"
-                            className="pl-3"
+                            className={`pl-3 ${fieldState.error ? 'border-red-500 focus-visible:ring-red-500' : ''}`}
                           />
                         </FormControl>
-                        <FormMessage />
+                        {fieldState.error && (
+                          <div className="bg-red-50 border-l-4 border-red-500 p-2 mt-1 rounded-md">
+                            <div className="flex items-center gap-2">
+                              <svg 
+                                className="h-4 w-4 text-red-600" 
+                                viewBox="0 0 20 20" 
+                                fill="currentColor"
+                              >
+                                <path 
+                                  fillRule="evenodd" 
+                                  d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" 
+                                  clipRule="evenodd" 
+                                />
+                              </svg>
+                              <p className="text-sm text-red-600 font-medium">
+                                {fieldState.error.message}
+                              </p>
+                            </div>
+                          </div>
+                        )}
                       </FormItem>
                     )}
                   />
@@ -587,13 +688,36 @@ export default function RegisterForm({ onSuccess }) {
                 <FormField
                   control={registrationForm.control}
                   name="address.country"
-                  render={({ field }) => (
+                  render={({ field, fieldState }) => (
                     <FormItem>
                       <FormLabel>Country</FormLabel>
                       <FormControl>
-                        <Input {...field} placeholder="Country" />
+                        <Input 
+                          {...field} 
+                          placeholder="Country" 
+                          className={`${fieldState.error ? 'border-red-500 focus-visible:ring-red-500' : ''}`}
+                        />
                       </FormControl>
-                      <FormMessage />
+                      {fieldState.error && (
+                        <div className="bg-red-50 border-l-4 border-red-500 p-2 mt-1 rounded-md">
+                          <div className="flex items-center gap-2">
+                            <svg 
+                              className="h-4 w-4 text-red-600" 
+                              viewBox="0 0 20 20" 
+                              fill="currentColor"
+                            >
+                              <path 
+                                fillRule="evenodd" 
+                                d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" 
+                                clipRule="evenodd" 
+                              />
+                            </svg>
+                            <p className="text-sm text-red-600 font-medium">
+                              {fieldState.error.message}
+                            </p>
+                          </div>
+                        </div>
+                      )}
                     </FormItem>
                   )}
                 />
@@ -602,26 +726,72 @@ export default function RegisterForm({ onSuccess }) {
                   <FormField
                     control={registrationForm.control}
                     name="address.port"
-                    render={({ field }) => (
+                    render={({ field, fieldState }) => (
                       <FormItem>
                         <FormLabel>Port</FormLabel>
                         <FormControl>
-                          <Input {...field} placeholder="Port" />
+                          <Input 
+                            {...field} 
+                            className={`${fieldState.error ? 'border-red-500 focus-visible:ring-red-500' : ''}`}
+                            placeholder="Enter port"
+                          />
                         </FormControl>
-                        <FormMessage />
+                        {fieldState.error && (
+                          <div className="bg-red-50 border-l-4 border-red-500 p-2 mt-1 rounded-md">
+                            <div className="flex items-center gap-2">
+                              <svg 
+                                className="h-4 w-4 text-red-600" 
+                                viewBox="0 0 20 20" 
+                                fill="currentColor"
+                              >
+                                <path 
+                                  fillRule="evenodd" 
+                                  d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" 
+                                  clipRule="evenodd" 
+                                />
+                              </svg>
+                              <p className="text-sm text-red-600 font-medium">
+                                {fieldState.error.message}
+                              </p>
+                            </div>
+                          </div>
+                        )}
                       </FormItem>
                     )}
                   />
                   <FormField
                     control={registrationForm.control}
                     name="address.postCode"
-                    render={({ field }) => (
+                    render={({ field, fieldState }) => (
                       <FormItem>
                         <FormLabel>Post Code</FormLabel>
                         <FormControl>
-                          <Input {...field} placeholder="Post code" />
+                          <Input 
+                            {...field} 
+                            className={`${fieldState.error ? 'border-red-500 focus-visible:ring-red-500' : ''}`}
+                            placeholder="Enter post code"
+                          />
                         </FormControl>
-                        <FormMessage />
+                        {fieldState.error && (
+                          <div className="bg-red-50 border-l-4 border-red-500 p-2 mt-1 rounded-md">
+                            <div className="flex items-center gap-2">
+                              <svg 
+                                className="h-4 w-4 text-red-600" 
+                                viewBox="0 0 20 20" 
+                                fill="currentColor"
+                              >
+                                <path 
+                                  fillRule="evenodd" 
+                                  d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" 
+                                  clipRule="evenodd" 
+                                />
+                              </svg>
+                              <p className="text-sm text-red-600 font-medium">
+                                {fieldState.error.message}
+                              </p>
+                            </div>
+                          </div>
+                        )}
                       </FormItem>
                     )}
                   />
@@ -631,13 +801,40 @@ export default function RegisterForm({ onSuccess }) {
                 <FormField
                   control={registrationForm.control}
                   name="password"
-                  render={({ field }) => (
+                  render={({ field, fieldState }) => (
                     <FormItem>
                       <FormLabel>Password</FormLabel>
                       <FormControl>
-                        <Input type="password" {...field} />
+                        <div className="relative">
+                          <Lock className="absolute left-3 top-3 h-4 w-4 text-gray-400" />
+                          <Input 
+                            type="password"
+                            {...field} 
+                            className={`pl-10 ${fieldState.error ? 'border-red-500 focus-visible:ring-red-500' : ''}`}
+                            placeholder="Enter your password"
+                          />
+                        </div>
                       </FormControl>
-                      <FormMessage />
+                      {fieldState.error && (
+                        <div className="bg-red-50 border-l-4 border-red-500 p-2 mt-1 rounded-md">
+                          <div className="flex items-center gap-2">
+                            <svg 
+                              className="h-4 w-4 text-red-600" 
+                              viewBox="0 0 20 20" 
+                              fill="currentColor"
+                            >
+                              <path 
+                                fillRule="evenodd" 
+                                d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" 
+                                clipRule="evenodd" 
+                              />
+                            </svg>
+                            <p className="text-sm text-red-600 font-medium">
+                              {fieldState.error.message}
+                            </p>
+                          </div>
+                        </div>
+                      )}
                     </FormItem>
                   )}
                 />
@@ -651,7 +848,28 @@ export default function RegisterForm({ onSuccess }) {
                       <FormControl>
                         <Input type="password" {...field} />
                       </FormControl>
-                      <FormMessage />
+                      <FormMessage>
+                        {field.error && (
+                          <div className="bg-red-50 border-l-4 border-red-500 p-2 mt-1 rounded-md">
+                            <div className="flex items-center gap-2">
+                              <svg 
+                                className="h-4 w-4 text-red-600" 
+                                viewBox="0 0 20 20" 
+                                fill="currentColor"
+                              >
+                                <path 
+                                  fillRule="evenodd" 
+                                  d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" 
+                                  clipRule="evenodd" 
+                                />
+                              </svg>
+                              <p className="text-sm text-red-600 font-medium">
+                                {field.error.message}
+                              </p>
+                            </div>
+                          </div>
+                        )}
+                      </FormMessage>
                     </FormItem>
                   )}
                 />
@@ -710,74 +928,6 @@ export default function RegisterForm({ onSuccess }) {
           </motion.div>
         )}
       </AnimatePresence>
-
-      {/* Social Login Section */}
-      <motion.div 
-        className="space-y-2"
-        initial={{ opacity: 0, y: 20 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ delay: 0.2 }}
-      >
-        <Button
-          variant="outline"
-          type="button"
-          className="w-full"
-          onClick={handleLocalSignIn}
-          disabled={localLoading}
-        >
-          {localLoading ? (
-            <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-          ) : (
-            "Sign in Locally"
-          )}
-        </Button>
-
-        <Button
-          variant="outline"
-          type="button"
-          className="w-full"
-          onClick={() => handleSocialSignIn('google-oauth2')}
-          disabled={socialLoading.google}
-        >
-          {socialLoading.google ? (
-            <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-          ) : (
-            <FcGoogle className="mr-2 h-5 w-5" />
-          )}
-          {socialLoading.google ? "Connecting..." : "Continue with Google"}
-        </Button>
-
-        <Button
-          variant="outline"
-          type="button"
-          className="w-full"
-          onClick={() => handleSocialSignIn('facebook')}
-          disabled={socialLoading.facebook}
-        >
-          {socialLoading.facebook ? (
-            <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-          ) : (
-            <FaFacebook className="mr-2 h-5 w-5 text-blue-600" />
-          )}
-          {socialLoading.facebook ? "Connecting..." : "Continue with Facebook"}
-        </Button>
-      </motion.div>
-
-      <motion.div 
-        className="relative"
-        initial={{ opacity: 0 }}
-        animate={{ opacity: 1 }}
-        transition={{ delay: 0.3 }}
-      >
-        <div className="absolute inset-0 flex items-center">
-          <span className="w-full border-t" />
-        </div>
-        <div className="relative flex justify-center text-xs uppercase">
-          <span className="bg-background px-2 text-muted-foreground">
-            Or continue with
-          </span>
-        </div>
-      </motion.div>
     </div>
   )
 }

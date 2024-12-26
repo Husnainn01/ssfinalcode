@@ -6955,3 +6955,24 @@ a.ck.ck-button:not(.ck-button_with-text) {
 .navigation-menu-sub-content {
   z-index: 61;
 }
+
+/* Add these styles for consistent error animations */
+@keyframes errorSlideIn {
+  from {
+    opacity: 0;
+    transform: translateY(-4px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.form-error-message {
+  animation: errorSlideIn 0.2s ease-out forwards;
+}
+
+/* Add styles for error state focus rings */
+.input-error:focus-visible {
+  --tw-ring-color: rgb(239 68 68 / 0.2);
+}

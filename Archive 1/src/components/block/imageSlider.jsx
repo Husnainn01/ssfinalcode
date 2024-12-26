@@ -1,23 +1,18 @@
 "use client";
-import React, { useState, useRef } from "react";
+import React, { useState } from "react";
 import { Button } from "@nextui-org/react";
-import { ChevronLeft, ChevronRight, Download, ZoomIn, ZoomOut } from "lucide-react";
+import { ChevronLeft, ChevronRight, Download } from "lucide-react";
 import JSZip from "jszip";
 import { saveAs } from "file-saver";
-import ImageZoom from "./ImageZoom";
 import NextImage from "next/image";
 import { useToast } from "@/components/ui/use-toast";
 import { FavoriteButton } from "@/components/ui/FavoriteButton";
+import ImageMagnifier from 'react-image-magnifier-zoom';
 
 export default function ImageSlider({ images, carId }) {
-  console.log('ImageSlider carId:', carId);
-
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
   const [showThumbnails, setShowThumbnails] = useState(true);
-  const [isLoading, setIsLoading] = useState(false);
-  const [isZoomed, setIsZoomed] = useState(false);
   const { toast } = useToast();
-  const zoomRef = useRef(null);
 
   const handleImageChange = (index) => {
     setCurrentImageIndex(index);
@@ -44,62 +39,38 @@ export default function ImageSlider({ images, carId }) {
     saveAs(content, "car-images.zip");
   };
 
-  const handleZoomToggle = () => {
-    if (isZoomed) {
-      zoomRef.current?.resetZoom();
-    } else {
-      zoomRef.current?.zoomIn();
-    }
-  };
-
   return (
     <div className="relative">
+      {/* Main Slider */}
       <div className="relative h-[500px]">
-        <ImageZoom 
-          ref={zoomRef}
-          image={images[currentImageIndex]} 
-          alt={`Car image ${currentImageIndex + 1}`}
-          className="object-cover w-full h-full rounded-lg"
-          onZoomChange={(zoomed) => setIsZoomed(zoomed)}
-        />
+        <div className="relative h-full w-full">
+          <ImageMagnifier
+            src={images[currentImageIndex]}
+            width={900}
+            height={500}
+            magnifierSize={120}
+            zoomLevel={2.5}
+          />
 
-        {/* Zoom Controls - Left side */}
-        <div className="absolute top-4 left-4 flex flex-col gap-2 z-20">
+          {/* Favorite Button */}
+          <div className="absolute top-4 right-4 z-20 bg-black/50 rounded-full">
+            {carId && <FavoriteButton carId={carId} />}
+          </div>
+
+          {/* Navigation Arrows */}
           <button
-            onClick={handleZoomToggle}
-            className="p-2 rounded-full bg-black/50 text-white hover:bg-black/70 transition-all duration-200"
+            onClick={() => handlePrevious()}
+            className="absolute left-2 top-1/2 -translate-y-1/2 bg-black/50 p-2 rounded-full text-white hover:bg-black/70 z-20"
           >
-            {isZoomed ? (
-              <ZoomOut className="h-6 w-6" />
-            ) : (
-              <ZoomIn className="h-6 w-6" />
-            )}
+            <ChevronLeft className="h-6 w-6" />
+          </button>
+          <button
+            onClick={() => handleNext()}
+            className="absolute right-2 top-1/2 -translate-y-1/2 bg-black/50 p-2 rounded-full text-white hover:bg-black/70 z-20"
+          >
+            <ChevronRight className="h-6 w-6" />
           </button>
         </div>
-
-        {/* Favorite Button - Right side */}
-        <div className="absolute top-4 right-4 z-20 bg-black/50 rounded-full">
-          {carId && <FavoriteButton carId={carId} />}
-        </div>
-
-        {/* Image Counter */}
-        <div className="absolute bottom-4 right-4 bg-black/70 text-white px-3 py-1 rounded-full text-sm z-20">
-          {currentImageIndex + 1}/{images.length}
-        </div>
-
-        {/* Navigation Arrows */}
-        <button
-          onClick={handlePrevious}
-          className="absolute left-2 top-1/2 -translate-y-1/2 bg-black/50 p-2 rounded-full text-white hover:bg-black/70 z-20"
-        >
-          <ChevronLeft className="h-6 w-6" />
-        </button>
-        <button
-          onClick={handleNext}
-          className="absolute right-2 top-1/2 -translate-y-1/2 bg-black/50 p-2 rounded-full text-white hover:bg-black/70 z-20"
-        >
-          <ChevronRight className="h-6 w-6" />
-        </button>
       </div>
 
       {/* Thumbnails Section */}

@@ -55,7 +55,7 @@ const PostList = () => {
   const [categoryData, setCategoryData] = useState([]);
 
   const [availabilityOptions] = useState(["InStock", "OutOfStock"]);
-  const [mileageUnitOptions] = useState(["KMPL", "SMI"]);
+  const [mileageUnitOptions] = useState(["KM", "MILE"]);
   const [priceCurrencyOptions] = useState(["INR", "USD", "EUR", "GBP"]);
   const [itemConditionOptions] = useState(["New", "Used"]);
   const [fuelTypeOptions] = useState([
@@ -76,7 +76,7 @@ const PostList = () => {
     "Four Wheel Drive",
   ]);
   const [visibilityOptions] = useState(["Active", "Inactive"]);
-  const [offerTypeOptions] = useState(["Sold", "New Year Offer"]);
+  const [offerTypeOptions] = useState(["Sold", "In Stock"]);
   const [sectionOptions] = useState(["recent", "popular"]);
 
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -467,7 +467,7 @@ const PostList = () => {
             "Mileage Unit",
             "mileageUnit",
             formData.mileageUnit,
-            Array.isArray(categoryData) ? categoryData.map(cat => cat.name) : []
+            mileageUnitOptions
           )}
         </div>
 
