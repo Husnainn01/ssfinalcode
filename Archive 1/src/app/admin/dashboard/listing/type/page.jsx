@@ -10,7 +10,6 @@ export default function Types() {
     const [typesData, setTypesData] = useState([]);
     const [loading, setLoading] = useState(true);
     const [newType, setNewType] = useState("");
-    const [newImage, setNewImage] = useState("");
     const [selectedType, setSelectedType] = useState(null);
     const [error, setError] = useState("");
     const [deleteTypeId, setDeleteTypeId] = useState(null);
@@ -29,6 +28,7 @@ export default function Types() {
             setTypesData(data);
         } catch (error) {
             console.error("Error fetching data:", error);
+            toast.error("Failed to fetch types");
         } finally {
             setLoading(false);
         }
@@ -36,8 +36,8 @@ export default function Types() {
 
     const handleAddType = async (e) => {
         e.preventDefault();
-        if (!newType.trim() || !newImage.trim()) {
-            setError("Type name and image URL are required");
+        if (!newType.trim()) {
+            setError("Type name is required");
             return;
         }
 
@@ -45,11 +45,10 @@ export default function Types() {
             const response = await fetch(typesApiEndpoint, {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({ type: newType, image: newImage })
+                body: JSON.stringify({ type: newType })
             });
             if (!response.ok) throw new Error("Network response was not ok");
             setNewType("");
-            setNewImage("");
             setError("");
             fetchData();
             toast.success("Type added successfully!");
@@ -61,8 +60,8 @@ export default function Types() {
     };
 
     const handleUpdateType = async () => {
-        if (!selectedType || !newType.trim() || !newImage.trim()) {
-            setError("Select a type and provide a new name and image URL");
+        if (!selectedType || !newType.trim()) {
+            setError("Select a type and provide a new name");
             return;
         }
 
@@ -72,12 +71,11 @@ export default function Types() {
                 headers: { "Content-Type": "application/json" },
                 body: JSON.stringify({
                     id: selectedType._id,
-                    updateData: { type: newType, image: newImage }
+                    updateData: { type: newType, name: newType }
                 })
             });
             if (!response.ok) throw new Error("Network response was not ok");
             setNewType("");
-            setNewImage("");
             setSelectedType(null);
             setError("");
             fetchData();
@@ -121,7 +119,7 @@ export default function Types() {
         closeDeleteModal();
     };
 
-    if (loading) return <div className="flex w-full h-full items-center justify-center mt-60"> <Spinner color="primary" size="lg" /></div>;
+    if (loading) return <div className="flex w-full h-full items-center justify-center mt-60"><Spinner color="primary" size="lg" /></div>;
 
     return (
         <div className="p-4 md:p-6">
@@ -140,15 +138,6 @@ export default function Types() {
                             placeholder="Type Name"
                             className="w-full mb-6"
                         />
-                        <Input
-                            label="Type Image URL"
-                            labelPlacement="outside"
-                            type="text"
-                            value={newImage}
-                            onChange={(e) => setNewImage(e.target.value)}
-                            placeholder="https://image-url.jpg"
-                            className="w-full mb-6"
-                        />
                         <Button className="w-full bg-black text-white" type="submit">
                             {selectedType ? "Update" : "Add"}
                         </Button>
@@ -161,20 +150,12 @@ export default function Types() {
                     <ul className="list-disc pl-5 space-y-4">
                         {typesData.map((typeItem) => (
                             <li key={typeItem._id} className="flex justify-between items-center p-4 rounded-md bg-slate-50">
-                                <div className="flex items-center space-x-4">
-                                    <img
-                                        src={typeItem.image}
-                                        alt={typeItem.type}
-                                        className="bg-white w-14 h-14 object-contain object-center rounded-full shadow-md"
-                                    />
-                                    <p className="font-medium">{typeItem.type}</p>
-                                </div>
+                                <p className="font-medium">{typeItem.type}</p>
                                 <div className="flex space-x-2">
                                     <button
                                         onClick={() => {
                                             setSelectedType(typeItem);
                                             setNewType(typeItem.type);
-                                            setNewImage(typeItem.image);
                                         }}
                                         className="h-8 w-8 shadow-inner rounded-full flex justify-center items-center bg-teal-50">
                                         <MdModeEdit />

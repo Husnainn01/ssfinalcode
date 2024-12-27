@@ -5,9 +5,12 @@ import dbConnect from '@/lib/dbConnect';
 export async function GET() {
     try {
         await dbConnect();
-        const makes = await Make.find({}).select('make -_id');
-        return NextResponse.json(makes);
+        const makeCollection = mongoose.connection.collection('CarMake');
+        const makes = await makeCollection.find({ active: true }).toArray();
+        const makeList = makes.map(item => ({ make: item.make }));
+        return NextResponse.json(makeList);
     } catch (error) {
+        console.error('Error fetching makes:', error);
         return NextResponse.json({ error: error.message }, { status: 500 });
     }
 }
@@ -16,11 +19,10 @@ export async function POST(req) {
     try {
         await dbConnect();
         const mainPostCollection = mongoose.connection.collection('CarMake');
-        const postData = await req.json();
+        const { make } = await req.json();
         
         const makeData = {
-            make: postData.make.trim(),
-            image: postData.image.trim(),
+            make: make.trim(),
             active: true,
             createdAt: new Date().toISOString()
         };

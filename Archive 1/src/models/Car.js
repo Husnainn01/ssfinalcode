@@ -57,6 +57,7 @@ const CarSchema = new mongoose.Schema({
   },
   offerType: {
     type: String,
+    enum: ['In Stock', 'Sold'],
     default: 'In Stock'
   }
 }, {

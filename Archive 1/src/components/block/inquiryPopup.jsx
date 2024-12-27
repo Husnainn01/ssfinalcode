@@ -26,11 +26,12 @@ export default function InquiryPopup({ carDetails }) {
   const [formData, setFormData] = useState({
     name: "",
     email: "",
-    country: "",
+    userCountry: "",
     city: "",
     address: "",
     telephone: "",
     discountCoupon: "",
+    destinationPort: "",
     receiveNews: false
   });
   const [errors, setErrors] = useState({});
@@ -40,15 +41,15 @@ export default function InquiryPopup({ carDetails }) {
   const [referenceId, setReferenceId] = useState('');
 
   const vehicleDetails = {
-    model: carDetails?.title || "",
+    model: carDetails?.title || "N/A",
     year: carDetails?.year || "",
     engine: carDetails?.vehicleEngine || "",
     mileage: carDetails?.mileage || 0,
     transmission: carDetails?.vehicleTransmission || "",
     steering: carDetails?.steering || "",
-    location: carDetails?.location || "",
-    insurance: "NO",
-    warranty: "NO",
+    sourceCountry: carDetails?.country || "",
+    destinationCountry: countries.find(c => c.code === formData.userCountry)?.name || 'N/A',
+    destinationPort: formData.destinationPort || "N/A",
     price: carDetails?.price || 0,
     imageUrl: carDetails?.image || ""
   };
@@ -61,10 +62,11 @@ export default function InquiryPopup({ carDetails }) {
     } else if (!/\S+@\S+\.\S+/.test(formData.email)) {
       newErrors.email = "Email is invalid";
     }
-    if (!formData.country) newErrors.country = "Country is required";
+    if (!formData.userCountry) newErrors.userCountry = "Destination country is required";
     if (!formData.city.trim()) newErrors.city = "City is required";
     if (!formData.address.trim()) newErrors.address = "Address is required";
     if (!formData.telephone.trim()) newErrors.telephone = "Telephone is required";
+    if (!formData.destinationPort.trim()) newErrors.destinationPort = "Destination port is required";
 
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
@@ -97,7 +99,7 @@ export default function InquiryPopup({ carDetails }) {
         body: JSON.stringify({
           name: formData.name,
           email: formData.email,
-          country: formData.country,
+          country: formData.userCountry,
           city: formData.city,
           telephone: formData.telephone,
           carDetails: {
@@ -138,11 +140,12 @@ export default function InquiryPopup({ carDetails }) {
       setFormData({
         name: "",
         email: "",
-        country: "",
+        userCountry: "",
         city: "",
         address: "",
         telephone: "",
         discountCoupon: "",
+        destinationPort: "",
         receiveNews: false
       });
       setShippingMethod("RORO");
@@ -230,11 +233,25 @@ export default function InquiryPopup({ carDetails }) {
               {/* Vehicle Details - Enhanced */}
               <div className="bg-gray-50 rounded-lg p-4 border border-gray-100">
                 <div className="grid grid-cols-[120px,1fr] gap-4">
-                  <img
-                    src={vehicleDetails.imageUrl}
-                    alt={vehicleDetails.model}
-                    className="w-full h-24 object-cover rounded-md shadow-sm"
-                  />
+                  <div className="relative">
+                    {/* SOLD badge on image */}
+                    {carDetails.offerType === "Sold" && (
+                      <div className="absolute -left-2 top-2 z-10">
+                        <div className="bg-red-600/90 text-white px-3 py-1 text-xs font-bold shadow-lg">
+                          SOLD
+                        </div>
+                        <div className="absolute -bottom-1 left-0 w-0 h-0 
+                          border-t-[4px] border-t-red-800
+                          border-r-[4px] border-r-transparent">
+                        </div>
+                      </div>
+                    )}
+                    <img
+                      src={vehicleDetails.imageUrl}
+                      alt={vehicleDetails.model}
+                      className="w-full h-24 object-cover rounded-md shadow-sm"
+                    />
+                  </div>
                   <div className="grid grid-cols-2 gap-2 text-sm">
                     <div className="space-y-2">
                       <p className="flex items-center gap-2">
@@ -252,16 +269,21 @@ export default function InquiryPopup({ carDetails }) {
                     </div>
                     <div className="space-y-2">
                       <p className="flex items-center gap-2">
-                        <span className="font-medium text-gray-600">Insurance:</span>
-                        <span>{vehicleDetails.insurance}</span>
+                        <span className="font-medium text-gray-600">From:</span>
+                        <span className="flex items-center gap-1">
+                          {vehicleDetails.sourceCountry}
+                        </span>
                       </p>
                       <p className="flex items-center gap-2">
-                        <span className="font-medium text-gray-600">Warranty:</span>
-                        <span>{vehicleDetails.warranty}</span>
+                        <span className="font-medium text-gray-600">To:</span>
+                        <span className="flex items-center gap-1">
+                          {countries.find(c => c.code === formData.userCountry)?.flag}
+                          {vehicleDetails.destinationCountry}
+                        </span>
                       </p>
                       <p className="flex items-center gap-2">
-                        <span className="font-medium text-gray-600">Shipping:</span>
-                        <span>{shippingMethod}</span>
+                        <span className="font-medium text-gray-600">Port:</span>
+                        <span>{vehicleDetails.destinationPort}</span>
                       </p>
                     </div>
                   </div>
@@ -287,6 +309,58 @@ export default function InquiryPopup({ carDetails }) {
                     <span className="text-sm">CONTAINER</span>
                   </Radio>
                 </RadioGroup>
+              </div>
+
+              {/* Shipping Information Section - New */}
+              <div className="space-y-4">
+                <h3 className="text-sm font-medium text-gray-700">Shipping Information</h3>
+                <div className="grid grid-cols-2 gap-3">
+                  <Select 
+                    size="sm"
+                    label="Destination Country"
+                    placeholder="Select destination country"
+                    value={formData.userCountry}
+                    onChange={(e) => handleInputChange('userCountry', e.target.value)}
+                    isInvalid={!!errors.userCountry}
+                    errorMessage={errors.userCountry}
+                    isRequired
+                    classNames={{
+                      label: "text-sm font-medium text-gray-700",
+                      value: "text-sm",
+                      trigger: "shadow-sm"
+                    }}
+                    items={countries}
+                  >
+                    {(country) => (
+                      <SelectItem 
+                        key={country.code} 
+                        value={country.code}
+                        textValue={country.name}
+                        startContent={<span className="text-xl">{country.flag}</span>}
+                      >
+                        <div className="flex items-center gap-2">
+                          <span>{country.name}</span>
+                        </div>
+                      </SelectItem>
+                    )}
+                  </Select>
+
+                  <Input
+                    size="sm"
+                    label="Destination Port"
+                    placeholder="Enter destination port"
+                    value={formData.destinationPort}
+                    onChange={(e) => handleInputChange('destinationPort', e.target.value)}
+                    isInvalid={!!errors.destinationPort}
+                    errorMessage={errors.destinationPort}
+                    isRequired
+                    classNames={{
+                      label: "text-sm font-medium text-gray-700",
+                      input: "text-sm",
+                      inputWrapper: "shadow-sm"
+                    }}
+                  />
+                </div>
               </div>
 
               {/* Contact Information Section */}
@@ -324,37 +398,6 @@ export default function InquiryPopup({ carDetails }) {
                       inputWrapper: "shadow-sm"
                     }}
                   />
-                  <Select 
-                    size="sm"
-                    label="Your Country"
-                    placeholder="Select country"
-                    value={formData.country}
-                    onChange={(e) => handleInputChange('country', e.target.value)}
-                    isInvalid={!!errors.country}
-                    errorMessage={errors.country}
-                    isRequired
-                    classNames={{
-                      label: "text-sm font-medium text-gray-700",
-                      value: "text-sm",
-                      trigger: "shadow-sm"
-                    }}
-                    filterValue
-                    items={countries}
-                  >
-                    {(country) => (
-                      <SelectItem 
-                        key={country.code} 
-                        value={country.code}
-                        textValue={country.name}
-                        startContent={<span className="text-xl">{country.flag}</span>}
-                      >
-                        <div className="flex items-center gap-2">
-                          <span>{country.name}</span>
-                          <span className="text-gray-400 text-sm">({country.phone})</span>
-                        </div>
-                      </SelectItem>
-                    )}
-                  </Select>
                   <Input
                     size="sm"
                     label="City"
@@ -395,7 +438,7 @@ export default function InquiryPopup({ carDetails }) {
                     errorMessage={errors.telephone}
                     startContent={
                       <span className="text-gray-500 text-sm">
-                        {countries.find(c => c.code === formData.country)?.phone || '+'}
+                        {countries.find(c => c.code === formData.userCountry)?.phone || '+'}
                       </span>
                     }
                     isRequired

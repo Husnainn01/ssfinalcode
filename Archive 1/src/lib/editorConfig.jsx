@@ -72,7 +72,7 @@ import {
 
 import 'ckeditor5/ckeditor5.css';
 
-const editorConfig = {
+export const editorConfig = {
     toolbar: {
         items: [
             'undo',
@@ -307,5 +307,3 @@ const editorConfig = {
         contentToolbar: ['tableColumn', 'tableRow', 'mergeTableCells', 'tableProperties', 'tableCellProperties']
     }
 };
-
-export { ClassicEditor, editorConfig };

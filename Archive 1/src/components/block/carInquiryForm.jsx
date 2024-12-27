@@ -23,12 +23,26 @@ export default function CarInquiryForm({ carDetails }) {
   const [formData, setFormData] = useState({
     name: "",
     email: "",
-    country: "",
+    userCountry: "",
     city: "",
-    telephone: ""
+    telephone: "",
+    destinationPort: "",
   });
   const [errors, setErrors] = useState({});
   const [isSubmitting, setIsSubmitting] = useState(false);
+
+  const vehicleDetails = {
+    model: carDetails?.title || "N/A",
+    year: carDetails?.year || "",
+    engine: carDetails?.vehicleEngine || "",
+    mileage: carDetails?.mileage || 0,
+    transmission: carDetails?.vehicleTransmission || "",
+    steering: carDetails?.steering || "",
+    sourceCountry: carDetails?.country || "",
+    destinationCountry: countries.find(c => c.code === formData.userCountry)?.name || 'N/A',
+    destinationPort: formData.destinationPort || "N/A",
+    price: carDetails?.price || 0,
+  };
 
   const validateForm = () => {
     const newErrors = {};
@@ -38,9 +52,10 @@ export default function CarInquiryForm({ carDetails }) {
     } else if (!/\S+@\S+\.\S+/.test(formData.email)) {
       newErrors.email = "Email is invalid";
     }
-    if (!formData.country) newErrors.country = "Country is required";
+    if (!formData.userCountry) newErrors.userCountry = "Destination country is required";
     if (!formData.city.trim()) newErrors.city = "City is required";
     if (!formData.telephone.trim()) newErrors.telephone = "Telephone is required";
+    if (!formData.destinationPort.trim()) newErrors.destinationPort = "Destination port is required";
 
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
@@ -70,7 +85,12 @@ export default function CarInquiryForm({ carDetails }) {
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({
-          ...formData,
+          name: formData.name,
+          email: formData.email,
+          country: formData.userCountry,
+          city: formData.city,
+          telephone: formData.telephone,
+          destinationPort: formData.destinationPort,
           carDetails: {
             id: carDetails._id,
             model: carDetails.title,
@@ -82,7 +102,10 @@ export default function CarInquiryForm({ carDetails }) {
             transmission: carDetails.transmission,
             color: carDetails.color,
             stockNo: carDetails.stockNumber || carDetails.stockNo || 'N/A',
-            images: carDetails.images || []
+            images: carDetails.images || [],
+            sourceCountry: carDetails.country,
+            destinationCountry: countries.find(c => c.code === formData.userCountry)?.name,
+            destinationPort: formData.destinationPort
           }
         }),
       });
@@ -93,17 +116,16 @@ export default function CarInquiryForm({ carDetails }) {
         throw new Error(data.error || 'Failed to submit inquiry');
       }
 
-      // Store reference ID and show success modal
       setReferenceId(data.referenceId);
       setShowSuccessModal(true);
 
-      // Reset form
       setFormData({
         name: "",
         email: "",
-        country: "",
+        userCountry: "",
         city: "",
-        telephone: ""
+        telephone: "",
+        destinationPort: ""
       });
 
     } catch (error) {
@@ -136,7 +158,7 @@ export default function CarInquiryForm({ carDetails }) {
 
   const inputClassNames = {
     base: "max-w-full",
-    label: "block text-sm font-medium text-gray-700 mb-1.5",
+    label: "text-sm font-medium text-gray-700 mb-1.5",
     input: [
       "bg-gray-50",
       "text-sm",
@@ -156,6 +178,19 @@ export default function CarInquiryForm({ carDetails }) {
     mainWrapper: "h-12"
   };
 
+  const selectClassNames = {
+    label: "text-sm font-medium text-gray-700 mb-1.5",
+    trigger: [
+      "h-12",
+      "bg-gray-50",
+      "hover:bg-gray-50/80",
+      "group-data-[focused=true]:bg-gray-50/80"
+    ].join(" "),
+    value: "text-sm",
+    innerWrapper: "h-12",
+    mainWrapper: "h-12"
+  };
+
   return (
     <>
       <Card className="bg-white rounded-xl shadow-lg border border-gray-100">
@@ -171,7 +206,12 @@ export default function CarInquiryForm({ carDetails }) {
               </p>
               <div className="flex items-center gap-1.5 text-gray-600 mt-1 justify-end">
                 <FaMapMarkerAlt className="w-3.5 h-3.5" />
-                <span className="text-sm font-medium">{carDetails.location || "Japan"}</span>
+                <span className="text-sm font-medium flex items-center gap-1">
+                  {carDetails.country || "N/A"}
+                  {" → "}
+                  {countries.find(c => c.code === formData.userCountry)?.flag}
+                  {vehicleDetails.destinationCountry}
+                </span>
               </div>
             </div>
           </div>
@@ -187,6 +227,7 @@ export default function CarInquiryForm({ carDetails }) {
                 value={formData.name}
                 onChange={(e) => handleInputChange('name', e.target.value)}
                 isInvalid={!!errors.name}
+                errorMessage={errors.name}
                 classNames={inputClassNames}
               />
             </div>
@@ -198,6 +239,7 @@ export default function CarInquiryForm({ carDetails }) {
                 value={formData.email}
                 onChange={(e) => handleInputChange('email', e.target.value)}
                 isInvalid={!!errors.email}
+                errorMessage={errors.email}
                 classNames={inputClassNames}
               />
             </div>
@@ -206,17 +248,13 @@ export default function CarInquiryForm({ carDetails }) {
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             <div>
               <Select 
-                label="Country"
-                placeholder="Select your country"
-                value={formData.country}
-                onChange={(e) => handleInputChange('country', e.target.value)}
-                isInvalid={!!errors.country}
-                classNames={{
-                  label: "text-sm font-medium text-gray-700",
-                  trigger: "h-12 bg-gray-50",
-                  value: "text-sm"
-                }}
-                filterValue
+                label="Destination Country"
+                placeholder="Select destination country"
+                value={formData.userCountry}
+                onChange={(e) => handleInputChange('userCountry', e.target.value)}
+                isInvalid={!!errors.userCountry}
+                errorMessage={errors.userCountry}
+                classNames={selectClassNames}
                 items={countries}
               >
                 {(country) => (
@@ -237,35 +275,46 @@ export default function CarInquiryForm({ carDetails }) {
             <div>
               <Input
                 type="text"
-                label="City"
+                label="Destination Port"
                 placeholder=""
-                value={formData.city}
-                onChange={(e) => handleInputChange('city', e.target.value)}
-                isInvalid={!!errors.city}
+                value={formData.destinationPort}
+                onChange={(e) => handleInputChange('destinationPort', e.target.value)}
+                isInvalid={!!errors.destinationPort}
+                errorMessage={errors.destinationPort}
                 classNames={inputClassNames}
               />
             </div>
           </div>
 
-          <div className="grid grid-cols-2 gap-4">
-            <Input
-              label="Telephone"
-              placeholder="Phone number"
-              value={formData.telephone}
-              onChange={(e) => handleInputChange('telephone', e.target.value)}
-              isInvalid={!!errors.telephone}
-              errorMessage={errors.telephone}
-              startContent={
-                <span className="text-gray-500 text-sm">
-                  {countries.find(c => c.code === formData.country)?.phone || '+'}
-                </span>
-              }
-              classNames={{
-                label: "text-sm font-medium text-gray-700",
-                input: "pl-1",
-                inputWrapper: "bg-gray-50"
-              }}
-            />
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div>
+              <Input
+                type="text"
+                label="City"
+                placeholder=""
+                value={formData.city}
+                onChange={(e) => handleInputChange('city', e.target.value)}
+                isInvalid={!!errors.city}
+                errorMessage={errors.city}
+                classNames={inputClassNames}
+              />
+            </div>
+            <div>
+              <Input
+                label="Telephone"
+                placeholder="Phone number"
+                value={formData.telephone}
+                onChange={(e) => handleInputChange('telephone', e.target.value)}
+                isInvalid={!!errors.telephone}
+                errorMessage={errors.telephone}
+                startContent={
+                  <span className="text-gray-500 text-sm">
+                    {countries.find(c => c.code === formData.userCountry)?.phone || '+'}
+                  </span>
+                }
+                classNames={inputClassNames}
+              />
+            </div>
           </div>
 
           <Button 

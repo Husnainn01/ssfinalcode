@@ -11,7 +11,6 @@ export default function Model() {
   const [makeData, setMakeData] = useState([]);
   const [loading, setLoading] = useState(true);
   const [newModel, setNewModel] = useState("");
-  const [newImage, setNewImage] = useState("");
   const [selectedMake, setSelectedMake] = useState("");
   const [selectedModel, setSelectedModel] = useState(null);
   const [error, setError] = useState("");
@@ -51,8 +50,8 @@ export default function Model() {
 
   const handleAddModel = async (e) => {
     e.preventDefault();
-    if (!newModel.trim() || !newImage.trim() || !selectedMake) {
-      setError("Make, Model name, and image URL are required");
+    if (!newModel.trim() || !selectedMake) {
+      setError("Make and Model name are required");
       return;
     }
 
@@ -62,13 +61,11 @@ export default function Model() {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           model: newModel,
-          image: newImage,
           make: selectedMake,
         }),
       });
       if (!response.ok) throw new Error("Network response was not ok");
       setNewModel("");
-      setNewImage("");
       setSelectedMake("");
       setError("");
       fetchData();
@@ -81,13 +78,8 @@ export default function Model() {
   };
 
   const handleUpdateModel = async () => {
-    if (
-      !selectedModel ||
-      !newModel.trim() ||
-      !newImage.trim() ||
-      !selectedMake
-    ) {
-      setError("Select a model, and provide model name, image URL, and make");
+    if (!selectedModel || !newModel.trim() || !selectedMake) {
+      setError("Select a model, and provide model name and make");
       return;
     }
 
@@ -97,12 +89,11 @@ export default function Model() {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           id: selectedModel._id,
-          updateData: { model: newModel, image: newImage, make: selectedMake },
+          updateData: { model: newModel, make: selectedMake },
         }),
       });
       if (!response.ok) throw new Error("Network response was not ok");
       setNewModel("");
-      setNewImage("");
       setSelectedModel(null);
       setSelectedMake("");
       setError("");
@@ -157,7 +148,7 @@ export default function Model() {
 
   return (
     <div>
-      <div className="flex justify-between md:p-6  flex-col md:flex-row gap-6">
+      <div className="flex justify-between md:p-6 flex-col md:flex-row gap-6">
         <div className="md:w-1/2 w-full p-4 rounded-lg shadow-md h-min">
           <h2 className="text-xl font-bold mb-10 ml-2">
             {selectedModel ? "Update Model" : "Add New Model"}
@@ -183,7 +174,9 @@ export default function Model() {
               className="p-2 w-full mb-10"
             >
               {makeData.map((make) => (
-                <SelectItem key={make.make}>{make.make}</SelectItem>
+                <SelectItem key={make.make} value={make.make}>
+                  {make.make}
+                </SelectItem>
               ))}
             </Select>
             <Input
@@ -194,15 +187,6 @@ export default function Model() {
               onChange={(e) => setNewModel(e.target.value)}
               placeholder="Model Name"
               className="p-2 w-full mb-10"
-            />
-            <Input
-              label="Model Image URL"
-              labelPlacement="outside"
-              type="text"
-              value={newImage}
-              onChange={(e) => setNewImage(e.target.value)}
-              placeholder="https://image-url.jpg"
-              className="p-2  w-full mb-6"
             />
             <Button className="ml-2 bg-black text-white" type="submit">
               {selectedModel ? "Update" : "Add"}
@@ -215,11 +199,9 @@ export default function Model() {
           <h2 className="text-xl font-bold mb-4">Model List</h2>
           <ul className="list-disc md:pl-5">
             <li className="flex justify-between items-center px-5 py-2 mb-1">
-              <p>Image</p>
               <p>Model</p>
               <p>Make</p>
-              <p>Edit</p>
-              <p>Delete</p>
+              <p>Actions</p>
             </li>
           </ul>
           <ul className="list-disc pl-5">
@@ -228,30 +210,26 @@ export default function Model() {
                 key={modelItem._id}
                 className="flex justify-between items-center px-5 py-2 mb-4 rounded-md bg-slate-50"
               >
-                <img data-disableanimation
-                  src={modelItem.image}
-                  alt={modelItem.model}
-                  className="bg-white w-14 h-14 object-cover mr-4 rounded-full shadow-md p-2"
-                />
                 <p className="font-medium">{modelItem.model}</p>
                 <p className="font-medium">{modelItem.make}</p>
-                <button
-                  onClick={() => {
-                    setSelectedModel(modelItem);
-                    setNewModel(modelItem.model);
-                    setNewImage(modelItem.image);
-                    setSelectedMake(modelItem.make);
-                  }}
-                  className="h-8 w-8 shadow-inner rounded-full flex justify-center items-center bg-teal-50"
-                >
-                  <MdModeEdit />
-                </button>
-                <button
-                  onClick={() => openDeleteModal(modelItem._id)}
-                  className="h-8 w-8 shadow-inner rounded-full flex justify-center items-center bg-red-50"
-                >
-                  <MdDelete className="" />
-                </button>
+                <div className="flex gap-2">
+                  <button
+                    onClick={() => {
+                      setSelectedModel(modelItem);
+                      setNewModel(modelItem.model);
+                      setSelectedMake(modelItem.make);
+                    }}
+                    className="h-8 w-8 shadow-inner rounded-full flex justify-center items-center bg-teal-50"
+                  >
+                    <MdModeEdit />
+                  </button>
+                  <button
+                    onClick={() => openDeleteModal(modelItem._id)}
+                    className="h-8 w-8 shadow-inner rounded-full flex justify-center items-center bg-red-50"
+                  >
+                    <MdDelete />
+                  </button>
+                </div>
               </li>
             ))}
           </ul>

@@ -5,6 +5,8 @@ import { Divider } from "@nextui-org/divider";
 import { Skeleton } from "@nextui-org/react";
 import Link from 'next/link';
 import InquiryPopup from "@/components/block/inquiryPopup";
+import { FavoriteButton } from '@/components/ui/FavoriteButton';
+
 
 function RelatedCars() {
     const [listing, setListing] = useState([]);
@@ -64,21 +66,28 @@ function RelatedCars() {
             {limitedListing.map((item) => (
                 <div key={item.id} className="bg-white rounded-lg overflow-hidden shadow-sm hover:shadow-md transition-all duration-300">
                     {/* Main Container */}
-                    <div className="flex h-[180px]">
+                    <div className="flex h-[180px] relative">
+                        {/* Sold Badge */}
+                        {item.offerType === "Sold" && (
+                            <div className="absolute -left-8 top-4 bg-red-500 text-white px-10 py-1 transform -rotate-45 z-10 shadow-md">
+                                <span className="text-sm font-semibold">SOLD</span>
+                            </div>
+                        )}
+                        
                         {/* Left Image Section */}
                         <div className="relative w-[180px] p-2">
                             <Link href={`/cars/${item._id}`}>
                                 <img
-                                    src={item.image}
+                                    src={item.images?.[0] || item.image}
                                     alt={item.title}
-                                    className="w-full h-full object-cover rounded-lg"
+                                    className={`w-full h-full object-cover rounded-lg ${
+                                        item.offerType === "Sold" ? "opacity-80" : ""
+                                    }`}
                                 />
                             </Link>
-                            <button className="absolute top-4 left-4 bg-white/90 p-1.5 rounded-full hover:bg-white">
-                                <svg className="w-3.5 h-3.5 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z" />
-                                </svg>
-                            </button>
+                            <div className="absolute top-4 right-4 bg-black/50 rounded">
+                                <FavoriteButton carId={item._id} />
+                            </div>
                             <div className="absolute bottom-4 left-4 text-[10px] bg-gray-900/80 text-white px-2 py-0.5 rounded">
                                 Ref No. {item.stockNumber}
                             </div>

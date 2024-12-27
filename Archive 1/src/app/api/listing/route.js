@@ -1,6 +1,7 @@
 import mongoose from 'mongoose';
 import { NextResponse } from 'next/server';
 import dbConnect from '@/lib/dbConnect';
+import slugify from 'slugify';
 
 export async function GET(req) {
     try {
@@ -9,32 +10,32 @@ export async function GET(req) {
         
         // Get search params from URL
         const { searchParams } = new URL(req.url);
-        const filters = Object.fromEntries(searchParams);
         
-        // Build query based on filters
-        const query = {};
-        if (filters.make) query.make = String(filters.make);
-        if (filters.model) query.model = String(filters.model);
-        if (filters.type) query.type = String(filters.type);
-        if (filters.steering) query.steering = String(filters.steering);
+        // Remove default filters to see all listings
+        const query = {};  // Empty query to get all listings
+        
+        console.log('Fetching all listings...'); // Debug log
         
         const listings = await mainPostCollection
             .find(query)
             .sort({ createdAt: -1 })
             .toArray();
         
-        // Return array of listings directly
-        return NextResponse.json(listings, {
-            headers: {
-                'Cache-Control': 'no-store, must-revalidate',
-                'Pragma': 'no-cache'
-            }
-        });
+        console.log('All listings in database:', listings.map(l => ({
+            id: l._id,
+            title: l.title,
+            visibility: l.visibility,
+            status: l.status
+        }))); // Debug log with relevant fields
+        
+        return NextResponse.json(listings);
+        
     } catch (error) {
         console.error("Error fetching listings:", error);
         return NextResponse.json({ 
             success: false,
-            error: "Failed to fetch listings" 
+            error: "Failed to fetch listings",
+            details: error.message
         }, { status: 500 });
     }
 }
@@ -79,6 +80,12 @@ export async function POST(req) {
     try {
         const postData = await req.json();
         
+        // Standardize country name (capitalize first letter)
+        if (postData.country) {
+            postData.country = postData.country.charAt(0).toUpperCase() + 
+                             postData.country.slice(1).toLowerCase();
+        }
+
         // Update required fields
         const requiredFields = [
             'title', 
@@ -106,34 +113,43 @@ export async function POST(req) {
         await dbConnect();
         const mainPostCollection = mongoose.connection.collection('CarListing');
 
-        // Validate section value
-        const validSections = ['recent', 'popular'];
-        if (!validSections.includes(postData.section)) {
-            return NextResponse.json({
-                success: false,
-                error: "Invalid section value. Must be either 'recent' or 'popular'",
-            }, { status: 400 });
-        }
+        // Generate proper slug using slugify
+        const slug = slugify(postData.title, {
+            lower: true,
+            strict: true
+        });
 
         // Create listing data with validated fields
         const listingData = {
             ...postData,
-            images: postData.images,
-            image: postData.images[0],
+            images: postData.images || [],
+            image: postData.images?.[0] || null,
             stockNumber: postData.stockNumber.trim(),
             year: Number(postData.year),
             price: Number(postData.price),
             section: postData.section,
             createdAt: new Date(),
             updatedAt: new Date(),
-            status: 'active',
-            slug: postData.title
-                .toLowerCase()
-                .replace(/[^a-z0-9]+/g, '-')
-                .replace(/(^-|-$)+/g, '')
+            status: postData.status || 'active',
+            visibility: postData.visibility || 'Active',
+            offerType: postData.offerType || 'In Stock',
+            slug,
+            country: postData.country
         };
 
         const result = await mainPostCollection.insertOne(listingData);
+
+        // Handle revalidation
+        try {
+            const baseUrl = process.env.NEXT_PUBLIC_API_URL || `http://localhost:${process.env.PORT || 3000}`;
+            const timestamp = Date.now();
+            await Promise.all([
+                fetch(`${baseUrl}/api/revalidate?path=/cars&t=${timestamp}`),
+                fetch(`${baseUrl}/api/revalidate?path=/admin/dashboard/listing&t=${timestamp}`)
+            ]);
+        } catch (revalidateError) {
+            console.error('Revalidation error:', revalidateError);
+        }
 
         return NextResponse.json({
             success: true,

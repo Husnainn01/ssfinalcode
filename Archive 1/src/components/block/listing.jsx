@@ -201,6 +201,12 @@ function Listing() {
                                             <div className="absolute top-2 left-2 bg-black/90 rounded">
                                                 <FavoriteButton carId={item._id} />
                                             </div>
+                                            {/* Add SOLD badge */}
+                                            {item.offerType === "Sold" && (
+                                                <div className="absolute bottom-2 left-2 bg-red-600/90 text-white px-2 py-0.5 rounded-sm">
+                                                    <span className="text-[10px] font-bold tracking-wide">SOLD</span>
+                                                </div>
+                                            )}
                                         </div>
 
                                         {/* Content Section */}
@@ -306,6 +312,12 @@ function Listing() {
                                             <div className="absolute top-2 left-2 bg-black/90 rounded">
                                                 <FavoriteButton carId={item._id} />
                                             </div>
+                                            {/* Add SOLD badge */}
+                                            {item.offerType === "Sold" && (
+                                                <div className="absolute bottom-2 left-2 bg-red-600/90 text-white px-2 py-0.5 rounded-sm">
+                                                    <span className="text-[10px] font-bold tracking-wide">SOLD</span>
+                                                </div>
+                                            )}
                                         </div>
 
                                         {/* Content Section - Kept compact size */}

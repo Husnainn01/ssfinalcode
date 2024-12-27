@@ -47,17 +47,43 @@ export default function ListingPage({ car, slug, favoriteButton }) {
 
   const getCarImages = () => {
     if (!car) return [];
-    if (Array.isArray(car.images) && car.images.length > 0) return car.images;
-    return car.image ? [car.image] : [];
+    
+    let allImages = [];
+    
+    // Add the main image if it exists
+    if (car.image) {
+      allImages.push(car.image);
+    }
+    
+    // Add additional images if they exist
+    if (Array.isArray(car.images) && car.images.length > 0) {
+      allImages = [...allImages, ...car.images.filter(img => img && img.trim() !== '')];
+    }
+    
+    // Remove duplicates and empty values
+    allImages = [...new Set(allImages)].filter(img => img && img.trim() !== '');
+    
+    return allImages;
   };
 
   const renderImageSlider = () => {
     try {
+      const images = getCarImages();
+      console.log('Available images:', images); // Debug log
+      
+      if (images.length === 0) {
+        return (
+          <div className="w-full h-[300px] bg-gray-200 flex items-center justify-center">
+            <p>No images available</p>
+          </div>
+        );
+      }
+
       return (
         <ImageSlider 
-          images={getCarImages()} 
+          images={images} 
           carId={car._id}
-          key={car.images?.join(',')}
+          key={images.join(',')}
         />
       );
     } catch (error) {
@@ -84,6 +110,17 @@ export default function ListingPage({ car, slug, favoriteButton }) {
         <div className="flex flex-col lg:flex-row gap-8">
           <div className="w-full lg:w-3/5">
             <div className="relative w-full">
+              {car.offerType === "Sold" && (
+                <div className="absolute top-0 left-0 z-50">
+                  <div className="bg-red-600/90 text-white px-8 py-3 shadow-lg backdrop-blur-sm">
+                    <span className="text-2xl font-bold tracking-wider">SOLD</span>
+                  </div>
+                  <div className="absolute -bottom-2 left-0 w-0 h-0 
+                    border-t-[8px] border-t-red-800
+                    border-r-[8px] border-r-transparent">
+                  </div>
+                </div>
+              )}
               {renderImageSlider()}
             </div>
             <div>

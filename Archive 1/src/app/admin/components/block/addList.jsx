@@ -1,12 +1,24 @@
 "use client";
+import dynamic from 'next/dynamic';
 import { useState, useEffect } from "react";
 import { Input, Button, Select, SelectItem, CheckboxGroup, Checkbox, } from "@nextui-org/react";
-import { CKEditor } from "@ckeditor/ckeditor5-react";
-import { ClassicEditor, editorConfig } from "@/lib/editorConfig";
+import { editorConfig } from "@/lib/editorConfig";
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import React from "react";
 import ImageUpload from '@/components/ImageUpload';
+
+// Add dynamic import for CKEditor
+const CKEditor = dynamic(
+  () => import('@ckeditor/ckeditor5-react').then(mod => mod.CKEditor),
+  { ssr: false }
+);
+
+// Add dynamic import for ClassicEditor
+const ClassicEditor = dynamic(
+  () => import('@ckeditor/ckeditor5-build-classic'),
+  { ssr: false }
+);
 
 const PostList = () => {
   const [formData, setFormData] = useState({
@@ -329,6 +341,9 @@ const PostList = () => {
         ...formData,
         images: imageUrls,
         country: formData.country.toLowerCase(), // Ensure country is lowercase for consistent routing
+        visibility: "Active", // Add default visibility
+        status: "active",    // Add default status
+        offerType: formData.offerType || "In Stock" // Add default offer type if not set
       };
 
       // Submit to your API
@@ -557,12 +572,22 @@ const PostList = () => {
         <div className="space-y-2">
           <label className="text-sm font-medium">Description</label>
           <div className="w-full">
-            <CKEditor
-              editor={ClassicEditor}
-              config={editorConfig}
-              data={formData.description}
-              onChange={handleEditorChange}
-            />
+            {typeof window !== 'undefined' && (
+              <CKEditor
+                editor={ClassicEditor}
+                config={editorConfig}
+                data={formData.description || ''}
+                onChange={(event, editor) => {
+                  if (editor) {
+                    const data = editor.getData();
+                    setFormData(prev => ({
+                      ...prev,
+                      description: data
+                    }));
+                  }
+                }}
+              />
+            )}
           </div>
         </div>
 

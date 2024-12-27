@@ -147,6 +147,98 @@ export default function CarListing() {
     }
   };
 
+  const handleStatusChange = async (id, newStatus) => {
+    try {
+      console.log('Updating status:', id, newStatus);
+      
+      // First, get the current listing data to preserve all fields
+      const currentListing = listing.find(item => item._id === id);
+      
+      if (!currentListing) {
+        throw new Error('Listing not found');
+      }
+
+      const response = await fetch(`/api/cars/${id}`, {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          ...currentListing,
+          offerType: newStatus,
+          availability: newStatus === 'Sold' ? 'OutOfStock' : 'InStock',
+          images: currentListing.images || []
+        }),
+      });
+
+      const data = await response.json();
+
+      // Check if the response was successful
+      if (!response.ok) {
+        throw new Error(data.message || `HTTP error! status: ${response.status}`);
+      }
+
+      // Update local state
+      setListing(prevListing =>
+        prevListing.map(item =>
+          item._id === id 
+            ? { 
+                ...item, 
+                offerType: newStatus,
+                availability: newStatus === 'Sold' ? 'OutOfStock' : 'InStock'
+              } 
+            : item
+        )
+      );
+      setFilteredListing(prevFiltered =>
+        prevFiltered.map(item =>
+          item._id === id 
+            ? { 
+                ...item, 
+                offerType: newStatus,
+                availability: newStatus === 'Sold' ? 'OutOfStock' : 'InStock'
+              } 
+            : item
+        )
+      );
+
+      // Trigger revalidation
+      const baseUrl = window.location.origin;
+      try {
+        const paths = [
+          `/cars/${id}`,
+          '/admin/dashboard/listing',
+          '/cars'
+        ];
+
+        for (const path of paths) {
+          const revalidateResponse = await fetch(`${baseUrl}/api/revalidate?path=${path}`, {
+            method: 'GET',
+            cache: 'no-store'
+          });
+          
+          if (!revalidateResponse.ok) {
+            console.warn(`Revalidation warning for path ${path}:`, await revalidateResponse.text());
+          }
+        }
+      } catch (revalidateError) {
+        console.error('Revalidation error:', revalidateError);
+        // Continue execution even if revalidation fails
+      }
+
+      toast.success('Status updated successfully');
+    } catch (error) {
+      console.error('Error updating status:', error);
+      toast.error(error.message || 'Failed to update status');
+      
+      // Revert the select value to its previous state
+      const selectElement = document.querySelector(`select[data-id="${id}"]`);
+      if (selectElement) {
+        selectElement.value = currentListing.offerType;
+      }
+    }
+  };
+
   return (
     <div className="px-0 py-0 md:p-6">
       <div className="flex flex-col md:flex-row justify-between items-center mb-4">
@@ -179,94 +271,100 @@ export default function CarListing() {
 
       {!loading && !error && !notFound && (
         <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4">
-          {filteredListing.map((item, index) => {
-            console.log("Rendering item:", item);
-            return (
-              <div
-                key={item._id}
-                className="listingCard shadow-md p-4 mb-4 rounded-lg flex flex-col gap-1 bg-white"
-              >
-                <div className="relative">
-                  <p
-                    className={`absolute top-2 left-2 z-50 text-white text-sm px-2 py-1 rounded-md font-medium ${
-                      item.visibility === "Active" ? "bg-green-600" : "bg-red-600"
-                    }`}
-                  >
-                    {item.visibility}
-                  </p>
-                  <div className="absolute top-2 right-2 z-50">
-                    {item.stockNumber ? (
-                      <p className="bg-blue-600 text-white text-sm px-2 py-1 rounded-md font-medium">
-                        Stock #: {item.stockNumber}
-                      </p>
-                    ) : (
-                      <p className="bg-gray-600 text-white text-sm px-2 py-1 rounded-md font-medium">
-                        No Stock #
-                      </p>
-                    )}
-                  </div>
-                  <img
-                    src={item.image || item.images?.[0]}
-                    className="h-[170px] w-full rounded-md mb-2"
-                    alt={item.title}
-                    onClick={() => handleToggle(item._id)}
-                  />
-                  {toggleStates[item._id] && (
-                    <div className="absolute top-full left-0 z-50 bg-white shadow-lg p-2">
-                      {item.images?.map((img, index) => (
-                        <div key={index} className="relative">
-                          <img 
-                            src={img} 
-                            alt={`${item.title} ${index + 1}`}
-                            className="w-20 h-20 object-cover mb-2"
-                          />
-                        </div>
-                      ))}
-                    </div>
-                  )}
-                  <div className="flex gap-2 absolute bottom-4 right-2 z-50">
-                    <i className="w-min h-min p-2 rounded-lg bg-primary-50 cursor-pointer text-lg text-black shadow-inner">
-                      <Link
-                        href={`/admin/cars/edit/${item._id}`}
-                      >
-                        <MdModeEdit />
-                      </Link>
-                    </i>
-                    <i
-                      onClick={() => handleDeleteClick(item._id)}
-                      className="w-min h-min p-2 rounded-lg bg-red-50 cursor-pointer text-lg text-black shadow-inner"
-                    >
-                      <MdOutlineDelete />
-                    </i>
-                  </div>
-                </div>
-                <div className="flex flex-col md:flex-row justify-between">
-                  <div className="relative">
-                    <h2 className="text-base font-semibold">
-                      {item.title.length > 25 ? `${item.title.substring(0, 25)}...` : item.title}
-                    </h2>
-                    <div className="flex flex-col md:flex-row gap-2">
-                      <p className="text-black dark:text-white">
-                        Stock #: {item.stockNumber || 'N/A'}
-                      </p>
-                      <p className="text-black dark:text-white">
-                        Make: {item.make}
-                      </p>
-                      <p className="text-black dark:text-white">
-                        Model: {item.model}
-                      </p>
-                      <p className="text-black dark:text-white">
-                        Price: ${item.price}
-                      </p>
-                    </div>
-                    <p className="absolute top-0 left-0 text-6xl opacity-10 font-bold">
-                      {index + 1}
+          {filteredListing.map((item, index) => (
+            <div
+              key={item._id}
+              className="listingCard shadow-md p-4 mb-4 rounded-lg flex flex-col gap-1 bg-white relative"
+            >
+              <div className="relative h-[200px] mb-4">
+                <p className={`absolute top-2 left-2 z-10 text-white text-sm px-2 py-1 rounded-md font-medium ${
+                  item.visibility === "Active" ? "bg-green-600" : "bg-red-600"
+                }`}>
+                  {item.visibility}
+                </p>
+                <div className="absolute top-2 right-2 z-10">
+                  {item.stockNumber ? (
+                    <p className="bg-blue-600 text-white text-sm px-2 py-1 rounded-md font-medium">
+                      Stock #: {item.stockNumber}
                     </p>
-                  </div>
+                  ) : (
+                    <p className="bg-gray-600 text-white text-sm px-2 py-1 rounded-md font-medium">
+                      No Stock #
+                    </p>
+                  )}
                 </div>
+                <img
+                  src={item.image || item.images?.[0]}
+                  className="h-full w-full object-cover rounded-md"
+                  alt={item.title}
+                  onClick={() => handleToggle(item._id)}
+                />
+                <div className="absolute bottom-2 left-2 z-10">
+                  <select
+                    value={item.offerType}
+                    onChange={(e) => handleStatusChange(item._id, e.target.value)}
+                    data-id={item._id}
+                    className={`text-sm px-2 py-1 rounded-md font-medium cursor-pointer transition-colors duration-200
+                      ${item.offerType === "Sold" 
+                        ? "bg-red-100 text-red-600 hover:bg-red-200" 
+                        : "bg-green-100 text-green-600 hover:bg-green-200"}`}
+                  >
+                    <option value="In Stock">In Stock</option>
+                    <option value="Sold">Sold</option>
+                  </select>
+                </div>
+                <div className="flex gap-2 absolute bottom-2 right-2 z-10">
+                  <Link
+                    href={`/admin/cars/edit/${item._id}`}
+                    className="w-8 h-8 flex items-center justify-center rounded-lg bg-primary-50 text-black shadow-inner hover:bg-primary-100"
+                  >
+                    <MdModeEdit className="text-lg" />
+                  </Link>
+                  <button
+                    onClick={() => handleDeleteClick(item._id)}
+                    className="w-8 h-8 flex items-center justify-center rounded-lg bg-red-50 text-black shadow-inner hover:bg-red-100"
+                  >
+                    <MdOutlineDelete className="text-lg" />
+                  </button>
+                </div>
+                {toggleStates[item._id] && (
+                  <div className="absolute top-full left-0 z-20 bg-white shadow-lg p-2 mt-2 rounded-md">
+                    {item.images?.map((img, index) => (
+                      <div key={index} className="relative">
+                        <img 
+                          src={img} 
+                          alt={`${item.title} ${index + 1}`}
+                          className="w-20 h-20 object-cover mb-2 rounded"
+                        />
+                      </div>
+                    ))}
+                  </div>
+                )}
               </div>
-            );
-          })}
+              <div className="relative pt-2">
+                <h2 className="text-base font-semibold mb-2">
+                  {item.title.length > 25 ? `${item.title.substring(0, 25)}...` : item.title}
+                </h2>
+                <div className="flex flex-wrap gap-2 text-sm">
+                  <p className="text-gray-600">
+                    Stock #: {item.stockNumber || 'N/A'}
+                  </p>
+                  <p className="text-gray-600">
+                    Make: {item.make}
+                  </p>
+                  <p className="text-gray-600">
+                    Model: {item.model}
+                  </p>
+                  <p className="text-gray-600">
+                    Price: ${item.price}
+                  </p>
+                </div>
+                <p className="absolute -top-4 right-0 text-6xl opacity-5 font-bold">
+                  {index + 1}
+                </p>
+              </div>
+            </div>
+          ))}
         </div>
       )}
       <ToastContainer position="bottom-right" autoClose={2000} />

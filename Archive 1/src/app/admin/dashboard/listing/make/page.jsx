@@ -8,7 +8,6 @@ export default function Make() {
     const [makeData, setMakeData] = useState([]);
     const [loading, setLoading] = useState(true);
     const [newMake, setNewMake] = useState("");
-    const [newImage, setNewImage] = useState("");
     const [selectedMake, setSelectedMake] = useState(null);
     const [error, setError] = useState("");
     const [deleteMakeId, setDeleteMakeId] = useState(null);
@@ -34,8 +33,8 @@ export default function Make() {
 
     const handleAddMake = async (e) => {
         e.preventDefault();
-        if (!newMake.trim() || !newImage.trim()) {
-            setError("Category name and image URL are required");
+        if (!newMake.trim()) {
+            setError("Make name is required");
             return;
         }
 
@@ -43,22 +42,21 @@ export default function Make() {
             const response = await fetch(apiEndpoint, {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({ make: newMake, image: newImage })
+                body: JSON.stringify({ make: newMake })
             });
             if (!response.ok) throw new Error("Network response was not ok");
             setNewMake("");
-            setNewImage("");
             setError("");
             fetchData();
         } catch (error) {
             console.error("Error adding new make:", error);
-            setError("Failed to add new category");
+            setError("Failed to add new make");
         }
     };
 
     const handleUpdateMake = async () => {
-        if (!selectedMake || !newMake.trim() || !newImage.trim()) {
-            setError("Select a make, and provide category name and image URL");
+        if (!selectedMake || !newMake.trim()) {
+            setError("Select a make and provide make name");
             return;
         }
 
@@ -68,18 +66,17 @@ export default function Make() {
                 headers: { "Content-Type": "application/json" },
                 body: JSON.stringify({
                     id: selectedMake._id,
-                    updateData: { make: newMake, image: newImage }
+                    updateData: { make: newMake }
                 })
             });
             if (!response.ok) throw new Error("Network response was not ok");
             setNewMake("");
-            setNewImage("");
             setSelectedMake(null);
             setError("");
             fetchData();
         } catch (error) {
             console.error("Error updating make:", error);
-            setError("Failed to update category");
+            setError("Failed to update make");
         }
     };
 
@@ -125,18 +122,11 @@ export default function Make() {
                     <form onSubmit={selectedMake ? (e) => { e.preventDefault(); handleUpdateMake(); } : handleAddMake}>
                         <Input
                             label="Make Brand Name"
-                            labelPlacement="outside" type="text"
+                            labelPlacement="outside"
+                            type="text"
                             value={newMake}
                             onChange={(e) => setNewMake(e.target.value)}
-                            placeholder="Tata"
-                            className="p-2 w-full mb-4"
-                        />
-                        <Input
-                            label="Make Logo Url"
-                            labelPlacement="outside" type="text"
-                            value={newImage}
-                            onChange={(e) => setNewImage(e.target.value)}
-                            placeholder="https://image-vasu.jpg"
+                            placeholder="Enter make name"
                             className="p-2 w-full mb-4"
                         />
                         <Button className="bg-black text-white" type="submit">
@@ -148,35 +138,27 @@ export default function Make() {
 
                 <div className="w-full sm:w-1/2 p-4 rounded-lg shadow-md">
                     <h2 className="text-xl font-bold mb-4">Make List</h2>
-                    <ul className="list-disc pl-0 md:pl-5 mb-4">
-                        <li className="flex flex-wrap justify-between items-center px-5 py-2 mb-1">
-                            <p className="flex-1">Image</p>
-                            <p className="flex-1">Make</p>
-                            <p className="flex-1 text-center">Edit</p>
-                            <p className="flex-1 text-center">Delete</p>
-                        </li>
-                    </ul>
                     <ul className="list-disc pl-0 md:pl-5">
                         {makeData.map((makeItem) => (
-                            <li key={makeItem._id} className="flex flex-wrap justify-between items-center px-5 py-2 mb-4 rounded-md bg-slate-50">
-                                <img src={makeItem.image} alt={makeItem.make} className="bg-white w-14 h-14 object-cover mr-4 rounded-full shadow-md p-2" />
+                            <li key={makeItem._id} className="flex justify-between items-center px-5 py-2 mb-4 rounded-md bg-slate-50">
                                 <p className="font-medium flex-1">{makeItem.make}</p>
-                                <button
-                                    onClick={() => {
-                                        setSelectedMake(makeItem);
-                                        setNewMake(makeItem.make);
-                                        setNewImage(makeItem.image);
-                                    }}
-                                    className="h-8 w-8 shadow-inner rounded-full flex justify-center items-center bg-teal-50 flex-shrink-0 mb-2 sm:mb-0"
-                                >
-                                    <MdModeEdit />
-                                </button>
-                                <button
-                                    onClick={() => openDeleteModal(makeItem._id)}
-                                    className="h-8 w-8 shadow-inner rounded-full flex justify-center items-center bg-red-50 flex-shrink-0"
-                                >
-                                    <MdDelete />
-                                </button>
+                                <div className="flex gap-2">
+                                    <button
+                                        onClick={() => {
+                                            setSelectedMake(makeItem);
+                                            setNewMake(makeItem.make);
+                                        }}
+                                        className="h-8 w-8 shadow-inner rounded-full flex justify-center items-center bg-teal-50"
+                                    >
+                                        <MdModeEdit />
+                                    </button>
+                                    <button
+                                        onClick={() => openDeleteModal(makeItem._id)}
+                                        className="h-8 w-8 shadow-inner rounded-full flex justify-center items-center bg-red-50"
+                                    >
+                                        <MdDelete />
+                                    </button>
+                                </div>
                             </li>
                         ))}
                     </ul>

@@ -14,6 +14,10 @@ import PriceCalculator from "@/components/block/PriceCalculator";
 import CurrentSearch from "@/components/block/CurrentSearch";
 import { FavoriteButton } from '@/components/ui/FavoriteButton';
 import { MdModeEdit, MdOutlineDelete } from 'react-icons/md';
+import { 
+    AU, US, NZ, IE, KE, UG, ZM, MW, GN, PG, CD, 
+    PK, ZA, TH, GE, GB, RW, FJ, LK, RU, MN, PH, JP 
+} from 'country-flag-icons/react/3x2'
 
 function Listing() {
     const [listing, setListing] = useState([]);
@@ -33,14 +37,6 @@ function Listing() {
 
         if (searchQuery) {
             fetchSearchResults(searchQuery);
-        } else if (countryFilter) {
-            fetchCountryResults(countryFilter);
-        } else if (makeFilter) {
-            fetchMakeResults(makeFilter);
-        } else if (typeFilter) {
-            fetchTypeResults(typeFilter);
-        } else if (otherCategoryFilter) {
-            fetchOtherCategoryResults(otherCategoryFilter);
         } else {
             fetchListings();
         }
@@ -87,17 +83,19 @@ function Listing() {
     const fetchCountryResults = async (country) => {
         setLoading(true);
         try {
-            const response = await fetch(`/api/cars/country/${country}`);
+            const response = await fetch(`/api/listing?country=${encodeURIComponent(country)}`);
             const data = await response.json();
             
             if (Array.isArray(data)) {
                 // Filter active listings and sort by date
                 const filteredData = data.filter(car => car.visibility === "Active");
-                filteredData.sort((a, b) => new Date(b.date) - new Date(a.date));
+                filteredData.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
                 setListing(filteredData);
             } else {
                 setListing([]);
             }
+            
+            console.log(`Found ${data.length} cars for country: ${country}`);
         } catch (error) {
             console.error("Error fetching country results:", error);
             setListing([]);
@@ -199,6 +197,59 @@ function Listing() {
         </div>
     );
 
+    const CountryFlag = ({ country }) => {
+        switch(country?.toLowerCase()) {
+            case 'australia':
+                return <AU className="w-4 h-4 rounded-sm" />;
+            case 'usa':
+                return <US className="w-4 h-4 rounded-sm" />;
+            case 'new zealand':
+                return <NZ className="w-4 h-4 rounded-sm" />;
+            case 'ireland':
+                return <IE className="w-4 h-4 rounded-sm" />;
+            case 'kenya':
+                return <KE className="w-4 h-4 rounded-sm" />;
+            case 'uganda':
+                return <UG className="w-4 h-4 rounded-sm" />;
+            case 'zambia':
+                return <ZM className="w-4 h-4 rounded-sm" />;
+            case 'malawi':
+                return <MW className="w-4 h-4 rounded-sm" />;
+            case 'guinea':
+                return <GN className="w-4 h-4 rounded-sm" />;
+            case 'papua new guinea':
+                return <PG className="w-4 h-4 rounded-sm" />;
+            case 'dr congo':
+                return <CD className="w-4 h-4 rounded-sm" />;
+            case 'pakistan':
+                return <PK className="w-4 h-4 rounded-sm" />;
+            case 'south africa':
+                return <ZA className="w-4 h-4 rounded-sm" />;
+            case 'thailand':
+                return <TH className="w-4 h-4 rounded-sm" />;
+            case 'georgia':
+                return <GE className="w-4 h-4 rounded-sm" />;
+            case 'uk':
+                return <GB className="w-4 h-4 rounded-sm" />;
+            case 'rwanda':
+                return <RW className="w-4 h-4 rounded-sm" />;
+            case 'fiji':
+                return <FJ className="w-4 h-4 rounded-sm" />;
+            case 'sri lanka':
+                return <LK className="w-4 h-4 rounded-sm" />;
+            case 'russia':
+                return <RU className="w-4 h-4 rounded-sm" />;
+            case 'mongolia':
+                return <MN className="w-4 h-4 rounded-sm" />;
+            case 'philippines':
+                return <PH className="w-4 h-4 rounded-sm" />;
+            case 'japan':
+                return <JP className="w-4 h-4 rounded-sm" />;
+            default:
+                return <span className="w-3 h-3 rounded-full bg-red-500" />;
+        }
+    };
+
     return (
         <div className="flex flex-col md:flex-row bg-[#E2F1E7] min-h-screen pt-0">
             {/* Left Sidebar */}
@@ -252,18 +303,25 @@ function Listing() {
                 <div className="space-y-3 px-4">
                     {currentItems.map(item => (
                         <div key={item.id} className="bg-white rounded-lg overflow-hidden shadow-sm hover:shadow-md transition-all duration-300">
-                            {/* Main Container - Increased height */}
-                            <div className="flex h-[230px]">
+                            {/* Main Container */}
+                            <div className="flex h-[230px] relative">
+                                {/* Sold Badge */}
+                                {item.offerType === "Sold" && (
+                                    <div className="absolute -left-8 top-4 bg-red-500 text-white px-10 py-1 transform -rotate-45 z-10 shadow-md">
+                                        <span className="text-sm font-semibold">SOLD</span>
+                                    </div>
+                                )}
+                                
                                 {/* Left Image Section */}
                                 <div className="relative w-[220px] p-2">
                                     <Link href={`/cars/${item._id}`}>
                                         <img
-                                            src={item.image}
+                                            src={item.images?.[0] || item.image}
                                             alt={item.title}
-                                            className="w-full h-full object-cover rounded-lg"
+                                            className={`w-full h-full object-cover rounded-lg ${item.offerType === "Sold" ? "opacity-80" : ""}`}
                                         />
                                     </Link>
-                                    <div className="absolute top-4 left-4 bg-black/50 rounded">
+                                    <div className="absolute top-4 right-4 bg-black/50 rounded">
                                         <FavoriteButton carId={item._id} />
                                     </div>
                                     <div className="absolute bottom-4 left-4 text-[10px] bg-gray-900/80 text-white px-2 py-0.5 rounded">
@@ -279,7 +337,7 @@ function Listing() {
                                         <div className="flex justify-between items-start border-b border-gray-100 pb-1.5">
                                             <h2 className="text-blue-600 text-base font-bold hover:text-blue-700">
                                                 <Link href={`/cars/${item._id}`}>
-                                                    {item.year} {item.make} {item.model}
+                                                    {item.make} {item.model} {item.year}
                                                 </Link>
                                             </h2>
                                             <div className="text-right">
@@ -287,10 +345,10 @@ function Listing() {
                                                     ${item.price?.toLocaleString()}
                                                 </div>
                                                 <div className="text-xs text-gray-600">
-                                                    Total Price: ${(item.price * 1.15)?.toLocaleString()}
+                                                    Total Price: ${(item.price)?.toLocaleString()}
                                                 </div>
                                                 <div className="text-[10px] text-gray-500">
-                                                    CIF to Belize (Container)
+                                                    C&F TO PORT (ASK)
                                                 </div>
                                             </div>
                                         </div>
@@ -308,7 +366,7 @@ function Listing() {
                                             </div>
                                             <div className="space-y-1 border-r border-gray-100">
                                                 <div className="text-[10px] text-gray-500">Engine</div>
-                                                <div className="text-xs font-medium">{item.engineSize || '650cc'}</div>
+                                                <div className="text-xs font-medium">{item.vehicleEngine || '650cc'}</div>
                                             </div>
                                             <div className="space-y-1 border-r border-gray-100">
                                                 <div className="text-[10px] text-gray-500">Trans.</div>
@@ -316,60 +374,101 @@ function Listing() {
                                             </div>
                                             <div className="space-y-1">
                                                 <div className="text-[10px] text-gray-500">Location</div>
-                                                <div className="text-xs font-medium flex items-center gap-1">
-                                                    <span className="w-3 h-3 rounded-full bg-red-500" />
-                                                    {item.location || 'Nagoya'}
+                                                <div className="text-xs font-medium flex items-center gap-2">
+                                                    <CountryFlag country={item.country} />
+                                                    <span className="capitalize">{item.country || 'N/A'}</span>
                                                 </div>
                                             </div>
                                         </div>
 
-                                        {/* Details Grid - Reduced gaps */}
+                                        {/* Details Grid - Using actual database field names */}
                                         <div className="grid grid-cols-4 gap-x-3 gap-y-0.5 text-xs mt-1.5">
                                             <div className="flex justify-between border-b border-gray-100 pb-0.5">
-                                                <span className="text-gray-500">Model code</span>
-                                                <span>{item.modelCode || '-'}</span>
-                                            </div>
-                                            <div className="flex justify-between border-b border-gray-100 pb-0.5">
-                                                <span className="text-gray-500">Steering</span>
-                                                <span>{item.steering || 'Right'}</span>
-                                            </div>
-                                            <div className="flex justify-between border-b border-gray-100 pb-0.5">
-                                                <span className="text-gray-500">Fuel</span>
-                                                <span>{item.fuelType || 'Petrol'}</span>
-                                            </div>
-                                            <div className="flex justify-between border-b border-gray-100 pb-0.5">
-                                                <span className="text-gray-500">Seats</span>
-                                                <span>{item.seats || '4'}</span>
-                                            </div>
-                                            <div className="flex justify-between border-b border-gray-100 pb-0.5">
-                                                <span className="text-gray-500">Engine code</span>
-                                                <span>{item.engineCode || '-'}</span>
-                                            </div>
-                                            <div className="flex justify-between border-b border-gray-100 pb-0.5">
-                                                <span className="text-gray-500">Color</span>
-                                                <span>{item.color || 'Black'}</span>
+                                                <span className="text-gray-500">VIN</span>
+                                                <span>{item.vin || 'N/A'}</span>
                                             </div>
                                             <div className="flex justify-between border-b border-gray-100 pb-0.5">
                                                 <span className="text-gray-500">Drive</span>
-                                                <span>{item.driveType || '2WD'}</span>
+                                                <span>{item.driveWheelConfiguration || 'N/A'}</span>
                                             </div>
                                             <div className="flex justify-between border-b border-gray-100 pb-0.5">
+                                                <span className="text-gray-500">Fuel</span>
+                                                <span>{item.fuelType || 'N/A'}</span>
+                                            </div>
+                                            {/* <div className="flex justify-between border-b border-gray-100 pb-0.5">
+                                                <span className="text-gray-500">Seats</span>
+                                                <span>{item.vehicleSeatingCapacity || 'N/A'}</span>
+                                            </div> */}
+                                            {/* <div className="flex justify-between border-b border-gray-100 pb-0.5">
+                                                <span className="text-gray-500">Engine</span>
+                                                <span>{item.vehicleEngine || 'N/A'}</span>
+                                            </div> */}
+                                            <div className="flex justify-between border-b border-gray-100 pb-0.5">
+                                                <span className="text-gray-500">Color</span>
+                                                <span>{item.color || 'N/A'}</span>
+                                            </div>
+                                            {/* <div className="flex justify-between border-b border-gray-100 pb-0.5">
+                                                <span className="text-gray-500">Transmission</span>
+                                                <span>{item.vehicleTransmission || 'N/A'}</span>
+                                            </div> */}
+                                            <div className="flex justify-between border-b border-gray-100 pb-0.5">
                                                 <span className="text-gray-500">Doors</span>
-                                                <span>{item.doors || '5'}</span>
+                                                <span>{item.numberOfDoors || 'N/A'}</span>
+                                            </div>
+                                            <div className="flex justify-between border-b border-gray-100 pb-0.5">
+                                                <span className="text-gray-500">Body Type</span>
+                                                <span>{item.bodyType || 'N/A'}</span>
+                                            </div>
+                                            <div className="flex justify-between border-b border-gray-100 pb-0.5">
+                                                <span className="text-gray-500">Cylinders</span>
+                                                <span>{item.cylinders || 'N/A'}</span>
+                                            </div>
+                                            {/* <div className="flex justify-between border-b border-gray-100 pb-0.5">
+                                                <span className="text-gray-500">Mileage</span>
+                                                <span>{item.mileage ? `${item.mileage} ${item.mileageUnit}` : 'N/A'}</span>
+                                            </div> */}
+                                            <div className="flex justify-between border-b border-gray-100 pb-0.5">
+                                                <span className="text-gray-500">Condition</span>
+                                                <span>{item.itemCondition || 'N/A'}</span>
                                             </div>
                                         </div>
 
                                         {/* Features - Using carFeature from database */}
                                         <div className="flex flex-wrap gap-1.5 mt-1.5">
                                             {item.carFeature && item.carFeature.length > 0 ? (
-                                                item.carFeature.map((feature, index) => (
-                                                    <span 
-                                                        key={index} 
-                                                        className="text-[10px] bg-gray-100 text-gray-600 px-1.5 py-0.5 rounded"
-                                                    >
-                                                        {feature.trim()}
-                                                    </span>
-                                                ))
+                                                <>
+                                                    {/* Display first 9 features */}
+                                                    {item.carFeature.slice(0, 9).map((feature, index) => (
+                                                        <span 
+                                                            key={index} 
+                                                            className="text-[10px] bg-gray-100 text-gray-600 px-1.5 py-0.5 rounded"
+                                                        >
+                                                            {feature.trim()}
+                                                        </span>
+                                                    ))}
+                                                    
+                                                    {/* Show "Show More" button if there are more than 9 features */}
+                                                    {item.carFeature.length > 9 && (
+                                                        <Link 
+                                                            href={`/cars/${item.slug}`}
+                                                            className="text-[10px] bg-primary-100 text-primary-600 px-1.5 py-0.5 rounded hover:bg-primary-200 transition-colors cursor-pointer flex items-center gap-0.5"
+                                                        >
+                                                            +{item.carFeature.length - 9} more
+                                                            <svg 
+                                                                xmlns="http://www.w3.org/2000/svg" 
+                                                                viewBox="0 0 20 20" 
+                                                                fill="currentColor" 
+                                                                className="w-3 h-3"
+                                                            >
+                                                                <path 
+                                                                    fillRule="evenodd" 
+                                                                    d="M7.21 14.77a.75.75 0 01.02-1.06L11.168 10 7.23 6.29a.75.75 0 111.04-1.08l4.5 4.25a.75.75 0 010 1.08l-4.5 4.25a.75.75 0 01-1.06-.02z" 
+                                                                    clipRule="evenodd" 
+                                                                />
+                                                            </svg>
+                                                        </Link>
+                                                    )}
+                                                </>
                                             ) : (
                                                 <span className="text-[10px] text-gray-400">
                                                     No features available
