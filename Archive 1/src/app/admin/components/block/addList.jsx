@@ -85,6 +85,16 @@ const PostList = () => {
   const [selectedFiles, setSelectedFiles] = useState([]);
   const [resetImageUpload, setResetImageUpload] = useState(false);
 
+  const otherCategoryOptions = [
+    'Left Hand Drive',
+    'Fuel Efficient Vehicles',
+    'Hybrid',
+    'Electric',
+    'Diesel',
+    'Manual',
+    'For Handicapped'
+  ];
+
   useEffect(() => {
     const fetchData = async () => {
       try {
@@ -308,47 +318,41 @@ const PostList = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    
-    if (!validateForm()) {
-      return;
-    }
-
     setIsSubmitting(true);
 
     try {
+      // Upload images first
       const imageUrls = await uploadImages();
-      
-      const mainImageUrl = imageUrls[selectedFiles.findIndex(file => 
-        URL.createObjectURL(file) === formData.image
-      )];
-      
-      const updatedFormData = {
+
+      // Prepare the data
+      const submitData = {
         ...formData,
         images: imageUrls,
-        image: mainImageUrl
+        country: formData.country.toLowerCase(), // Ensure country is lowercase for consistent routing
       };
 
-      console.log("Submitting form data:", updatedFormData);
-
-      const response = await fetch("/api/listing", {
-        method: "POST",
+      // Submit to your API
+      const response = await fetch('/api/listing/create', {
+        method: 'POST',
         headers: {
-          "Content-Type": "application/json",
+          'Content-Type': 'application/json',
         },
-        body: JSON.stringify(updatedFormData),
+        body: JSON.stringify(submitData),
       });
 
-      const data = await response.json();
-
       if (!response.ok) {
-        throw new Error(data.message || "Failed to create listing");
+        throw new Error('Failed to create listing');
       }
 
-      toast.success("Listing created successfully!");
-      resetForm();
+      toast.success('Listing created successfully');
+      // Reset form or redirect
+      setResetImageUpload(prev => !prev);
+      setFormData({
+        // ... reset form data
+      });
     } catch (error) {
-      toast.error(error.message || "An error occurred while creating the listing");
-      console.error("Submission error:", error);
+      console.error('Error creating listing:', error);
+      toast.error(error.message || 'Failed to create listing');
     } finally {
       setIsSubmitting(false);
     }
@@ -452,10 +456,10 @@ const PostList = () => {
             false
           )}
           {renderSelectField(
-            "Category",
+            "Other Categories",
             "category",
             formData.category,
-            Array.isArray(categoryData) ? categoryData.map(cat => cat.name) : []
+            otherCategoryOptions
           )}
         </div>
 

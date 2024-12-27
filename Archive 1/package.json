@@ -61,6 +61,7 @@
     "nodemailer": "^6.9.16",
     "razorpay": "^2.9.4",
     "react": "^18",
+    "react-beautiful-dnd": "^13.1.1",
     "react-color": "^2.19.3",
     "react-day-picker": "^8.10.1",
     "react-dom": "^18",

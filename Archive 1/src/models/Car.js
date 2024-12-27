@@ -33,12 +33,45 @@ const CarSchema = new mongoose.Schema({
   carFeature: [String],
   carSafetyFeature: [String],
   cylinders: String,
-  visibility: String
+  visibility: String,
+  images: {
+    type: [String],
+    default: []
+  },
+  image: String,
+  stockNumber: String,
+  date: {
+    type: Date,
+    default: Date.now
+  },
+  steering: String,
+  seats: String,
+  engineCode: String,
+  driveType: String,
+  country: String,
+  category: String,
+  section: {
+    type: String,
+    enum: ['recent', 'popular'],
+    default: 'recent'
+  },
+  offerType: {
+    type: String,
+    default: 'In Stock'
+  }
 }, {
-  collection: 'CarListing'
+  collection: 'CarListing',
+  timestamps: true,
+  strict: false
 });
 
-// Check if the model exists before creating it
+CarSchema.pre('save', function(next) {
+  if (!this.image && this.images && this.images.length > 0) {
+    this.image = this.images[0];
+  }
+  next();
+});
+
 const CarListing = mongoose.models.CarListing || mongoose.model('CarListing', CarSchema);
 export default CarListing;  // Export as CarListing instead of Car
   

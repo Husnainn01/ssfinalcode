@@ -38,6 +38,38 @@ export default function ListingPage({ car, slug, favoriteButton }) {
     setNav2(slider2.current);
   }, []);
 
+  useEffect(() => {
+    if (slider1.current && slider2.current) {
+      slider1.current.slickGoTo(0);
+      slider2.current.slickGoTo(0);
+    }
+  }, [car.images]);
+
+  const getCarImages = () => {
+    if (!car) return [];
+    if (Array.isArray(car.images) && car.images.length > 0) return car.images;
+    return car.image ? [car.image] : [];
+  };
+
+  const renderImageSlider = () => {
+    try {
+      return (
+        <ImageSlider 
+          images={getCarImages()} 
+          carId={car._id}
+          key={car.images?.join(',')}
+        />
+      );
+    } catch (error) {
+      console.error('Error rendering image slider:', error);
+      return (
+        <div className="w-full h-[300px] bg-gray-200 flex items-center justify-center">
+          <p>Failed to load images</p>
+        </div>
+      );
+    }
+  };
+
   if (error) {
     return <div>Error: {error}</div>;
   }
@@ -52,10 +84,7 @@ export default function ListingPage({ car, slug, favoriteButton }) {
         <div className="flex flex-col lg:flex-row gap-8">
           <div className="w-full lg:w-3/5">
             <div className="relative w-full">
-              <ImageSlider 
-                images={car.images || [car.image]} 
-                carId={car._id}
-              />
+              {renderImageSlider()}
             </div>
             <div>
               <div className="flex flex-col lg:flex-row lg:justify-between lg:items-center mt-4 px-4 rounded-md">

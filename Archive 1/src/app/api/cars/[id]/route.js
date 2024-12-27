@@ -1,39 +1,91 @@
 import { NextResponse } from 'next/server';
 import dbConnect from '@/lib/dbConnect';
-import mongoose from 'mongoose';
+import Car from '@/models/Car';
 
 export async function GET(request, { params }) {
   try {
     await dbConnect();
-    console.log('API Route - Received params:', params); // Debug log
-    
     const { id } = params;
-    if (!id) {
-      return NextResponse.json({ error: "Car ID is required" }, { status: 400 });
-    }
 
-    let car;
-    if (mongoose.Types.ObjectId.isValid(id)) {
-      car = await mongoose.connection.db
-        .collection('CarListing')
-        .findOne({ _id: new mongoose.Types.ObjectId(id) });
-    }
-    
+    const car = await Car.findById(id);
     if (!car) {
-      console.log('Car not found for ID:', id); // Debug log
-      return NextResponse.json({ error: "Car not found" }, { status: 404 });
+      return NextResponse.json(
+        { message: 'Car not found' },
+        { status: 404 }
+      );
     }
 
-    // Convert _id to string
-    car._id = car._id.toString();
-
-    console.log('Found car:', car); // Debug log
     return NextResponse.json(car);
+
   } catch (error) {
     console.error('Error fetching car:', error);
-    return NextResponse.json({ 
-      error: "Internal Server Error",
-      details: error.message 
-    }, { status: 500 });
+    return NextResponse.json(
+      { message: error.message || 'Error fetching car' },
+      { status: 500 }
+    );
+  }
+}
+
+export async function PUT(request, { params }) {
+  try {
+    await dbConnect();
+    const { id } = params;
+    const data = await request.json();
+
+    console.log('Updating car with ID:', id);
+    console.log('Update data:', data);
+
+    // Ensure images array is properly handled
+    if (data.images) {
+      console.log('New image order:', data.images);
+    }
+
+    // Update the car with new data
+    const updatedCar = await Car.findByIdAndUpdate(
+      id,
+      { 
+        $set: {
+          ...data,
+          // Ensure images array is set exactly as provided
+          images: data.images || []
+        }
+      },
+      { 
+        new: true,
+        runValidators: true
+      }
+    );
+
+    if (!updatedCar) {
+      console.log('Car not found');
+      return NextResponse.json(
+        { message: 'Car not found' },
+        { status: 404 }
+      );
+    }
+
+    console.log('Successfully updated car:', updatedCar);
+
+    // Force revalidation
+    try {
+      const timestamp = Date.now();
+      await Promise.all([
+        fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/revalidate?path=/cars/${id}&t=${timestamp}`),
+        fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/revalidate?path=/admin/dashboard/listing&t=${timestamp}`),
+        fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/revalidate?path=/cars&t=${timestamp}`),
+      ]);
+    } catch (revalidateError) {
+      console.error('Revalidation error:', revalidateError);
+      // Continue with the response even if revalidation fails
+    }
+
+    return NextResponse.json(updatedCar);
+
+  } catch (error) {
+    console.error('Error updating car:', error);
+    return NextResponse.json(
+      { message: error.message || 'Error updating car' },
+      { status: 500 }
+    );
   }
 } 

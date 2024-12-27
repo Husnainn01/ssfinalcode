@@ -66,18 +66,30 @@ export default function Component() {
   ]
 
   const staticCountries = [
-    { name: 'Japan', flag: '🇯🇵' },
-    { name: 'USA', flag: '🇺🇸' },
-    { name: 'Germany', flag: '🇩🇪' },
-    { name: 'UK', flag: '🇬🇧' },
-    { name: 'South Korea', flag: '🇰🇷' },
-    { name: 'Thailand', flag: '🇹🇭' },
-    { name: 'Singapore', flag: '🇸🇬' },
-    { name: 'Malaysia', flag: '🇲🇾' },
     { name: 'Australia', flag: '🇦🇺' },
+    { name: 'USA', flag: '🇺🇸' },
+    { name: 'New Zealand', flag: '🇳🇿' },
+    { name: 'Ireland', flag: '🇮🇪' },
     { name: 'UAE', flag: '🇦🇪' },
-    { name: 'Canada', flag: '🇨🇦' },
-    { name: 'France', flag: '🇫🇷' },
+    { name: 'Kenya', flag: '🇰🇳' },
+    { name: 'Uganda', flag: '🇺🇬' },
+    { name: 'Zambia', flag: '🇿🇲' },
+    { name: 'Malawi', flag: '🇲🇼' },
+    { name: 'Guinea', flag: '🇬🇳' },
+    { name: 'Papua New Guinea', flag: '🇵🇬' },
+    { name: 'DR Congo', flag: '🇨🇩' },
+    { name: 'Pakistan', flag: '🇵🇰' },
+    { name: 'South Africa', flag: '🇿🇦' },
+    { name: 'Thailand', flag: '🇹🇭' },
+    { name: 'Georgia', flag: '🇬🇪' },
+    { name: 'UK', flag: '🇬🇧' },
+    { name: 'Rwanda', flag: '🇰🇼' },
+    { name: 'Fiji', flag: '🇫🇯' },
+    { name: 'Sri Lanka', flag: '🇱🇰' },
+    { name: 'Russia', flag: '🇷🇺' },
+    { name: 'Mongolia', flag: '🇲🇳' },
+    { name: 'Philippines', flag: '🇵🇭' },
+    { name: 'Japan', flag: '🇯🇵' },
   ]
 
   const otherCategories = [
@@ -101,14 +113,18 @@ export default function Component() {
           </h2>
           <div className="mt-3 relative">
             {staticCountries.map((country) => (
-              <a 
+              <Link 
                 key={country.name} 
-                href={`#${country.name.toLowerCase()}`}
+                href={`/cars?country=${country.name}`}
                 className="flex items-center gap-3 px-4 py-2 hover:bg-[#2d4050] transition-all duration-200 group hover:shadow-md"
               >
-                <span className="w-6 h-6 flex items-center justify-center text-lg">{country.flag}</span>
-                <span className="flex-1 text-[#E2F1E7] group-hover:text-[#E2F1E7]">{country.name}</span>
-              </a>
+                <span className="w-6 h-6 flex items-center justify-center text-lg">
+                  {country.flag}
+                </span>
+                <span className="flex-1 text-[#E2F1E7] group-hover:text-[#E2F1E7]">
+                  {country.name}
+                </span>
+              </Link>
             ))}
           </div>
         </div>
@@ -121,16 +137,18 @@ export default function Component() {
           </h2>
           <div className="mt-3">
             {staticMakes.map((make) => (
-              <a 
+              <Link 
                 key={make._id} 
-                href={`/cars/make/${make.name.toLowerCase()}`}
+                href={`/cars?make=${make.name}`}
                 className="flex items-center gap-3 px-4 py-2 hover:bg-[#2d4050] transition-all duration-200 group hover:shadow-md"
               >
                 <div className="w-6 h-6 flex items-center justify-center rounded-full bg-[#2d4050] group-hover:bg-[#243642] transition-colors duration-200 shadow-sm">
                   <Car className="h-3.5 w-3.5 text-[#629584]" />
                 </div>
-                <span className="flex-1 text-[#E2F1E7] group-hover:text-[#E2F1E7]">{make.name}</span>
-              </a>
+                <span className="flex-1 text-[#E2F1E7] group-hover:text-[#E2F1E7]">
+                  {make.name}
+                </span>
+              </Link>
             ))}
             <div className="px-4 pt-4 pb-2">
               <Link 
@@ -158,16 +176,18 @@ export default function Component() {
           </h2>
           <div className="mt-3">
             {staticVehicleTypes.map((vehicle) => (
-              <a 
+              <Link 
                 key={vehicle.type} 
-                href={`#${vehicle.type.toLowerCase()}`}
+                href={`/cars?type=${vehicle.type}`}
                 className="flex items-center gap-3 px-4 py-2 hover:bg-[#2d4050] transition-all duration-200 group hover:shadow-md"
               >
                 <div className="w-6 h-6 flex items-center justify-center rounded-full bg-[#2d4050] group-hover:bg-[#243642] transition-colors duration-200 shadow-sm">
                   <vehicle.icon className="h-3.5 w-3.5 text-[#629584]" />
                 </div>
-                <span className="flex-1 text-[#E2F1E7] group-hover:text-[#E2F1E7]">{vehicle.type}</span>
-              </a>
+                <span className="flex-1 text-[#E2F1E7] group-hover:text-[#E2F1E7]">
+                  {vehicle.type}
+                </span>
+              </Link>
             ))}
           </div>
         </div>
@@ -180,16 +200,18 @@ export default function Component() {
           </h2>
           <div className="mt-3">
             {otherCategories.map((category) => (
-              <a 
+              <Link 
                 key={category.type} 
-                href={`/category/${category.type.toLowerCase().replace(/\s+/g, '-')}`}
+                href={`/cars?othercategory=${encodeURIComponent(category.type)}`}
                 className="flex items-center gap-3 px-4 py-2 hover:bg-[#2d4050] transition-all duration-200 group hover:shadow-md"
               >
                 <div className="w-6 h-6 flex items-center justify-center rounded-full bg-[#2d4050] group-hover:bg-[#243642] transition-colors duration-200 shadow-sm">
                   <category.icon className="h-3.5 w-3.5 text-[#629584]" />
                 </div>
-                <span className="flex-1 text-[#E2F1E7] group-hover:text-[#E2F1E7]">{category.type}</span>
-              </a>
+                <span className="flex-1 text-[#E2F1E7] group-hover:text-[#E2F1E7]">
+                  {category.type}
+                </span>
+              </Link>
             ))}
           </div>
         </div>

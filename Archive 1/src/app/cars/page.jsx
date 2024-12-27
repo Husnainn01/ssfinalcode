@@ -13,6 +13,7 @@ import { useRouter, useSearchParams } from 'next/navigation';
 import PriceCalculator from "@/components/block/PriceCalculator";
 import CurrentSearch from "@/components/block/CurrentSearch";
 import { FavoriteButton } from '@/components/ui/FavoriteButton';
+import { MdModeEdit, MdOutlineDelete } from 'react-icons/md';
 
 function Listing() {
     const [listing, setListing] = useState([]);
@@ -25,11 +26,22 @@ function Listing() {
 
     useEffect(() => {
         const searchQuery = searchParams.get('search');
+        const countryFilter = searchParams.get('country');
+        const makeFilter = searchParams.get('make');
+        const typeFilter = searchParams.get('type');
+        const otherCategoryFilter = searchParams.get('othercategory');
+
         if (searchQuery) {
-            // If there's a search query, fetch search results
             fetchSearchResults(searchQuery);
+        } else if (countryFilter) {
+            fetchCountryResults(countryFilter);
+        } else if (makeFilter) {
+            fetchMakeResults(makeFilter);
+        } else if (typeFilter) {
+            fetchTypeResults(typeFilter);
+        } else if (otherCategoryFilter) {
+            fetchOtherCategoryResults(otherCategoryFilter);
         } else {
-            // If no search query, fetch all listings
             fetchListings();
         }
     }, [searchParams]);
@@ -72,9 +84,94 @@ function Listing() {
         }
     };
 
+    const fetchCountryResults = async (country) => {
+        setLoading(true);
+        try {
+            const response = await fetch(`/api/cars/country/${country}`);
+            const data = await response.json();
+            
+            if (Array.isArray(data)) {
+                // Filter active listings and sort by date
+                const filteredData = data.filter(car => car.visibility === "Active");
+                filteredData.sort((a, b) => new Date(b.date) - new Date(a.date));
+                setListing(filteredData);
+            } else {
+                setListing([]);
+            }
+        } catch (error) {
+            console.error("Error fetching country results:", error);
+            setListing([]);
+        } finally {
+            setLoading(false);
+        }
+    };
+
+    const fetchMakeResults = async (make) => {
+        setLoading(true);
+        try {
+            const response = await fetch(`/api/cars/make/${make}`);
+            const data = await response.json();
+            
+            if (Array.isArray(data)) {
+                const filteredData = data.filter(car => car.visibility === "Active");
+                filteredData.sort((a, b) => new Date(b.date) - new Date(a.date));
+                setListing(filteredData);
+            } else {
+                setListing([]);
+            }
+        } catch (error) {
+            console.error("Error fetching make results:", error);
+            setListing([]);
+        } finally {
+            setLoading(false);
+        }
+    };
+
+    const fetchTypeResults = async (type) => {
+        setLoading(true);
+        try {
+            const response = await fetch(`/api/cars/type/${type}`);
+            const data = await response.json();
+            
+            if (Array.isArray(data)) {
+                const filteredData = data.filter(car => car.visibility === "Active");
+                filteredData.sort((a, b) => new Date(b.date) - new Date(a.date));
+                setListing(filteredData);
+            } else {
+                setListing([]);
+            }
+        } catch (error) {
+            console.error("Error fetching type results:", error);
+            setListing([]);
+        } finally {
+            setLoading(false);
+        }
+    };
+
+    const fetchOtherCategoryResults = async (category) => {
+        setLoading(true);
+        try {
+            const response = await fetch(`/api/cars/othercategories/${category}`);
+            const data = await response.json();
+            
+            if (Array.isArray(data)) {
+                const filteredData = data.filter(car => car.visibility === "Active");
+                filteredData.sort((a, b) => new Date(b.date) - new Date(a.date));
+                setListing(filteredData);
+            } else {
+                setListing([]);
+            }
+        } catch (error) {
+            console.error("Error fetching other category results:", error);
+            setListing([]);
+        } finally {
+            setLoading(false);
+        }
+    };
+
     const handleFilterChange = (filters) => {
         // Convert filters to query parameters
-        const queryParams = new URLSearchParams();
+        const queryParams = new URLSearchParams(searchParams.toString()); // Keep existing params
         
         if (filters.make) queryParams.set('make', filters.make);
         if (filters.model) queryParams.set('model', filters.model);
@@ -113,6 +210,19 @@ function Listing() {
 
             {/* Main Content */}
             <div className="w-full md:w-3/5 lg:w-4/6">
+                {/* Add filter indicators */}
+                {(searchParams.get('country') || searchParams.get('make') || 
+                  searchParams.get('type') || searchParams.get('othercategory')) && (
+                    <div className="px-4 py-2 mb-4 bg-white rounded-lg shadow-sm">
+                        <p className="text-sm text-gray-600">
+                            {searchParams.get('country') && `Showing cars from ${searchParams.get('country')}`}
+                            {searchParams.get('make') && `Showing ${searchParams.get('make')} cars`}
+                            {searchParams.get('type') && `Showing ${searchParams.get('type')} vehicles`}
+                            {searchParams.get('othercategory') && `Showing ${searchParams.get('othercategory')} vehicles`}
+                        </p>
+                    </div>
+                )}
+
                 <FilterCars 
                     onFilterChange={handleFilterChange} 
                     useUrlNavigation={true}
@@ -284,6 +394,22 @@ function Listing() {
                                         </Link>
                                     </div>
                                 </div>
+                            </div>
+
+                            {/* In your car listing card */}
+                            <div className="flex gap-2 absolute bottom-4 right-2 z-50">
+                                <Link
+                                    href={`/admin/cars/edit/${item._id}`}  // Updated path
+                                    className="w-min h-min p-2 rounded-lg bg-primary-50 cursor-pointer text-lg text-black shadow-inner"
+                                >
+                                    <MdModeEdit />
+                                </Link>
+                                <i
+                                    onClick={() => handleDeleteClick(item._id)}
+                                    className="w-min h-min p-2 rounded-lg bg-red-50 cursor-pointer text-lg text-black shadow-inner"
+                                >
+                                    <MdOutlineDelete />
+                                </i>
                             </div>
                         </div>
                     ))}

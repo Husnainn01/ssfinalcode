@@ -2,35 +2,13 @@ import mongoose from 'mongoose';
 import { NextResponse } from 'next/server';
 import dbConnect from '@/lib/dbConnect';
 
-export async function GET(req) {
+export async function GET() {
     try {
-        console.log('Attempting database connection...');
         await dbConnect();
-        console.log('Database connected, fetching makes...');
-        
-        const mainPostCollection = mongoose.connection.collection('CarMake');
-        
-        const posts = await mainPostCollection
-            .find({ active: true })
-            .project({
-                _id: 1,
-                make: 1,
-                image: 1
-            })
-            .sort({ make: 1 })
-            .toArray();
-        
-        console.log('Found makes:', posts.length);
-        
-        return NextResponse.json(posts, {
-            headers: {
-                'Cache-Control': 'no-store, must-revalidate',
-                'Pragma': 'no-cache'
-            }
-        });
+        const makes = await Make.find({}).select('make -_id');
+        return NextResponse.json(makes);
     } catch (error) {
-        console.error("Error in GET /api/listing/make:", error);
-        return NextResponse.json([], { status: 200 });
+        return NextResponse.json({ error: error.message }, { status: 500 });
     }
 }
 

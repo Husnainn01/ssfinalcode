@@ -18,6 +18,9 @@ export default function CarListing() {
   const [deleteItemId, setDeleteItemId] = useState(null);
   const [searchQuery, setSearchQuery] = useState("");
 
+  // Initialize toggle states properly
+  const [toggleStates, setToggleStates] = useState({});
+
   useEffect(() => {
     fetchData();
   }, []);
@@ -33,6 +36,16 @@ export default function CarListing() {
       setFilteredListing(listing);
     }
   }, [searchQuery, listing]);
+
+  // Initialize toggle states when listing changes
+  useEffect(() => {
+    const newToggleStates = {};
+    listing.forEach(item => {
+      // Preserve existing toggle state or initialize to false
+      newToggleStates[item._id] = toggleStates[item._id] || false;
+    });
+    setToggleStates(newToggleStates);
+  }, [listing]);
 
   const fetchData = async () => {
     try {
@@ -101,6 +114,39 @@ export default function CarListing() {
     </div>
   );
 
+  const handleToggle = (id) => {
+    if (!id) return; // Guard against undefined id
+    setToggleStates(prev => ({
+      ...prev,
+      [id]: !prev[id]
+    }));
+  };
+
+  const handleImageReorder = async (carId, newOrder) => {
+    try {
+      const response = await fetch(`/api/cars/${carId}`, {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ images: newOrder }),
+      });
+
+      if (!response.ok) {
+        throw new Error('Failed to update image order');
+      }
+
+      // Force revalidation
+      await fetch(`/api/revalidate?path=/cars/${carId}`);
+      
+      toast.success('Image order updated successfully');
+      fetchData(); // Refresh the list
+    } catch (error) {
+      console.error('Error updating image order:', error);
+      toast.error('Failed to update image order');
+    }
+  };
+
   return (
     <div className="px-0 py-0 md:p-6">
       <div className="flex flex-col md:flex-row justify-between items-center mb-4">
@@ -160,17 +206,28 @@ export default function CarListing() {
                     )}
                   </div>
                   <img
-                    src={item.image}
+                    src={item.image || item.images?.[0]}
                     className="h-[170px] w-full rounded-md mb-2"
                     alt={item.title}
+                    onClick={() => handleToggle(item._id)}
                   />
+                  {toggleStates[item._id] && (
+                    <div className="absolute top-full left-0 z-50 bg-white shadow-lg p-2">
+                      {item.images?.map((img, index) => (
+                        <div key={index} className="relative">
+                          <img 
+                            src={img} 
+                            alt={`${item.title} ${index + 1}`}
+                            className="w-20 h-20 object-cover mb-2"
+                          />
+                        </div>
+                      ))}
+                    </div>
+                  )}
                   <div className="flex gap-2 absolute bottom-4 right-2 z-50">
                     <i className="w-min h-min p-2 rounded-lg bg-primary-50 cursor-pointer text-lg text-black shadow-inner">
                       <Link
-                        href={{
-                          pathname: "/dashboard/listing/new/update",
-                          query: { id: item._id },
-                        }}
+                        href={`/admin/cars/edit/${item._id}`}
                       >
                         <MdModeEdit />
                       </Link>
