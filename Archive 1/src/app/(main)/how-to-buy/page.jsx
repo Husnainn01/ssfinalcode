@@ -156,37 +156,92 @@ export default function HowToBuy() {
       </div>
 
       {/* Main Content */}
-      <div className="w-full md:w-3/5 lg:w-4/6">
-        {/* Header Section */}
+      <div className="w-full md:w-3/5 lg:w-5/6">
+        {/* Professional Hero Section */}
         <motion.header 
-          className="bg-gradient-to-r from-[#14225D] to-[#1a2d7c] text-white py-20 px-4 relative overflow-hidden"
+          className="relative bg-[#14225D] text-white overflow-hidden"
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           transition={{ duration: 0.7 }}
         >
-          <motion.div 
-            className="absolute inset-0 bg-grid-white/[0.05] -z-0"
-            initial={{ opacity: 0, scale: 0.9 }}
-            animate={{ opacity: 1, scale: 1 }}
-            transition={{ duration: 1 }}
-          />
-          <div className="container mx-auto text-center relative z-10">
-            <motion.h1 
-              className="text-4xl md:text-6xl font-bold mb-6 bg-clip-text"
-              initial={{ y: 20, opacity: 0 }}
-              animate={{ y: 0, opacity: 1 }}
-              transition={{ duration: 0.7, delay: 0.2 }}
-            >
-              How to Buy
-            </motion.h1>
-            <motion.p 
-              className="text-xl text-gray-200 max-w-2xl mx-auto"
-              initial={{ y: 20, opacity: 0 }}
-              animate={{ y: 0, opacity: 1 }}
-              transition={{ duration: 0.7, delay: 0.4 }}
-            >
-              Your step-by-step guide to purchasing your dream car from SS Holdings
-            </motion.p>
+          {/* Background Elements */}
+          <div className="absolute inset-0">
+            <div className="absolute inset-0 bg-[url('/grid-pattern.svg')] opacity-10" />
+            <div 
+              className="absolute inset-0 bg-gradient-to-r from-[#14225D] via-[#1a2d7c]/90 to-[#14225D]"
+              style={{ mixBlendMode: 'overlay' }}
+            />
+          </div>
+
+          {/* Main Content */}
+          <div className="relative z-10 px-6 py-20 lg:py-28">
+            <div className="max-w-6xl mx-auto">
+              <div className="grid lg:grid-cols-2 gap-12 items-center">
+                {/* Left Column - Text Content */}
+                <motion.div
+                  initial={{ opacity: 0, x: -20 }}
+                  animate={{ opacity: 1, x: 0 }}
+                  transition={{ duration: 0.7 }}
+                  className="space-y-6"
+                >
+                  <h1 className="text-4xl lg:text-5xl xl:text-6xl font-bold leading-tight">
+                    Your Guide to <br/>
+                    <span className="text-transparent bg-clip-text bg-gradient-to-r from-white to-blue-200">
+                      Purchasing Process
+                    </span>
+                  </h1>
+                  <p className="text-lg lg:text-xl text-gray-200 max-w-xl">
+                    Follow our comprehensive step-by-step guide to purchase your dream car from SS Holdings with confidence and ease.
+                  </p>
+                  
+                  {/* CTA Buttons */}
+                  <div className="flex flex-wrap gap-4 pt-4">
+                    <motion.button
+                      whileHover={{ scale: 1.02 }}
+                      className="px-8 py-3 bg-white text-[#14225D] rounded-lg font-semibold 
+                               hover:shadow-lg transition-all duration-300"
+                    >
+                      View Inventory
+                    </motion.button>
+                    <motion.button
+                      whileHover={{ scale: 1.02 }}
+                      className="px-8 py-3 border border-white/30 rounded-lg font-semibold
+                               hover:bg-white/10 transition-all duration-300"
+                    >
+                      Contact Us
+                    </motion.button>
+                  </div>
+                </motion.div>
+
+                {/* Right Column - Stats */}
+                <motion.div
+                  initial={{ opacity: 0, x: 20 }}
+                  animate={{ opacity: 1, x: 0 }}
+                  transition={{ duration: 0.7, delay: 0.2 }}
+                  className="grid grid-cols-2 gap-6"
+                >
+                  {[
+                    { number: "6", label: "Simple Steps", sublabel: "Easy Process" },
+                    { number: "24/7", label: "Support", sublabel: "Always Available" },
+                    { number: "100%", label: "Satisfaction", sublabel: "Guaranteed" },
+                    { number: "15+", label: "Years", sublabel: "Experience" }
+                  ].map((stat, index) => (
+                    <motion.div
+                      key={index}
+                      initial={{ opacity: 0, y: 20 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      transition={{ duration: 0.5, delay: 0.3 + index * 0.1 }}
+                      className="bg-white/10 backdrop-blur-sm rounded-xl p-6 hover:bg-white/[0.15] 
+                               transition-all duration-300 border border-white/[0.05]"
+                    >
+                      <div className="text-3xl font-bold">{stat.number}</div>
+                      <div className="text-sm font-medium text-gray-300">{stat.label}</div>
+                      <div className="text-xs text-gray-400">{stat.sublabel}</div>
+                    </motion.div>
+                  ))}
+                </motion.div>
+              </div>
+            </div>
           </div>
         </motion.header>
 
