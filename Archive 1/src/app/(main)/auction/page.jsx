@@ -34,6 +34,87 @@ import LeftSidebar from "@/components/template/leftsidebar"
 import RightSidebar from "@/components/template/rightsidebar"
 import Breadcrumbs from '@/components/ui/breadcrumbs'
 
+const detailedAuctionSchedule = [
+  {
+    day: "Monday",
+    auctions: [
+      "AUCNET", "GNN OSAKA", "GAO", "Honda Fukuoka", "Honda Hokkaido",
+      "Honda Kansai", "Honda Nagoya", "Honda Sendai", "Honda Tokyo", "JU Tokyo",
+      "USS R Nagoya",
+    ]
+  },
+  {
+    day: "Tuesday",
+    auctions: [
+      "ARAI Sendai", "Isuzu Kobe", "CAA Gifu", "CAA Touhoku",
+      "GE Tokyo", "JU Mie", "JU Nagano", "JU Saitama",
+      "JU Shizuoka", "JU Yamaguchi", "NPS Osaka", "NPS Tokio",
+      "ORIX Kobe","ORIX Sendai","SAA Sapporo","TAA Hiroshima","TAA Kinki","TAA Kyushu",
+      "TAA kyushu","TAA Minamikyu","TAA Shikoku","USS Yokohama","ZIP Tokyo",
+    ]
+  },
+  {
+    day: "Wednesday",
+    auctions: [
+      "BAYAUC", "CAA Chubu", "BCN", "FAA Shizuoka",
+      "GE Tokyo", "JU Mie", "HERO", "IAA Osaka","Isuzu Makuhari","JAA","JU Ibaraki",
+      "JU Ishikawa","KAA","KCAA Ebino","LAA Shikoku","ORIX Atsugi","USS Fujioka",
+      "USS Fukuoka","USS Kobe","USS Sapporo","USS Tohoku",
+    ]
+  },
+  {
+    day: "Thursday",
+    auctions: [
+      "ARAI Oyama", "GE Kobe", "GAO! TENDER Gulliver", "HAA Osaka (Hanaten)",
+      "GE Tokyo", "JU Aichi", "JU Fukushima", "JU Gunma", "JU Hiroshima",
+      "JU Kanagawa", "JU Sapporo", "JU Toyama", "KCAA Fukuoka", "LAA Kansai",
+      "NAA Nagoya", "NAA Osaka", "ORIX Fukuoka", "ORIX Nagoya", "SAA Hamamatsu",
+      "USS Niigata", "TAA Hokkaido", "TAA Kantou", "USS R Tokyo", "USS Tokyo",
+      "ZIP Osaka"
+    ]
+  },
+  {
+    day: "Friday",
+    auctions: [
+      "ARAI Bayside", "JAA Tsukuba", "Isuzu Kobe", "JU Chiba", "GE Tokyo",
+      "JU Miyagi", "JU Niigata", "JU Okayama LAA", "JU Okinawa", "JU Tochigi",
+      "KCAA Yamaguchi", "KUA Katayamazu", "NAA Tokyo", "USS Hokuriku",
+      "USS Nagoya", "USS Osaka", "USS Saitama", "White Wing", "TAA Chubu"
+    ]
+  },
+  {
+    day: "Saturday",
+    auctions: [
+      "ARAI Oyama", "JU Gifu", "HAA Kobe", "JU Nara", "NAA Nagoya Nyu",
+      "NA Osaka", "NAA Tokyo Nyuusatsu", "TAA Yokohama", "USS Gunma",
+      "USS Kyushu", "USS Okayama", "USS Ryuutsu", "USS Shizuoka"
+    ]
+  },
+  {
+    day: "One Price",
+    auctions: [
+      "AS Members", "Apple Stock", "AS Oneprice", "BAYAUC Oneprice",
+      "CAA Chubu Oneprice", "CAA Tohoku Oneprice", "CAA ZIP Tokyo One Price",
+      "GAO Stock", "HAA Kobe One Price", "Hero Oneprice", "Ippatsu Stock",
+      "JAA Kasai Oneprice", "JAA Tsukuba Oneprice", "Korea Oneprice One",
+      "Kyouyuu Stock", "Syoudan Stock", "USS Stock"
+    ]
+  },
+  // {
+  //   day: "AUCNET",
+  //   auctions: [
+  //     "KAA", "KCAA Fukuoka", "NAA Tokyo", "USS Shizuoka", "ORIX Sendai",
+  //     "KCAA Ebino", "LAA Kansai", "USS Hokuriku", "SAA Sapporo", "LAA Shikoku",
+  //     "NAA Nagoya", "USS Nagoya", "TAA Hiroshima", "ORIX Atsugi", "NAA Osaka",
+  //     "USS Osaka", "TAA Kinki", "USS Fujioka", "ORIX Fukuoka", "USS Saitama",
+  //     "TAA kyushu", "USS Fukuoka", "ORIX Nagoya", "White Wing", "TAA Minamikyu",
+  //     "USS Kobe", "SAA Hamamatsu", "TAA Shikoku", "USS Niigata", "TAA Chubu",
+  //     "USS Yokohama", "USS Sapporo", "TAA Hokkaido", "USS Tohoku", "TAA Kantou",
+  //     "USS R Tokyo", "USS Tokyo"
+  //   ]
+  // }
+];
+
 export default function AuctionInformation() {
   const [activeSection, setActiveSection] = useState('about')
 
@@ -466,7 +547,7 @@ export default function AuctionInformation() {
             </div>
           </motion.section>
 
-          {/* Auction Schedule Section */}
+          {/* Updated Auction Schedule Section */}
           <motion.section
             id="schedule"
             className="mb-20 scroll-mt-20"
@@ -477,33 +558,47 @@ export default function AuctionInformation() {
             <h2 className="text-3xl font-bold text-center mb-12 text-[#14225D]">
               Auction Schedule
             </h2>
-            <Card>
-              <Table>
-                <TableHeader>
-                  <TableRow>
-                    <TableHead>Location</TableHead>
-                    <TableHead>Day</TableHead>
-                    <TableHead>Time</TableHead>
-                    <TableHead>Type</TableHead>
-                    <TableHead>Status</TableHead>
-                  </TableRow>
-                </TableHeader>
-                <TableBody>
-                  {auctionSchedule.map((auction, index) => (
-                    <TableRow key={index}>
-                      <TableCell className="font-medium">{auction.location}</TableCell>
-                      <TableCell>{auction.day}</TableCell>
-                      <TableCell>{auction.time}</TableCell>
-                      <TableCell>{auction.type}</TableCell>
-                      <TableCell>
-                        <Badge variant={auction.status === 'Open' ? 'success' : 'secondary'}>
-                          {auction.status}
-                        </Badge>
-                      </TableCell>
+            <Card className="overflow-hidden border-none shadow-lg">
+              <div className="overflow-x-auto">
+                <Table>
+                  <TableHeader>
+                    <TableRow className="bg-gradient-to-r from-[#14225D] to-[#1a2d7c]">
+                      <TableHead className="w-[150px] font-semibold text-white">Day</TableHead>
+                      <TableHead className="font-semibold text-white">Auction Houses</TableHead>
                     </TableRow>
-                  ))}
-                </TableBody>
-              </Table>
+                  </TableHeader>
+                  <TableBody>
+                    {detailedAuctionSchedule.map((schedule, index) => (
+                      <TableRow 
+                        key={index} 
+                        className="hover:bg-gray-50/50 transition-colors duration-150"
+                      >
+                        <TableCell className="font-medium bg-[#14225D]/5 text-[#14225D]">
+                          <div className="flex items-center space-x-2">
+                            <Calendar className="w-4 h-4 text-[#14225D]/70" />
+                            <span>{schedule.day}</span>
+                          </div>
+                        </TableCell>
+                        <TableCell>
+                          <div className="flex flex-wrap gap-2">
+                            {schedule.auctions.map((auction, idx) => (
+                              <Badge 
+                                key={idx} 
+                                variant="outline"
+                                className="bg-white hover:bg-blue-50 transition-colors duration-150
+                                         border border-[#14225D]/20 text-[#14225D]/80 hover:text-[#14225D]
+                                         cursor-default px-3 py-1 rounded-full"
+                              >
+                                {auction}
+                              </Badge>
+                            ))}
+                          </div>
+                        </TableCell>
+                      </TableRow>
+                    ))}
+                  </TableBody>
+                </Table>
+              </div>
             </Card>
           </motion.section>
         </main>

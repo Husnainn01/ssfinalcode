@@ -24,6 +24,8 @@ import {
   TableBody,
   TableCell,
 } from "@/components/ui/table"
+import { ScrollArea, ScrollBar } from "@/components/ui/scroll-area"
+import { Badge } from "@/components/ui/badge"
 
 import Breadcrumbs from '@/components/ui/breadcrumbs'
 
@@ -196,309 +198,406 @@ export default function ShippingSchedule() {
         <LeftSidebar />
       </div>
 
-      {/* Main Content */}
-      <main className="flex-1 p-8 bg-gray-50/50">
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.5 }}
-          className="max-w-[1200px] mx-auto"
-        >
-          {/* Header Section */}
-          <div className="text-center mb-8">
-            <h1 className="text-3xl font-bold text-gray-900">Shipping Schedule</h1>
-            <p className="mt-2 text-gray-600">Track vessel schedules and shipping information</p>
+      <main className="flex-1 p-8">
+        {/* Breadcrumbs */}
+        <div className="mb-8">
+          <Breadcrumbs items={breadcrumbItems} />
+        </div>
+
+        {/* Important Note Section */}
+        <Card className="mb-6 border-none shadow-sm bg-white/95 backdrop-blur-sm">
+          <div className="p-6">
+            <div className="flex items-start space-x-4">
+              <div className="flex-shrink-0">
+                <Ship className="h-5 w-5 text-gray-700" />
+              </div>
+              <div className="flex-1">
+                <h3 className="text-lg font-semibold text-gray-900 mb-2">
+                  Looking for More Shipping Options?
+                </h3>
+                <p className="text-gray-600 mb-4 leading-relaxed">
+                  For a comprehensive view of all available shipping schedules, including additional routes and vessel options, 
+                  please download our complete schedule document. This detailed PDF includes extended scheduling information 
+                  and alternative shipping route.
+                </p>
+                <Button 
+                  variant="outline"
+                  className="bg-white hover:bg-gray-50 border-gray-200 text-gray-700 font-medium shadow-sm
+                    transition-all duration-200 hover:border-gray-300"
+                  onClick={() => window.open('/path-to-your-pdf.pdf', '_blank')}
+                >
+                  <svg 
+                    className="w-4 h-4 mr-2" 
+                    fill="none" 
+                    stroke="currentColor" 
+                    viewBox="0 0 24 24"
+                  >
+                    <path 
+                      strokeLinecap="round" 
+                      strokeLinejoin="round" 
+                      strokeWidth={2} 
+                      d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" 
+                    />
+                  </svg>
+                  Download Complete Schedule
+                </Button>
+              </div>
+            </div>
           </div>
+        </Card>
 
-          {/* Add Breadcrumbs here */}
-          <div className="mb-8">
-            <Breadcrumbs items={breadcrumbItems} />
-          </div>
+        {/* Filter Card */}
+        <Card className="p-6 mb-8 border-none shadow-md bg-white/80 backdrop-blur-sm">
+          <form className="space-y-6">
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+              {/* Region Selection */}
+              <div className="space-y-2">
+                <label className="text-sm font-medium flex items-center gap-2 text-gray-700">
+                  <MapPin className="w-4 h-4 text-theme-primary" />
+                  Region
+                </label>
+                <Select
+                  value={filters.region}
+                  onValueChange={(value) => handleFilterChange('region', value)}
+                >
+                  <SelectTrigger className="bg-white border-gray-200 hover:border-theme-primary/50 transition-colors">
+                    <SelectValue placeholder="Select Region" />
+                  </SelectTrigger>
+                  <SelectContent className="bg-white border border-gray-200 shadow-lg">
+                    {loading ? (
+                      <SelectItem value="loading" disabled>Loading regions...</SelectItem>
+                    ) : error ? (
+                      <SelectItem value="error" disabled>{error}</SelectItem>
+                    ) : (
+                      regions.map(region => (
+                        <SelectItem key={region.value} value={region.value}>
+                          {region.label}
+                        </SelectItem>
+                      ))
+                    )}
+                  </SelectContent>
+                </Select>
+              </div>
 
-          {/* Filter Card */}
-          <Card className="p-6 mb-8 border-none shadow-md bg-white/80 backdrop-blur-sm">
-            <form className="space-y-6">
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                {/* Region Selection */}
-                <div className="space-y-2">
-                  <label className="text-sm font-medium flex items-center gap-2 text-gray-700">
-                    <MapPin className="w-4 h-4 text-theme-primary" />
-                    Region
-                  </label>
-                  <Select
-                    value={filters.region}
-                    onValueChange={(value) => handleFilterChange('region', value)}
-                  >
-                    <SelectTrigger className="bg-white border-gray-200 hover:border-theme-primary/50 transition-colors">
-                      <SelectValue placeholder="Select Region" />
-                    </SelectTrigger>
-                    <SelectContent className="bg-white border border-gray-200 shadow-lg">
-                      {loading ? (
-                        <SelectItem value="loading" disabled>Loading regions...</SelectItem>
-                      ) : error ? (
-                        <SelectItem value="error" disabled>{error}</SelectItem>
-                      ) : (
-                        regions.map(region => (
-                          <SelectItem key={region.value} value={region.value}>
-                            {region.label}
-                          </SelectItem>
-                        ))
-                      )}
-                    </SelectContent>
-                  </Select>
-                </div>
+              {/* Voyage Number */}
+              <div className="space-y-2">
+                <label className="text-sm font-medium flex items-center gap-2 text-gray-700">
+                  <Ship className="w-4 h-4 text-theme-primary" />
+                  Voyage Number
+                </label>
+                <Input
+                  type="text"
+                  placeholder="Enter voyage number"
+                  value={filters.voyageNo}
+                  onChange={(e) => handleFilterChange('voyageNo', e.target.value)}
+                  className="bg-white border-gray-200"
+                />
+              </div>
 
-                {/* Voyage Number */}
-                <div className="space-y-2">
-                  <label className="text-sm font-medium flex items-center gap-2 text-gray-700">
-                    <Ship className="w-4 h-4 text-theme-primary" />
-                    Voyage Number
-                  </label>
-                  <Input
-                    type="text"
-                    placeholder="Enter voyage number"
-                    value={filters.voyageNo}
-                    onChange={(e) => handleFilterChange('voyageNo', e.target.value)}
-                    className="bg-white border-gray-200"
-                  />
-                </div>
+              {/* Ship Name */}
+              <div className="space-y-2">
+                <label className="text-sm font-medium flex items-center gap-2 text-gray-700">
+                  <Anchor className="w-4 h-4 text-theme-primary" />
+                  Ship Name
+                </label>
+                <Input
+                  type="text"
+                  placeholder="Enter ship name"
+                  value={filters.shipName}
+                  onChange={(e) => handleFilterChange('shipName', e.target.value)}
+                  className="bg-white border-gray-200"
+                />
+              </div>
 
-                {/* Ship Name */}
-                <div className="space-y-2">
-                  <label className="text-sm font-medium flex items-center gap-2 text-gray-700">
-                    <Anchor className="w-4 h-4 text-theme-primary" />
-                    Ship Name
-                  </label>
-                  <Input
-                    type="text"
-                    placeholder="Enter ship name"
-                    value={filters.shipName}
-                    onChange={(e) => handleFilterChange('shipName', e.target.value)}
-                    className="bg-white border-gray-200"
-                  />
-                </div>
+              {/* Departure Port */}
+              <div className="space-y-2">
+                <label className="text-sm font-medium flex items-center gap-2 text-gray-700">
+                  <MapPin className="w-4 h-4 text-theme-primary" />
+                  Departure Port
+                </label>
+                <Select
+                  value={filters.departurePort}
+                  onValueChange={(value) => handleFilterChange('departurePort', value)}
+                  disabled={loadingPorts}
+                >
+                  <SelectTrigger className="bg-white border-gray-200 hover:border-theme-primary/50 transition-colors">
+                    <SelectValue placeholder={
+                      loadingPorts ? "Loading ports..." : "Select departure port"
+                    } />
+                  </SelectTrigger>
+                  <SelectContent className="bg-white border border-gray-200 shadow-lg">
+                    {loadingPorts ? (
+                      <SelectItem value="loading" disabled>Loading ports...</SelectItem>
+                    ) : portsError ? (
+                      <SelectItem value="error" disabled>{portsError}</SelectItem>
+                    ) : ports.departure?.length === 0 ? (
+                      <SelectItem value="no-ports" disabled>No ports available</SelectItem>
+                    ) : (
+                      ports.departure?.map(port => (
+                        <SelectItem key={port.value} value={port.value}>
+                          {port.label}
+                        </SelectItem>
+                      ))
+                    )}
+                  </SelectContent>
+                </Select>
+              </div>
 
-                {/* Departure Port */}
-                <div className="space-y-2">
-                  <label className="text-sm font-medium flex items-center gap-2 text-gray-700">
-                    <MapPin className="w-4 h-4 text-theme-primary" />
-                    Departure Port
-                  </label>
-                  <Select
-                    value={filters.departurePort}
-                    onValueChange={(value) => handleFilterChange('departurePort', value)}
-                    disabled={loadingPorts}
-                  >
-                    <SelectTrigger className="bg-white border-gray-200 hover:border-theme-primary/50 transition-colors">
-                      <SelectValue placeholder={
-                        loadingPorts ? "Loading ports..." : "Select departure port"
-                      } />
-                    </SelectTrigger>
-                    <SelectContent className="bg-white border border-gray-200 shadow-lg">
-                      {loadingPorts ? (
-                        <SelectItem value="loading" disabled>Loading ports...</SelectItem>
-                      ) : portsError ? (
-                        <SelectItem value="error" disabled>{portsError}</SelectItem>
-                      ) : ports.departure?.length === 0 ? (
-                        <SelectItem value="no-ports" disabled>No ports available</SelectItem>
-                      ) : (
-                        ports.departure?.map(port => (
-                          <SelectItem key={port.value} value={port.value}>
-                            {port.label}
-                          </SelectItem>
-                        ))
-                      )}
-                    </SelectContent>
-                  </Select>
-                </div>
+              {/* Arrival Port */}
+              <div className="space-y-2">
+                <label className="text-sm font-medium flex items-center gap-2 text-gray-700">
+                  <MapPin className="w-4 h-4 text-theme-primary" />
+                  Arrival Port
+                </label>
+                <Select
+                  value={filters.arrivalPort}
+                  onValueChange={(value) => handleFilterChange('arrivalPort', value)}
+                  disabled={loadingPorts}
+                >
+                  <SelectTrigger className="bg-white border-gray-200 hover:border-theme-primary/50 transition-colors">
+                    <SelectValue placeholder={
+                      loadingPorts ? "Loading ports..." : "Select arrival port"
+                    } />
+                  </SelectTrigger>
+                  <SelectContent className="bg-white border border-gray-200 shadow-lg">
+                    {loadingPorts ? (
+                      <SelectItem value="loading" disabled>Loading ports...</SelectItem>
+                    ) : portsError ? (
+                      <SelectItem value="error" disabled>{portsError}</SelectItem>
+                    ) : ports.arrival?.length === 0 ? (
+                      <SelectItem value="no-ports" disabled>No ports available</SelectItem>
+                    ) : (
+                      ports.arrival?.map(port => (
+                        <SelectItem key={port.value} value={port.value}>
+                          {port.label}
+                        </SelectItem>
+                      ))
+                    )}
+                  </SelectContent>
+                </Select>
+              </div>
 
-                {/* Arrival Port */}
-                <div className="space-y-2">
-                  <label className="text-sm font-medium flex items-center gap-2 text-gray-700">
-                    <MapPin className="w-4 h-4 text-theme-primary" />
-                    Arrival Port
-                  </label>
-                  <Select
-                    value={filters.arrivalPort}
-                    onValueChange={(value) => handleFilterChange('arrivalPort', value)}
-                    disabled={loadingPorts}
-                  >
-                    <SelectTrigger className="bg-white border-gray-200 hover:border-theme-primary/50 transition-colors">
-                      <SelectValue placeholder={
-                        loadingPorts ? "Loading ports..." : "Select arrival port"
-                      } />
-                    </SelectTrigger>
-                    <SelectContent className="bg-white border border-gray-200 shadow-lg">
-                      {loadingPorts ? (
-                        <SelectItem value="loading" disabled>Loading ports...</SelectItem>
-                      ) : portsError ? (
-                        <SelectItem value="error" disabled>{portsError}</SelectItem>
-                      ) : ports.arrival?.length === 0 ? (
-                        <SelectItem value="no-ports" disabled>No ports available</SelectItem>
-                      ) : (
-                        ports.arrival?.map(port => (
-                          <SelectItem key={port.value} value={port.value}>
-                            {port.label}
-                          </SelectItem>
-                        ))
-                      )}
-                    </SelectContent>
-                  </Select>
-                </div>
-
-                {/* Date Range Section */}
-                <div className="space-y-2 col-span-2">
-                  <label className="text-sm font-medium flex items-center gap-2">
-                    <Calendar className="w-4 h-4 text-theme-primary" />
-                    Date Range
-                  </label>
-                  <div className="grid grid-cols-2 gap-6">
-                    {/* Departure Date Range */}
-                    <div className="space-y-2">
-                      <p className="text-sm text-gray-500">Departure</p>
-                      <div className="grid grid-cols-2 gap-2">
-                        <DatePickerDemo
-                          date={filters.departureDateFrom}
-                          setDate={(date) => handleFilterChange('departureDateFrom', date)}
-                          placeholder="From"
-                        />
-                        <DatePickerDemo
-                          date={filters.departureDateTo}
-                          setDate={(date) => handleFilterChange('departureDateTo', date)}
-                          placeholder="To"
-                          fromDate={filters.departureDateFrom}
-                        />
-                      </div>
+              {/* Date Range Section */}
+              <div className="space-y-2 col-span-2">
+                <label className="text-sm font-medium flex items-center gap-2">
+                  <Calendar className="w-4 h-4 text-theme-primary" />
+                  Date Range
+                </label>
+                <div className="grid grid-cols-2 gap-6">
+                  {/* Departure Date Range */}
+                  <div className="space-y-2">
+                    <p className="text-sm text-gray-500">Departure</p>
+                    <div className="grid grid-cols-2 gap-2">
+                      <DatePickerDemo
+                        date={filters.departureDateFrom}
+                        setDate={(date) => handleFilterChange('departureDateFrom', date)}
+                        placeholder="From"
+                      />
+                      <DatePickerDemo
+                        date={filters.departureDateTo}
+                        setDate={(date) => handleFilterChange('departureDateTo', date)}
+                        placeholder="To"
+                        fromDate={filters.departureDateFrom}
+                      />
                     </div>
-                    {/* Arrival Date Range */}
-                    <div className="space-y-2">
-                      <p className="text-sm text-gray-500">Arrival</p>
-                      <div className="grid grid-cols-2 gap-2">
-                        <DatePickerDemo
-                          date={filters.arrivalDateFrom}
-                          setDate={(date) => handleFilterChange('arrivalDateFrom', date)}
-                          placeholder="From"
-                        />
-                        <DatePickerDemo
-                          date={filters.arrivalDateTo}
-                          setDate={(date) => handleFilterChange('arrivalDateTo', date)}
-                          placeholder="To"
-                          fromDate={filters.arrivalDateFrom}
-                        />
-                      </div>
+                  </div>
+                  {/* Arrival Date Range */}
+                  <div className="space-y-2">
+                    <p className="text-sm text-gray-500">Arrival</p>
+                    <div className="grid grid-cols-2 gap-2">
+                      <DatePickerDemo
+                        date={filters.arrivalDateFrom}
+                        setDate={(date) => handleFilterChange('arrivalDateFrom', date)}
+                        placeholder="From"
+                      />
+                      <DatePickerDemo
+                        date={filters.arrivalDateTo}
+                        setDate={(date) => handleFilterChange('arrivalDateTo', date)}
+                        placeholder="To"
+                        fromDate={filters.arrivalDateFrom}
+                      />
                     </div>
                   </div>
                 </div>
-
-                {/* Search and Reset Buttons */}
-                <div className="col-span-full flex justify-end gap-4">
-                  <Button 
-                    type="button"
-                    variant="outline"
-                    onClick={handleReset}
-                    className="border-gray-200 hover:bg-gray-50"
-                  >
-                    <RotateCcw className="w-4 h-4 mr-2" />
-                    Reset
-                  </Button>
-                  <Button 
-                    type="submit"
-                    className="bg-theme-primary hover:bg-theme-primary/90"
-                    onClick={handleSearch}
-                    disabled={searchLoading}
-                  >
-                    {searchLoading ? (
-                      <>
-                        <Loader2 className="w-4 h-4 mr-2 animate-spin" />
-                        Searching...
-                      </>
-                    ) : (
-                      <>
-                        <Search className="w-4 h-4 mr-2" />
-                        Search
-                      </>
-                    )}
-                  </Button>
-                </div>
               </div>
-            </form>
-          </Card>
 
-          {/* Results Table Section */}
-          <Card className="mt-8 border-none shadow-md bg-white/80 backdrop-blur-sm">
-            <div className="p-6">
-              <div className="flex justify-between items-center mb-4">
-                <h2 className="text-xl font-semibold">Search Results</h2>
-                {schedules.length > 0 && (
-                  <p className="text-sm text-gray-500">
-                    Found {schedules.length} schedule(s)
-                  </p>
-                )}
+              {/* Search and Reset Buttons */}
+              <div className="col-span-full flex justify-end gap-4">
+                <Button 
+                  type="button"
+                  variant="outline"
+                  onClick={handleReset}
+                  className="border-gray-200 hover:bg-gray-50"
+                >
+                  <RotateCcw className="w-4 h-4 mr-2" />
+                  Reset
+                </Button>
+                <Button 
+                  type="submit"
+                  className="bg-theme-primary hover:bg-theme-primary/90"
+                  onClick={handleSearch}
+                  disabled={searchLoading}
+                >
+                  {searchLoading ? (
+                    <>
+                      <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                      Searching...
+                    </>
+                  ) : (
+                    <>
+                      <Search className="w-4 h-4 mr-2" />
+                      Search
+                    </>
+                  )}
+                </Button>
               </div>
-              
-              {searchError ? (
-                <div className="text-red-500 text-center py-4">{searchError}</div>
-              ) : searchLoading ? (
-                <div className="text-center py-8">
-                  <Loader2 className="w-8 h-8 animate-spin mx-auto text-theme-primary" />
-                  <p className="mt-2 text-gray-600">Searching schedules...</p>
-                </div>
-              ) : schedules.length > 0 ? (
-                <div className="overflow-x-auto">
+            </div>
+          </form>
+        </Card>
+
+        {/* Results Table Section */}
+        <Card className="mt-8 border-none shadow-md bg-white/80 backdrop-blur-sm">
+          <div className="p-6">
+            <div className="flex justify-between items-center mb-4">
+              <h2 className="text-xl font-semibold text-gray-900">Available Schedules</h2>
+              {schedules.length > 0 && (
+                <p className="text-sm text-gray-500">
+                  Found {schedules.length} schedule(s)
+                </p>
+              )}
+            </div>
+            
+            {searchError ? (
+              <div className="text-red-500 text-center py-4">{searchError}</div>
+            ) : searchLoading ? (
+              <div className="text-center py-8">
+                <Loader2 className="w-8 h-8 animate-spin mx-auto text-gray-600" />
+                <p className="mt-2 text-gray-600">Searching schedules...</p>
+              </div>
+            ) : schedules.length > 0 ? (
+              <div className="border rounded-md">
+                <div className="overflow-x-auto" style={{ maxWidth: 'calc(100vw - 690px)' }}>
                   <Table>
-                    <TableHeader>
-                      <TableRow className="bg-gray-50/50">
-                        <TableHead className="font-semibold">VOY NO</TableHead>
-                        <TableHead className="font-semibold">Ship Company</TableHead>
-                        <TableHead className="font-semibold">Ship Name</TableHead>
-                        <TableHead className="font-semibold">Vessel Type</TableHead>
-                        <TableHead className="font-semibold">Departure Port</TableHead>
-                        <TableHead className="font-semibold">Arrival Port</TableHead>
-                        <TableHead className="font-semibold">Departure Date</TableHead>
-                        <TableHead className="font-semibold">Arrival Date</TableHead>
-                        <TableHead className="font-semibold">Status</TableHead>
+                    <TableHeader className="bg-gray-50">
+                      <TableRow>
+                        <TableHead className="w-[120px] bg-gray-50">VOY NO</TableHead>
+                        <TableHead className="w-[150px] bg-gray-50">Ship Company</TableHead>
+                        <TableHead className="w-[150px] bg-gray-50">Ship Name</TableHead>
+                        
+                        {/* Japan Ports */}
+                        <TableHead 
+                          colSpan={15} 
+                          className="text-center bg-blue-50/50 border-l border-gray-200"
+                        >
+                          Japan Ports
+                        </TableHead>
+
+                        {/* Destination Ports */}
+                        <TableHead 
+                          colSpan={7} 
+                          className="text-center bg-green-50/50 border-l border-gray-200"
+                        >
+                          Destination Ports
+                        </TableHead>
+                      </TableRow>
+                      
+                      <TableRow>
+                        <TableHead className="bg-gray-50"></TableHead>
+                        <TableHead className="bg-gray-50"></TableHead>
+                        <TableHead className="bg-gray-50"></TableHead>
+                        
+                        {/* Japan Port Names */}
+                        {[
+                          'YOKOHAMA', 'KISARAZU', 'KAWASAKI', 'HITACHINAKA',
+                          'HAKATA', 'KANDA', 'FUKUOKA', 'KOBE', 'MOJI',
+                          'NAGOYA', 'AICHI', 'OSAKA', 'SAKAI', 'SHIMONOSEKI',
+                          'TOYAMA'
+                        ].map((port) => (
+                          <TableHead 
+                            key={port} 
+                            className="text-sm font-medium bg-gray-50 px-2 whitespace-nowrap w-[120px]"
+                          >
+                            {port}
+                          </TableHead>
+                        ))}
+
+                        {/* Separator between TOYAMA and MOMBASA */}
+                        <TableHead className="text-center bg-gray-100 px-2 w-[50px] font-bold">≫</TableHead>
+
+                        {/* Destination Port Names */}
+                        {[
+                          'MOMBASA', 'MAPUTO', 'DURBAN', 'DAR ES SALAAM',
+                          'TEMA', 'LAGOS', 'ADELAIDE'
+                        ].map((port) => (
+                          <TableHead 
+                            key={port} 
+                            className="text-sm font-medium bg-green-50/50 px-2 whitespace-nowrap w-[120px]"
+                          >
+                            {port}
+                          </TableHead>
+                        ))}
                       </TableRow>
                     </TableHeader>
+                    
                     <TableBody>
                       {schedules.map((schedule, index) => (
                         <TableRow 
                           key={`${schedule.voyageNo}-${index}`}
-                          className="hover:bg-gray-50/50 transition-colors"
+                          className="hover:bg-gray-50/50"
                         >
-                          <TableCell className="font-medium">{schedule.voyageNo}</TableCell>
-                          <TableCell>{schedule.shipCompany}</TableCell>
-                          <TableCell>{schedule.shipName}</TableCell>
-                          <TableCell>{schedule.vesselType}</TableCell>
-                          <TableCell>{schedule.departurePort}</TableCell>
-                          <TableCell>{schedule.arrivalPort}</TableCell>
-                          <TableCell>{new Date(schedule.departureDate).toLocaleDateString()}</TableCell>
-                          <TableCell>{new Date(schedule.arrivalDate).toLocaleDateString()}</TableCell>
-                          <TableCell>
-                            <span className={`px-2 py-1 rounded-full text-xs ${
-                              schedule.status === 'COMPLETED' ? 'bg-green-100 text-green-800' :
-                              schedule.status === 'IN_PROGRESS' ? 'bg-blue-100 text-blue-800' :
-                              'bg-yellow-100 text-yellow-800'
-                            }`}>
-                              {schedule.status}
-                            </span>
-                          </TableCell>
+                          <TableCell className="font-medium w-[120px]">{schedule.voyageNo}</TableCell>
+                          <TableCell className="w-[150px]">{schedule.shipCompany}</TableCell>
+                          <TableCell className="w-[150px]">{schedule.shipName}</TableCell>
+                          
+                          {/* Japan Ports Dates */}
+                          {[
+                            'YOKOHAMA', 'KISARAZU', 'KAWASAKI', 'HITACHINAKA',
+                            'HAKATA', 'KANDA', 'FUKUOKA', 'KOBE', 'MOJI',
+                            'NAGOYA', 'AICHI', 'OSAKA', 'SAKAI', 'SHIMONOSEKI',
+                            'TOYAMA'
+                          ].map((port) => (
+                            <TableCell key={port} className="text-center px-2 w-[120px]">
+                              {schedule.ports?.[port] ? (
+                                <span className="text-sm">
+                                  {new Date(schedule.ports[port]).toLocaleDateString()}
+                                </span>
+                              ) : '-'}
+                            </TableCell>
+                          ))}
+
+                          {/* Separator column */}
+                          <TableCell className="bg-gray-100 w-[50px]">≫</TableCell>
+
+                          {/* Destination Ports Dates */}
+                          {[
+                            'MOMBASA', 'MAPUTO', 'DURBAN', 'DAR ES SALAAM',
+                            'TEMA', 'LAGOS', 'ADELAIDE'
+                          ].map((port) => (
+                            <TableCell key={port} className="text-center px-2 w-[120px] bg-green-50/10">
+                              {schedule.ports?.[port] ? (
+                                <span className="text-sm">
+                                  {new Date(schedule.ports[port]).toLocaleDateString()}
+                                </span>
+                              ) : '-'}
+                            </TableCell>
+                          ))}
                         </TableRow>
                       ))}
                     </TableBody>
                   </Table>
                 </div>
-              ) : (
-                <div className="text-center py-8 text-gray-500">
-                  {filters.region || filters.voyageNo || filters.shipName ? (
-                    "No schedules found matching your search criteria."
-                  ) : (
-                    "Use the filters above to search for shipping schedules."
-                  )}
-                </div>
-              )}
-            </div>
-          </Card>
-        </motion.div>
+              </div>
+            ) : (
+              <div className="text-center py-8 text-gray-500">
+                {filters.region || filters.voyageNo || filters.shipName ? (
+                  "No schedules found matching your search criteria."
+                ) : (
+                  "Use the filters above to search for shipping schedules."
+                )}
+              </div>
+            )}
+          </div>
+        </Card>
       </main>
 
       {/* Right Sidebar */}
@@ -508,3 +607,25 @@ export default function ShippingSchedule() {
     </div>
   )
 }
+
+{/* Add a style to constrain the main content */}
+<style jsx>{`
+  .overflow-x-auto {
+    max-width: calc(100vw - 600px);
+  }
+  
+  table {
+    width: 100%;
+    table-layout: fixed;
+  }
+  
+  th, td {
+    width: 120px;
+    min-width: 120px;
+  }
+  
+  th:first-child, td:first-child {
+    width: 100px;
+    min-width: 100px;
+  }
+`}</style>
