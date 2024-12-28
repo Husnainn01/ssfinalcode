@@ -1,25 +1,44 @@
 import React, { useState } from 'react';
+import { useRouter, useSearchParams } from 'next/navigation';
 
 const countries = [
-  { name: 'All', flag: '🌎' },
-  { name: 'USA', flag: '🇺🇸' },
-  { name: 'UK', flag: '🇬🇧' },
-  { name: 'Canada', flag: '🇨🇦' },
-  { name: 'Japan', flag: '🇯🇵' },
-  { name: 'Singapore', flag: '🇸🇬' },
-  { name: 'Thailand', flag: '🇹🇭' },
+  { name: 'All', flag: '🌎', slug: 'all' },
+  { name: 'USA', flag: '🇺🇸', slug: 'usa' },
+  { name: 'UK', flag: '🇬🇧', slug: 'uk' },
+  { name: 'Canada', flag: '🇨🇦', slug: 'canada' },
+  { name: 'Japan', flag: '🇯🇵', slug: 'japan' },
+  { name: 'Singapore', flag: '🇸🇬', slug: 'singapore' },
+  { name: 'Thailand', flag: '🇹🇭', slug: 'thailand' },
+];
+
+const popularCountries = [
+  { name: 'Guyana', slug: 'guyana' },
+  { name: 'Trinidad', slug: 'trinidad' },
+  { name: 'Jamaica', slug: 'jamaica' },
 ];
 
 function CountryFlags() {
-  const [selectedCountry, setSelectedCountry] = useState('All');
+  const router = useRouter();
+  const searchParams = useSearchParams();
+  const currentCountry = searchParams.get('country') || 'all';
 
-  const handleCountryClick = (countryName) => {
-    setSelectedCountry(countryName);
-    console.log(`Selected country: ${countryName}`);
+  const handleCountryClick = (countrySlug) => {
+    if (countrySlug === 'all') {
+      // If "All" is selected, remove the country filter
+      router.push('/cars');
+    } else {
+      // Apply the country filter
+      router.push(`/cars?country=${countrySlug}`);
+    }
   };
 
   const handleViewMore = () => {
-    console.log('View More clicked');
+    // You can implement the view more functionality here
+    // For example, scroll to the countries section in the sidebar
+    const sidebar = document.querySelector('#countries-section');
+    if (sidebar) {
+      sidebar.scrollIntoView({ behavior: 'smooth' });
+    }
   };
 
   return (
@@ -32,10 +51,10 @@ function CountryFlags() {
         {countries.map((country) => (
           <button
             key={country.name}
-            onClick={() => handleCountryClick(country.name)}
+            onClick={() => handleCountryClick(country.slug)}
             className={`flex items-center gap-2 px-3 py-1.5 rounded-md
               transition-all duration-200 hover:bg-gray-50
-              ${selectedCountry === country.name 
+              ${currentCountry === country.slug 
                 ? 'bg-blue-50 text-blue-600 border border-blue-200' 
                 : 'border border-gray-200 text-gray-600 hover:border-gray-300'
               }`}
@@ -73,12 +92,17 @@ function CountryFlags() {
         <div className="flex items-center gap-2 justify-center">
           <span className="text-xs text-gray-500">Popular:</span>
           <div className="flex gap-1">
-            {['Guyana', 'Trinidad', 'Jamaica'].map((region) => (
+            {popularCountries.map((region) => (
               <button
-                key={region}
-                className="text-xs text-gray-600 hover:text-blue-600 transition-colors px-2"
+                key={region.name}
+                onClick={() => handleCountryClick(region.slug)}
+                className={`text-xs transition-colors px-2
+                  ${currentCountry === region.slug
+                    ? 'text-blue-600 font-medium'
+                    : 'text-gray-600 hover:text-blue-600'
+                  }`}
               >
-                {region}
+                {region.name}
               </button>
             ))}
           </div>

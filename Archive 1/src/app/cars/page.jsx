@@ -27,6 +27,7 @@ function Listing() {
     const itemsPerPage = 12;
     const searchParams = useSearchParams();
     const router = useRouter();
+    const [filterMessage, setFilterMessage] = useState('');
 
     useEffect(() => {
         const searchQuery = searchParams.get('search');
@@ -35,8 +36,29 @@ function Listing() {
         const typeFilter = searchParams.get('type');
         const otherCategoryFilter = searchParams.get('othercategory');
 
+        // Set appropriate filter message
+        if (countryFilter) {
+            setFilterMessage(`Showing cars from ${countryFilter}`);
+        } else if (makeFilter) {
+            setFilterMessage(`Showing ${makeFilter} cars`);
+        } else if (typeFilter) {
+            setFilterMessage(`Showing ${typeFilter} vehicles`);
+        } else if (otherCategoryFilter) {
+            setFilterMessage(`Showing ${otherCategoryFilter} vehicles`);
+        } else {
+            setFilterMessage('');
+        }
+
         if (searchQuery) {
             fetchSearchResults(searchQuery);
+        } else if (countryFilter) {
+            fetchCountryResults(countryFilter);
+        } else if (makeFilter) {
+            fetchMakeResults(makeFilter);
+        } else if (typeFilter) {
+            fetchTypeResults(typeFilter);
+        } else if (otherCategoryFilter) {
+            fetchOtherCategoryResults(otherCategoryFilter);
         } else {
             fetchListings();
         }
@@ -87,15 +109,15 @@ function Listing() {
             const data = await response.json();
             
             if (Array.isArray(data)) {
-                // Filter active listings and sort by date
-                const filteredData = data.filter(car => car.visibility === "Active");
+                const filteredData = data.filter(car => 
+                    car.visibility === "Active" && 
+                    car.country?.toLowerCase() === country.toLowerCase()
+                );
                 filteredData.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
                 setListing(filteredData);
             } else {
                 setListing([]);
             }
-            
-            console.log(`Found ${data.length} cars for country: ${country}`);
         } catch (error) {
             console.error("Error fetching country results:", error);
             setListing([]);
@@ -107,12 +129,15 @@ function Listing() {
     const fetchMakeResults = async (make) => {
         setLoading(true);
         try {
-            const response = await fetch(`/api/cars/make/${make}`);
+            const response = await fetch(`/api/listing?make=${encodeURIComponent(make)}`);
             const data = await response.json();
             
             if (Array.isArray(data)) {
-                const filteredData = data.filter(car => car.visibility === "Active");
-                filteredData.sort((a, b) => new Date(b.date) - new Date(a.date));
+                const filteredData = data.filter(car => 
+                    car.visibility === "Active" && 
+                    car.make?.toLowerCase() === make.toLowerCase()
+                );
+                filteredData.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
                 setListing(filteredData);
             } else {
                 setListing([]);
@@ -128,12 +153,15 @@ function Listing() {
     const fetchTypeResults = async (type) => {
         setLoading(true);
         try {
-            const response = await fetch(`/api/cars/type/${type}`);
+            const response = await fetch(`/api/listing?type=${encodeURIComponent(type)}`);
             const data = await response.json();
             
             if (Array.isArray(data)) {
-                const filteredData = data.filter(car => car.visibility === "Active");
-                filteredData.sort((a, b) => new Date(b.date) - new Date(a.date));
+                const filteredData = data.filter(car => 
+                    car.visibility === "Active" && 
+                    car.bodyType?.toLowerCase() === type.toLowerCase()
+                );
+                filteredData.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
                 setListing(filteredData);
             } else {
                 setListing([]);
@@ -149,18 +177,39 @@ function Listing() {
     const fetchOtherCategoryResults = async (category) => {
         setLoading(true);
         try {
-            const response = await fetch(`/api/cars/othercategories/${category}`);
+            const response = await fetch(`/api/listing?category=${encodeURIComponent(category)}`);
             const data = await response.json();
             
             if (Array.isArray(data)) {
-                const filteredData = data.filter(car => car.visibility === "Active");
-                filteredData.sort((a, b) => new Date(b.date) - new Date(a.date));
+                const filteredData = data.filter(car => {
+                    if (!car.visibility === "Active") return false;
+                    
+                    // Handle different category types
+                    switch(category.toLowerCase()) {
+                        case 'left hand drive':
+                            return car.driveWheelConfiguration?.toLowerCase() === 'left';
+                        case 'fuel efficient vehicles':
+                            return car.fuelType?.toLowerCase().includes('efficient');
+                        case 'hybrid':
+                            return car.fuelType?.toLowerCase().includes('hybrid');
+                        case 'electric':
+                            return car.fuelType?.toLowerCase().includes('electric');
+                        case 'diesel':
+                            return car.fuelType?.toLowerCase().includes('diesel');
+                        case 'manual':
+                            return car.vehicleTransmission?.toLowerCase().includes('manual');
+                        default:
+                            return false;
+                    }
+                });
+                
+                filteredData.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
                 setListing(filteredData);
             } else {
                 setListing([]);
             }
         } catch (error) {
-            console.error("Error fetching other category results:", error);
+            console.error("Error fetching category results:", error);
             setListing([]);
         } finally {
             setLoading(false);
@@ -250,6 +299,11 @@ function Listing() {
         }
     };
 
+    // Add this function to check if we're in the admin route
+    const isAdminRoute = () => {
+        return window.location.pathname.includes('/admin');
+    };
+
     return (
         <div className="flex flex-col md:flex-row bg-[#E2F1E7] min-h-screen pt-0">
             {/* Left Sidebar */}
@@ -261,23 +315,10 @@ function Listing() {
 
             {/* Main Content */}
             <div className="w-full md:w-3/5 lg:w-4/6">
-                {/* Add filter indicators */}
-                {(searchParams.get('country') || searchParams.get('make') || 
-                  searchParams.get('type') || searchParams.get('othercategory')) && (
-                    <div className="px-4 py-2 mb-4 bg-white rounded-lg shadow-sm">
-                        <p className="text-sm text-gray-600">
-                            {searchParams.get('country') && `Showing cars from ${searchParams.get('country')}`}
-                            {searchParams.get('make') && `Showing ${searchParams.get('make')} cars`}
-                            {searchParams.get('type') && `Showing ${searchParams.get('type')} vehicles`}
-                            {searchParams.get('othercategory') && `Showing ${searchParams.get('othercategory')} vehicles`}
-                        </p>
-                    </div>
-                )}
-
-                <FilterCars 
-                    onFilterChange={handleFilterChange} 
-                    useUrlNavigation={true}
-                />
+                {/* Search Filters */}
+                <div className="mb-6">
+                    <FilterCars />
+                </div>
 
                 {/* Add PriceCalculator and CurrentSearch side by side */}
                 <div className="flex gap-4 flex-wrap justify-center">
@@ -296,6 +337,32 @@ function Listing() {
                         <p className="text-sm text-gray-600">
                             Found {listing.length} results for "{searchParams.get('search')}"
                         </p>
+                    </div>
+                )}
+
+                {/* Filter Message */}
+                {filterMessage && (
+                    <div className="text-center mb-4 p-3 bg-gray-50 rounded-lg mx-auto max-w-5xl">
+                        <h2 className="text-lg font-medium text-gray-700">
+                            {filterMessage}
+                            <span className="text-sm ml-2 text-gray-500">
+                                ({listing.length} {listing.length === 1 ? 'result' : 'results'})
+                            </span>
+                        </h2>
+                    </div>
+                )}
+
+                {/* Loading State */}
+                {loading && (
+                    <div className="text-center py-8">
+                        <p className="text-gray-500">Loading...</p>
+                    </div>
+                )}
+
+                {/* No Results Message */}
+                {!loading && listing.length === 0 && (
+                    <div className="text-center py-8">
+                        <p className="text-gray-500">No vehicles found</p>
                     </div>
                 )}
 
@@ -495,21 +562,23 @@ function Listing() {
                                 </div>
                             </div>
 
-                            {/* In your car listing card */}
-                            <div className="flex gap-2 absolute bottom-4 right-2 z-50">
-                                <Link
-                                    href={`/admin/cars/edit/${item._id}`}  // Updated path
-                                    className="w-min h-min p-2 rounded-lg bg-primary-50 cursor-pointer text-lg text-black shadow-inner"
-                                >
-                                    <MdModeEdit />
-                                </Link>
-                                <i
-                                    onClick={() => handleDeleteClick(item._id)}
-                                    className="w-min h-min p-2 rounded-lg bg-red-50 cursor-pointer text-lg text-black shadow-inner"
-                                >
-                                    <MdOutlineDelete />
-                                </i>
-                            </div>
+                            {/* Only show edit/delete buttons if in admin route */}
+                            {isAdminRoute() && (
+                                <div className="flex gap-2 absolute bottom-4 right-2 z-50">
+                                    <Link
+                                        href={`/admin/cars/edit/${item._id}`}
+                                        className="w-min h-min p-2 rounded-lg bg-primary-50 cursor-pointer text-lg text-black shadow-inner"
+                                    >
+                                        <MdModeEdit />
+                                    </Link>
+                                    <i
+                                        onClick={() => handleDeleteClick(item._id)}
+                                        className="w-min h-min p-2 rounded-lg bg-red-50 cursor-pointer text-lg text-black shadow-inner"
+                                    >
+                                        <MdOutlineDelete />
+                                    </i>
+                                </div>
+                            )}
                         </div>
                     ))}
                 </div>
