@@ -9,8 +9,7 @@ import CustomModal from "@/app/admin/components/block/modal";
 import AddUser from '@/app/admin/components/block/addUser';
 import EditUser from '@/app/admin/components/block/editUser';
 import { motion, AnimatePresence } from "framer-motion";
-import RoleBasedRoute from '@/components/auth/RoleBasedRoute';
-// import { ADMIN_ROLES, hasPermission } from '@/lib/permissions';
+
 
 export default function UsersPage() {
   const [users, setUsers] = useState([]);
