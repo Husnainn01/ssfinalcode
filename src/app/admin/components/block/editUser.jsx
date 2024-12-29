@@ -3,7 +3,7 @@ import { useState, useEffect } from 'react';
 import { Input, Button, Select, SelectItem } from "@nextui-org/react";
 import { ToastContainer, toast } from "react-toastify";
 import { motion, AnimatePresence } from "framer-motion";
-import { ADMIN_ROLES } from '@/lib/permissions';
+import { ADMIN_ROLES } from '@/models/Role';
 
 export default function EditUser({ isOpen, onClose, onSuccess, user }) {
   const [formData, setFormData] = useState({

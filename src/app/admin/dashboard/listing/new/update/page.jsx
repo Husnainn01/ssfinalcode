@@ -1,7 +1,7 @@
 "use client";
 import dynamic from 'next/dynamic';
 
-const AddListing = dynamic(() => import('@/components/block/updateList'), {
+const AddListing = dynamic(() => import('@/app/admin/cars/edit/[id]/page'), {
   ssr: false 
 });
 

@@ -2,7 +2,6 @@
 import dynamic from 'next/dynamic';
 import { useState, useEffect } from "react";
 import { Input, Button, Select, SelectItem, CheckboxGroup, Checkbox, } from "@nextui-org/react";
-import ClassicEditor from '@ckeditor/ckeditor5-build-classic';
 import { editorConfig } from "@/lib/editorConfig";
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
@@ -12,12 +11,22 @@ import { useRouter } from "next/navigation";
 import { DragDropContext, Droppable, Draggable } from '@hello-pangea/dnd';
 import Image from "next/image";
 
-// Keep only the dynamic import
+// Dynamically import CKEditor with SSR disabled
 const CKEditor = dynamic(
   () => import('@ckeditor/ckeditor5-react').then(mod => mod.CKEditor),
-  { ssr: false }
-);
+  {
+    ssr: false,
+    loading: () => <p>Loading editor...</p>
+  }
+)
 
+// Dynamically import the editor build
+const Editor = dynamic(
+  () => import('@ckeditor/ckeditor5-build-classic'),
+  {
+    ssr: false
+  }
+)
 
 export default function PostList({ params }) {
   const { id } = params;
@@ -528,13 +537,10 @@ export default function PostList({ params }) {
       <div className="w-full">
         {typeof window !== 'undefined' && (
           <CKEditor
-            editor={ClassicEditor}
+            editor={Editor}
             config={editorConfig}
             data={formData.description || ''}
-            onChange={(event, editor) => {
-              const data = editor.getData();
-              handleInputChange({ target: { name: 'description', value: data } });
-            }}
+            onChange={handleEditorChange}
           />
         )}
       </div>
