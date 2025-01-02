@@ -2,22 +2,41 @@
 
 import * as React from "react"
 import { ChevronLeft, ChevronRight } from "lucide-react"
-import { DayPicker } from "react-day-picker"
+import { DayPicker, DayPickerSingleProps, DayPickerRangeProps, DayPickerMultipleProps } from "react-day-picker"
 import { buttonVariants } from "@/components/ui/button"
 import { cn } from "@/lib/utils"
 
 import "react-day-picker/dist/style.css"
 
-interface CalendarProps extends React.ComponentProps<typeof DayPicker> {}
+type CalendarMode = "single" | "range" | "multiple"
 
-function Calendar({
+type CalendarModeMap = {
+  single: DayPickerSingleProps
+  range: DayPickerRangeProps
+  multiple: DayPickerMultipleProps
+}
+
+type BaseCalendarProps = {
+  className?: string
+  classNames?: Record<string, string>
+  showOutsideDays?: boolean
+}
+
+type CalendarProps<T extends CalendarMode> = BaseCalendarProps & 
+  Omit<CalendarModeMap[T], keyof BaseCalendarProps> & {
+    mode: T
+  }
+
+function Calendar<T extends CalendarMode>({
   className,
   classNames,
   showOutsideDays = true,
+  mode,
   ...props
-}: CalendarProps) {
+}: CalendarProps<T>) {
   return (
     <DayPicker
+      mode={mode}
       showOutsideDays={showOutsideDays}
       className={cn("p-3", className)}
       classNames={{
@@ -62,15 +81,7 @@ function Calendar({
         IconLeft: () => <ChevronLeft className="h-4 w-4" />,
         IconRight: () => <ChevronRight className="h-4 w-4" />,
       }}
-      formatters={{
-        formatWeekdayName: (date) => {
-          const weekdays = ['Mo', 'Tu', 'We', 'Th', 'Fr', 'Sa', 'Su'];
-          const index = date.getDay();
-          return weekdays[index === 0 ? 6 : index - 1];
-        }
-      }}
-      weekStartsOn={1}
-      {...props}
+      {...(props as any)}
     />
   )
 }

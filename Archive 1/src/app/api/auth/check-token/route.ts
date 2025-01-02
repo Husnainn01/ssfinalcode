@@ -9,8 +9,6 @@ export async function GET() {
     hasToken: !!token,
     tokenDetails: token ? {
       name: token.name,
-      path: token.path,
-      // Don't send the actual value for security
       present: true
     } : null
   })

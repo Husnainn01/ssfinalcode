@@ -1,6 +1,15 @@
 "use client"
 import { useAuth } from '@/hooks/useAuth'
 
+// Define a more specific user type for debugging
+interface DebugUser {
+  id?: string;
+  _id?: string;
+  name?: string;
+  email?: string;
+  [key: string]: any;
+}
+
 export function AuthStateDebug() {
   const { isAuthenticated, user, isLoading } = useAuth()
   
@@ -13,8 +22,8 @@ export function AuthStateDebug() {
           {
             isAuthenticated,
             user: user ? {
-              id: user.id || user._id,
-              _id: user._id,
+              id: (user as DebugUser).id || (user as DebugUser)._id,
+              _id: (user as DebugUser)._id,
               name: user.name,
               email: user.email,
               rawUser: user

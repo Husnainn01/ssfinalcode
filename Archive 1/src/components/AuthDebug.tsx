@@ -27,10 +27,9 @@ export function AuthDebug() {
           httpOnlyToken: data.hasToken ? 'Present' : 'Not found'
         })
       } catch (error) {
-        console.error('Token check failed:', error)
         setTokenInfo({
           error: 'Failed to check token',
-          details: error.message
+          details: error instanceof Error ? error.message : 'Unknown error'
         })
       }
     }

@@ -1,0 +1,20 @@
+{
+  "header": {
+    "company": "SSホールディングス：日本の中古車販売",
+    "totalCars": "在庫車両数",
+    "carsAdded": "本日の新着車両",
+    "japanTime": "日本時間",
+    "navigation": {
+      "usedCars": "中古車",
+      "reviews": "レビュー",
+      "help": "ヘルプ"
+    },
+    "auth": {
+      "login": "ログイン",
+      "register": "新規登録",
+      "welcome": "おかえりなさい！",
+      "dashboard": "ダッシュボード",
+      "logout": "ログアウト"
+    }
+  }
+} 

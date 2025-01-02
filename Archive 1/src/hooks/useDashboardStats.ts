@@ -1,6 +1,6 @@
 "use client"
 
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useRef } from 'react'
 
 interface DashboardStats {
   users: {
@@ -21,38 +21,39 @@ interface DashboardStats {
   totalViews: number
 }
 
-// Client-side cache
-const statsCache = {
+interface StatsCache {
+  data: DashboardStats | null;
+  timestamp: number | null;
+}
+
+// Initialize the cache with proper types
+const statsCache: StatsCache = {
   data: null,
-  timestamp: null,
-  ttl: 30 * 1000 // 30 seconds cache TTL
-};
+  timestamp: null
+}
 
 export function useDashboardStats() {
   const [stats, setStats] = useState<DashboardStats | null>(null)
-  const [loading, setLoading] = useState(true)
-  const [error, setError] = useState<string | null>(null)
+  const [isLoading, setIsLoading] = useState(true)
+  const isMountedRef = useRef(true)
 
   useEffect(() => {
-    let isMounted = true
-    const controller = new AbortController()
-
     const fetchStats = async () => {
       try {
-        // Check client-side cache first
         const now = Date.now()
-        if (statsCache.data && statsCache.timestamp && (now - statsCache.timestamp < statsCache.ttl)) {
-          setStats(statsCache.data)
-          setLoading(false)
+        const isMounted = isMountedRef.current
+
+        // Check cache validity (5 minutes)
+        if (statsCache.data && statsCache.timestamp && 
+            now - statsCache.timestamp < 5 * 60 * 1000) {
+          if (isMounted) {
+            setStats(statsCache.data)
+            setIsLoading(false)
+          }
           return
         }
 
-        const response = await fetch('/api/dashboard/stats', {
-          signal: controller.signal
-        })
-
-        if (!response.ok) throw new Error('Failed to fetch stats')
-
+        const response = await fetch('/api/dashboard/stats')
         const data = await response.json()
 
         // Update client-side cache
@@ -61,14 +62,12 @@ export function useDashboardStats() {
 
         if (isMounted) {
           setStats(data)
-          setLoading(false)
+          setIsLoading(false)
         }
-      } catch (err) {
-        if (err.name === 'AbortError') return
-        console.error('Error fetching stats:', err)
-        if (isMounted) {
-          setError(err.message)
-          setLoading(false)
+      } catch (error) {
+        console.error('Error fetching dashboard stats:', error)
+        if (isMountedRef.current) {
+          setIsLoading(false)
         }
       }
     }
@@ -76,10 +75,9 @@ export function useDashboardStats() {
     fetchStats()
 
     return () => {
-      isMounted = false
-      controller.abort()
+      isMountedRef.current = false
     }
-  }, []) // Empty dependency array means this only runs once on mount
+  }, [])
 
-  return { stats, loading, error }
+  return { stats, isLoading }
 } 

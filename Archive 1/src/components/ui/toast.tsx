@@ -4,8 +4,9 @@ import * as React from "react"
 import * as ToastPrimitives from "@radix-ui/react-toast"
 import { cva, type VariantProps } from "class-variance-authority"
 import { X } from "lucide-react"
-import { motion } from "framer-motion"
+import { motion, type MotionProps, AnimatePresence } from "framer-motion"
 import { useState, useEffect, useRef } from "react"
+import type { HTMLMotionProps } from "framer-motion"
 
 import { cn } from "@/lib/utils"
 
@@ -44,8 +45,12 @@ const toastVariants = cva(
 
 const ToastProgress = React.forwardRef<
   HTMLDivElement,
-  React.HTMLAttributes<HTMLDivElement> & { duration: number }
->(({ className, duration, ...props }, ref) => (
+  HTMLMotionProps<"div"> & { 
+    duration: number;
+    isPaused?: boolean;
+    remainingTime?: number;
+  }
+>(({ className, duration, isPaused, remainingTime, ...props }, ref) => (
   <motion.div
     ref={ref}
     className={cn("absolute bottom-0 left-0 h-1 bg-primary", className)}
@@ -101,10 +106,15 @@ const toastAnimationVariants = {
   }
 }
 
+type ToastMotionProps = HTMLMotionProps<"div"> & {
+  duration?: number;
+}
+
 const Toast = motion(React.forwardRef<
   React.ElementRef<typeof ToastPrimitives.Root>,
   React.ComponentPropsWithoutRef<typeof ToastPrimitives.Root> &
-    VariantProps<typeof toastVariants>
+    VariantProps<typeof toastVariants> &
+    ToastMotionProps
 >(({ className, variant, duration = 3000, ...props }, ref) => {
   const { isPaused, remainingTime, onMouseEnter, onMouseLeave } = useToastPause(duration)
 
@@ -112,13 +122,8 @@ const Toast = motion(React.forwardRef<
     <ToastPrimitives.Root
       ref={ref}
       className={cn(toastVariants({ variant }), "relative", className)}
-      duration={duration}
       onMouseEnter={onMouseEnter}
       onMouseLeave={onMouseLeave}
-      variants={toastAnimationVariants}
-      initial="initial"
-      animate="animate"
-      exit="exit"
       {...props}
     >
       {props.children}
@@ -129,7 +134,11 @@ const Toast = motion(React.forwardRef<
       />
     </ToastPrimitives.Root>
   )
-}))
+})) as React.FC<
+  React.ComponentPropsWithoutRef<typeof ToastPrimitives.Root> &
+    VariantProps<typeof toastVariants> &
+    ToastMotionProps
+>
 Toast.displayName = ToastPrimitives.Root.displayName
 
 const ToastAction = React.forwardRef<

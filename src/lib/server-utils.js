@@ -1,5 +1,5 @@
 import VerificationSession from './VerificationSession';
-import { generateVerificationCode } from './utils';
+import { generateVerificationCode } from './utils.ts';
 import dbConnect from './dbConnect';
 
 export async function storeVerificationSession(email, code = null) {

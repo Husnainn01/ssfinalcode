@@ -22,6 +22,6 @@
     },
     "baseUrl": "."
   },
-  "include": ["next-env.d.ts", "**/*.ts", "**/*.tsx", ".next/types/**/*.ts", "src/app/page.jsx", "src/app/layout.jsx", "src/app/api/favorites/route.js"],
+  "include": ["next-env.d.ts", "**/*.ts", "**/*.tsx", ".next/types/**/*.ts", "src/app/page.jsx", "src/app/layout.jsx", "src/app/api/favorites/route.js", "src/app/api/example/route.js"],
   "exclude": ["node_modules"]
 }
