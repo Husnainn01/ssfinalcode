@@ -2,16 +2,10 @@ import * as Sentry from "@sentry/nextjs";
 import { NextResponse } from "next/server";
 import dbConnect from "@/lib/dbConnect";
 
-export async function GET(request: Request) {
-  // Create a transaction
-  const transaction = Sentry.getCurrentHub().startTransaction({
+export async function GET(request) {
+  let transaction = Sentry.startTransaction({
+    op: "http.server",
     name: "search-cars-api",
-    op: "http.server"
-  });
-
-  // Set the transaction on the current scope
-  Sentry.getCurrentHub().configureScope(scope => {
-    scope.setSpan(transaction);
   });
 
   try {
@@ -47,7 +41,7 @@ export async function GET(request: Request) {
       .limit(10)
       .toArray();
 
-    transaction.setStatus('ok');
+    transaction?.setStatus('ok');
     return NextResponse.json({ cars });
 
   } catch (error) {
@@ -62,7 +56,7 @@ export async function GET(request: Request) {
       }
     });
 
-    transaction.setStatus('error');
+    transaction?.setStatus('internal_error');
 
     // Return appropriate error response
     if (error instanceof Error && error.message === 'Search query is required') {
@@ -78,6 +72,6 @@ export async function GET(request: Request) {
     );
 
   } finally {
-    transaction.finish();
+    transaction?.finish();
   }
 } 

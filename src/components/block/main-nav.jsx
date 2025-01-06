@@ -103,12 +103,12 @@ export function MainNav() {
                 >
                   FAQ
                 </Link>
-                <Link 
+                {/* <Link 
                   href="/how-we-deliver" 
                   className="block px-4 py-2.5 text-[15px] text-gray-700 rounded-md hover:bg-gradient-to-r from-theme-secondary-hover to-transparent hover:text-theme-primary transition-all duration-200"
                 >
                   How we Diliver
-                </Link>
+                </Link> */}
               </div>
             </NavigationMenuContent>
           </NavigationMenuItem>

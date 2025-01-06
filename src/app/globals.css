@@ -343,12 +343,12 @@ a.ck.ck-button {
 a.ck.ck-button:not(.ck-disabled):hover {
   background: var(--ck-color-button-default-hover-background)
 }
-```
-```
-</rewritten_file>
-</rewritten_file>
+/* ```
 ```
 </rewritten_file>
+</rewritten_file>
+```
+</rewritten_file> */
 
 .ck.ck-splitbutton>.ck-splitbutton__arrow {
   min-width: unset
@@ -683,8 +683,8 @@ a.ck.ck-button:not(.ck-disabled):hover {
 .ck.ck-input.ck-error:focus {
   box-shadow: var(--ck-focus-error-outer-shadow), 0 0
 }
-```
-</rewritten_file>
+/* ```
+</rewritten_file> */
 
 @keyframes ck-input-shake {
   20% {
@@ -1034,8 +1034,8 @@ a.ck.ck-button:not(.ck-disabled):hover {
 [dir=rtl] .ck.ck-menu-bar__menu .ck-button.ck-menu-bar__menu__item__button>.ck-spinner-container {
   margin-left: var(--ck-spacing-medium)
 }
-```
-</rewritten_file>
+/* ```
+</rewritten_file> */
 
 :root {
   --ck-menu-bar-menu-panel-max-width: 75vw
@@ -1350,8 +1350,8 @@ a.ck.ck-button:not(.ck-disabled):hover {
 [dir=rtl] .ck.ck-responsive-form>:not(:last-child) {
   margin-left: var(--ck-spacing-standard)
 }
-```
-</rewritten_file>
+/* ```
+</rewritten_file> */
 
 @media screen and (max-width:600px) {
   .ck.ck-responsive-form {
@@ -1700,8 +1700,8 @@ a.ck.ck-button:not(.ck-disabled):hover {
 .ck.ck-editor__top .ck-sticky-panel .ck-sticky-panel__content {
   border-radius: 0
 }
-```
-</rewritten_file>
+/* ```
+</rewritten_file> */
 
 .ck-rounded-corners .ck.ck-editor__top .ck.ck-editor__top .ck-sticky-panel .ck-sticky-panel__content,
 .ck.ck-editor__top .ck-sticky-panel .ck-sticky-panel__content.ck-rounded-corners {
@@ -2052,8 +2052,8 @@ a.ck.ck-button:not(.ck-disabled):hover {
   --ck-html-embed-source-disabled-background: var(--ck-color-base-foreground);
   --ck-html-embed-source-disabled-color: #737373
 }
-```
-</rewritten_file>
+/* ```
+</rewritten_file> */
 
 .ck-widget.raw-html-embed {
   background-color: var(--ck-color-base-foreground);
@@ -2460,7 +2460,7 @@ a.ck.ck-button:not(.ck-disabled):hover {
   background: var(--ck-color-link-selected-background)
 }
 
-</rewritten_file>
+/* </rewritten_file> */
 
 .ck .ck-link_selected span.image-inline {
   outline: var(--ck-widget-outline-thickness) solid var(--ck-color-link-selected-background)
@@ -2811,8 +2811,8 @@ a.ck.ck-button:not(.ck-disabled):hover {
 .ck-editor__editable .restricted-editing-exception.restricted-editing-exception_collapsed {
   padding-left: 1ch
 }
-```
-</rewritten_file>
+/* ```
+</rewritten_file> */
 
 .ck-restricted-editing_mode_restricted,
 .ck-restricted-editing_mode_restricted * {
@@ -3163,8 +3163,8 @@ a.ck.ck-button:not(.ck-disabled):hover {
 .ck.ck-form__row.ck-table-form__action-row {
   margin-top: var(--ck-spacing-large)
 }
-```
-</rewritten_file>
+/* ```
+</rewritten_file> */
 
 .ck.ck-form__row.ck-table-form__action-row .ck-button .ck-button__label {
   color: var(--ck-color-text)
@@ -3522,8 +3522,8 @@ a.ck.ck-button:not(.ck-disabled):hover {
 .ck.ck-editor__editable.ck-blurred .ck-widget.ck-widget_selected:hover {
   outline-color: var(--ck-color-widget-blurred-border)
 }
-```
-</rewritten_file>
+  /* ```
+  </rewritten_file> */
 
 .ck.ck-editor__editable.ck-blurred .ck-widget.ck-widget_selected.ck-widget_with-selection-handle>.ck-widget__selection-handle,
 .ck.ck-editor__editable.ck-blurred .ck-widget.ck-widget_selected.ck-widget_with-selection-handle>.ck-widget__selection-handle:hover,
@@ -3870,7 +3870,7 @@ a.ck.ck-button:not(.ck-disabled):hover {
   position: absolute
 }
 
-</rewritten_file>
+/* </rewritten_file> */
 
 .ck-content pre {
   background: hsla(0, 0%, 78%, .3);
@@ -4217,11 +4217,11 @@ span.ck-widget.html-object-embed {
   margin-right: var(--ck-spacing-standard)
 }
 
-[dir=rtl] .ck.ck-button.ck-button_with-text.ck-resize-image-button .ck-button__icon {
+/* [dir=rtl] .ck.ck-button.ck-button_with-text.ck-resize-image-button .ck-button__icon {
   margin-left: var(--ck-spacing-standard)
 }
 ```
-</rewritten_file>
+</rewritten_file> */
 
 .ck.ck-dropdown .ck-button.ck-resize-image-button .ck-button__label {
   width: 4em
@@ -4571,8 +4571,8 @@ span.ck-widget.html-object-embed {
 .ck.ck-list-styles-list {
   display: grid
 }
-```
-</rewritten_file>
+/* ```
+</rewritten_file> */
 
 .ck-content ol {
   list-style-type: decimal
@@ -4921,7 +4921,7 @@ span.ck-widget.html-object-embed {
   position: relative
 }
 
-</rewritten_file>
+/* </rewritten_file> */
 
 
 .ck.ck-minimap .ck.ck-minimap__position-tracker {

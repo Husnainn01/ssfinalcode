@@ -20,10 +20,9 @@ interface NavbarProps {
   toggleSidebar: () => void
 }
 
-// Add to the type definition
+// Update the type definitions to keep them for future use
 type NotificationType = 'order' | 'document' | 'payment' | 'system' | 'alert' | 'update'
 
-// Update the Notification interface
 interface NotificationDetail {
   label: string
   value: string
@@ -40,64 +39,8 @@ interface Notification {
   priority?: 'low' | 'medium' | 'high'
 }
 
-// Add more varied notifications
-const initialNotifications: Notification[] = [
-  {
-    id: 1,
-    title: "Order Status Update",
-    message: "Your order #12345 has been shipped",
-    time: "5 minutes ago",
-    isRead: false,
-    type: "order",
-    details: [
-      { label: "Order ID", value: "#12345" },
-      { label: "Status", value: "Shipped" },
-      { label: "Destination", value: "Dubai Port" },
-      { label: "Estimated Arrival", value: "Dec 25, 2023" },
-      { label: "Tracking Number", value: "TRK123456789" }
-    ]
-  },
-  {
-    id: 2,
-    title: "New Document Available",
-    message: "BL document is ready for order #12346",
-    time: "1 hour ago",
-    isRead: false,
-    type: "document",
-    details: [
-      { label: "Document Type", value: "Bill of Lading" },
-      { label: "Order Reference", value: "#12346" },
-      { label: "Issue Date", value: "Dec 20, 2023" },
-      { label: "Status", value: "Ready for download" }
-    ]
-  },
-  {
-    id: 3,
-    title: "Payment Confirmed",
-    message: "Payment received for order #12347",
-    time: "2 hours ago",
-    isRead: true,
-    type: "payment"
-  },
-  {
-    id: 4,
-    title: "System Update",
-    message: "System maintenance scheduled for tonight",
-    time: "3 hours ago",
-    isRead: false,
-    type: "system",
-    priority: "high"
-  },
-  {
-    id: 5,
-    title: "Price Alert",
-    message: "New competitive rates available for your route",
-    time: "4 hours ago",
-    isRead: false,
-    type: "alert",
-    link: "/customer-dashboard/rates"
-  }
-]
+// Replace hardcoded data with empty array
+const initialNotifications: Notification[] = []
 
 export function Navbar({ toggleSidebar }: NavbarProps) {
   const router = useRouter()
@@ -138,9 +81,6 @@ export function Navbar({ toggleSidebar }: NavbarProps) {
 
   const handleNotificationClick = (notification: Notification) => {
     markAsRead(notification.id)
-    if (notification.link) {
-      router.push(notification.link)
-    }
   }
 
   const markAllAsRead = () => {
@@ -354,12 +294,12 @@ export function Navbar({ toggleSidebar }: NavbarProps) {
                               )}
                               
                               <div className="flex items-center justify-between mt-2 opacity-0 group-hover:opacity-100 transition-opacity">
-                                {notification.link && (
+                                {notification.details && (
                                   <button 
                                     className="text-xs text-blue-500 hover:text-blue-600 flex items-center"
                                     onClick={(e) => {
                                       e.stopPropagation()
-                                      router.push(notification.link!)
+                                      // router.push(notification.link!)
                                     }}
                                   >
                                     <ExternalLink className="h-3 w-3 mr-1" />
