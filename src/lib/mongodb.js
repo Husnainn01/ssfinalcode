@@ -114,3 +114,5 @@ process.on('SIGINT', async () => {
 
 export default dbConnect;
 export { clientPromise }; 
+
+export const connectDB = dbConnect;

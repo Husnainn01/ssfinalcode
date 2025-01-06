@@ -1,13 +1,13 @@
 import { SignJWT, jwtVerify } from 'jose';
 import { cookies } from 'next/headers';
 import AdminUser from '@/models/AdminUser';
-import { connectDB } from './mongodb';
+import dbConnect from './mongodb';
 
 const secretKey = new TextEncoder().encode(process.env.JWT_SECRET || 'chendanvasu');
 
 export async function verifyAuth(request) {
   try {
-    await connectDB();
+    await dbConnect();
     const cookieStore = cookies();
     const token = cookieStore.get('admin_token');
 
