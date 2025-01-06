@@ -1,11 +1,16 @@
-import * as Sentry from "@sentry/nextjs";
 import { NextResponse } from "next/server";
 import dbConnect from "@/lib/dbConnect";
+import * as Sentry from "@sentry/nextjs";
+import mongoose from 'mongoose';
+
+export const dynamic = 'force-dynamic';
+export const runtime = 'nodejs';
 
 export async function GET(request) {
-  let transaction = Sentry.startTransaction({
-    op: "http.server",
-    name: "search-cars-api",
+  // Start a new transaction
+  const transaction = Sentry.startTransaction({
+    name: 'search-cars',
+    op: 'search'
   });
 
   try {
@@ -14,23 +19,21 @@ export async function GET(request) {
     const query = searchParams.get('query');
     const page = parseInt(searchParams.get('page') || '1');
     
+    // Add search context to Sentry
+    Sentry.setContext("search", {
+      query,
+      page
+    });
+
     if (!query) {
       throw new Error('Search query is required');
     }
 
     // Connect to database
-    const db = await dbConnect();
+    await dbConnect();
     
-    // Add breadcrumb for debugging
-    Sentry.addBreadcrumb({
-      category: 'database',
-      message: 'Attempting to search cars',
-      data: { query, page },
-      level: 'info'
-    });
-
-    // Perform search
-    const cars = await db.collection('cars')
+    // Perform search using mongoose
+    const cars = await mongoose.connection.collection('cars')
       .find({
         $or: [
           { make: { $regex: query, $options: 'i' } },
@@ -41,25 +44,23 @@ export async function GET(request) {
       .limit(10)
       .toArray();
 
-    transaction?.setStatus('ok');
-    return NextResponse.json({ cars });
-
-  } catch (error) {
-    // Log specific error details
-    Sentry.captureException(error, {
-      tags: {
-        endpoint: 'cars-search'
-      },
-      extra: {
-        url: request.url,
-        timestamp: new Date().toISOString()
-      }
+    // Set transaction as successful
+    transaction.setStatus("ok");
+    
+    return NextResponse.json({ 
+      cars,
+      page,
+      query 
     });
 
-    transaction?.setStatus('internal_error');
+  } catch (error) {
+    // Capture the error in Sentry
+    Sentry.captureException(error);
+    transaction.setStatus("error");
+    
+    console.error('Search API error:', error);
 
-    // Return appropriate error response
-    if (error instanceof Error && error.message === 'Search query is required') {
+    if (error.message === 'Search query is required') {
       return NextResponse.json(
         { error: 'Search query is required' },
         { status: 400 }
@@ -70,8 +71,8 @@ export async function GET(request) {
       { error: 'Internal Server Error' },
       { status: 500 }
     );
-
   } finally {
-    transaction?.finish();
+    // Always finish the transaction
+    transaction.finish();
   }
 } 
