@@ -1,5 +1,13 @@
 import mongoose from "mongoose";
 
+export const ADMIN_ROLES = {
+  SUPER_ADMIN: 'super_admin',
+  ADMIN: 'admin',
+  EDITOR: 'editor',
+  MODERATOR: 'moderator',
+  VIEWER: 'viewer',
+};
+
 const roleSchema = new mongoose.Schema(
   {
     name: {
