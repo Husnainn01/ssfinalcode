@@ -72,6 +72,8 @@ import {
 
 import 'ckeditor5/ckeditor5.css';
 
+export { ClassicEditor };
+
 export const editorConfig = {
     toolbar: {
         items: [

@@ -6,6 +6,38 @@ const nextConfig = {
     hideSourceMaps: true,
   },
   transpilePackages: ["@sentry/nextjs", "@opentelemetry/api"],
+  output: 'standalone',
+  
+  // Add this section to handle dynamic routes
+  experimental: {
+    serverActions: true,
+  },
+  
+  // Configure dynamic routing
+  async headers() {
+    return [
+      {
+        source: '/customer-dashboard/:path*',
+        headers: [
+          {
+            key: 'Cache-Control',
+            value: 'no-store, must-revalidate',
+          },
+        ],
+      },
+      {
+        source: '/api/:path*',
+        headers: [
+          {
+            key: 'Cache-Control',
+            value: 'no-store, must-revalidate',
+          },
+        ],
+      },
+    ]
+  },
+
+  // Your existing webpack config
   webpack: (config, { isServer }) => {
     // Fixes npm packages that depend on `fs` module
     if (!isServer) {
@@ -49,6 +81,7 @@ const nextConfig = {
 
     return config;
   },
+
   images: {
     remotePatterns: [
       {
