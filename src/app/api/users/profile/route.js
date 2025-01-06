@@ -2,12 +2,11 @@ import { NextResponse } from 'next/server';
 import { jwtVerify } from 'jose';
 import dbConnect from '@/lib/dbConnect';
 import User from '@/models/User';
-import mongoose from 'mongoose';
 
 export const dynamic = 'force-dynamic';
-export const runtime = 'edge';
+export const runtime = 'nodejs';
 
-const SECRET_KEY = new TextEncoder().encode('chendanvasu');
+const SECRET_KEY = new TextEncoder().encode(process.env.JWT_SECRET || 'chendanvasu');
 
 export async function GET(request) {
   try {
@@ -19,11 +18,10 @@ export async function GET(request) {
     const verified = await jwtVerify(token, SECRET_KEY);
     await dbConnect();
     
-    const userCollection = mongoose.connection.collection('users');
-    const user = await userCollection.findOne(
+    const user = await User.findOne(
       { email: process.env.ADMIN_ID },
-      { projection: { password: 0 } }
-    );
+      { password: 0 }
+    ).lean();
     
     return NextResponse.json(user || {
       email: process.env.ADMIN_ID,
@@ -42,10 +40,8 @@ export async function GET(request) {
 }
 
 export async function PUT(request) {
-  console.log("PUT request received");
   try {
     const token = request.cookies.get('auth_token')?.value;
-    console.log("Token:", token ? "Present" : "Missing");
     
     if (!token) {
       return NextResponse.json({ error: 'Unauthorized', success: false }, { status: 401 });
@@ -53,11 +49,8 @@ export async function PUT(request) {
 
     await dbConnect();
     const data = await request.json();
-    console.log('Received data in API:', data);
     
-    // Try direct collection access first
-    const userCollection = mongoose.connection.collection('users');
-    const updateResult = await userCollection.updateOne(
+    const updateResult = await User.findOneAndUpdate(
       { email: process.env.ADMIN_ID },
       { 
         $set: { 
@@ -70,27 +63,23 @@ export async function PUT(request) {
           updatedAt: new Date()
         }
       },
-      { upsert: true }
-    );
+      { 
+        new: true,
+        upsert: true,
+        projection: { password: 0 }
+      }
+    ).lean();
 
-    console.log('MongoDB Update result:', updateResult);
-
-    if (updateResult.matchedCount === 0 && !updateResult.upsertedCount) {
+    if (!updateResult) {
       return NextResponse.json({ 
         error: 'Update failed - User not found',
         success: false 
       }, { status: 404 });
     }
 
-    // Fetch the updated document
-    const updatedUser = await userCollection.findOne(
-      { email: process.env.ADMIN_ID },
-      { projection: { password: 0 } }
-    );
-
     return NextResponse.json({ 
       message: 'Profile updated successfully',
-      user: updatedUser,
+      user: updateResult,
       success: true
     }, { status: 200 });
   } catch (error) {
