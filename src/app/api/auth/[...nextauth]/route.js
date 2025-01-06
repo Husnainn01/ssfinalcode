@@ -1,14 +1,14 @@
 import { NextResponse } from 'next/server';
 import bcrypt from 'bcryptjs';
 import dbConnect from '@/lib/mongodb';
-import CustomerUser from '@/models/CustomerUser';
+import User from '@/models/User';
 
 export async function POST(request) {
   try {
     await dbConnect();
     const { email, password } = await request.json();
 
-    const user = await CustomerUser.findOne({ email });
+    const user = await User.findOne({ email });
     if (!user) {
       return NextResponse.json({ error: 'User not found' }, { status: 404 });
     }
