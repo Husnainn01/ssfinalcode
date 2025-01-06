@@ -114,6 +114,19 @@ customerSchema.index({ email: 1 }, { unique: true });
 customerSchema.index({ 'address.postCode': 1 });
 customerSchema.index({ 'address.country': 1 });
 
-const CustomerUser = mongoose.models.CustomerUser || mongoose.model('CustomerUser', customerSchema);
+// Add runtime specification and safe model initialization
+export const runtime = 'nodejs';
+
+let CustomerUser;
+try {
+  // Try to get existing model
+  CustomerUser = mongoose.models.CustomerUser;
+} catch {
+  // Model doesn't exist yet, create it
+}
+
+if (!CustomerUser) {
+  CustomerUser = mongoose.model('CustomerUser', customerSchema);
+}
 
 export default CustomerUser; 

@@ -36,6 +36,21 @@ const VehicleSchema = new mongoose.Schema({
     enum: ['available', 'sold', 'reserved'],
     default: 'available'
   },
+  section: {
+    type: String,
+    enum: ['popular', 'bestValue', 'premium', 'performance'],
+    default: null
+  },
+  slug: {
+    type: String,
+    unique: true,
+    sparse: true,
+    default: function() {
+      return `${this.make}-${this.model}-${this.year}-${this.stockNo}`.toLowerCase()
+        .replace(/[^a-z0-9]+/g, '-')
+        .replace(/(^-|-$)/g, '');
+    }
+  },
   createdAt: {
     type: Date,
     default: Date.now
@@ -46,7 +61,16 @@ const VehicleSchema = new mongoose.Schema({
   }
 });
 
-// Prevent overwriting the model if it already exists
+// Add an index for faster queries
+VehicleSchema.index({ section: 1, status: 1 });
+VehicleSchema.index({ slug: 1 });
+
+// Update the updatedAt field on save
+VehicleSchema.pre('save', function(next) {
+  this.updatedAt = new Date();
+  next();
+});
+
 const Vehicle = mongoose.models.Vehicle || mongoose.model('Vehicle', VehicleSchema);
 
 export default Vehicle; 

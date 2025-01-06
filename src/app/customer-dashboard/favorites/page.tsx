@@ -65,6 +65,9 @@ import {
 import { useFavorites } from '@/context/FavoritesContext'
 import { useCustomerAuth } from '@/hooks/useCustomerAuth'
 
+export const dynamic = 'force-dynamic';
+export const runtime = 'nodejs';
+
 interface FavoriteVehicle {
   id: string
   name: string

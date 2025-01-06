@@ -1,6 +1,9 @@
 import { NextResponse } from 'next/server';
 import { jwtVerify } from 'jose';
 
+export const dynamic = 'force-dynamic';
+export const runtime = 'nodejs';
+
 const SECRET_KEY = new TextEncoder().encode('chendanvasu');
 
 const VALID_ROLES = ['admin', 'editor', 'moderator', 'viewer'];

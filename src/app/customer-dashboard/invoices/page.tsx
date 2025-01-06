@@ -446,6 +446,9 @@
 
 import { ComingSoon } from "@/components/ui/coming-soon"
 
+export const dynamic = 'force-dynamic';
+export const runtime = 'nodejs';
+
 export default function InvoicesPage() {
   return (
     <ComingSoon 

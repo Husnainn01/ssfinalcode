@@ -1,6 +1,9 @@
 import dbConnect from '@/lib/dbConnect'
 import { rateLimit } from '@/lib/rate-limit'
 
+export const dynamic = 'force-dynamic';
+export const runtime = 'edge';
+
 export async function GET(request) {
     try {
         // 1. Rate limiting

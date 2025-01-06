@@ -103,7 +103,7 @@ export default function FilterList({ onFilterChange }) {
   return (
     <div className="bg-[#387478] p-4 rounded-lg shadow-md">
       <div className="text-white font-semibold text-lg mb-4">
-        <span className="mr-2">🔍</span>
+        <span className="mr-2" aria-hidden="true">🔍</span>
         SEARCH FOR CARS
       </div>
       
@@ -111,40 +111,54 @@ export default function FilterList({ onFilterChange }) {
         <div className="space-y-2">
           <div className="flex gap-4">
             <div className="flex-1">
-              <label className="text-white text-sm mb-1 block">Make</label>
+              <label className="text-white text-sm mb-1 block" id="make-label">Make</label>
               <Select 
                 placeholder="Select make"
                 value={searchParams.make}
                 onChange={(e) => setSearchParams({...searchParams, make: e.target.value})}
                 className="w-full"
+                aria-labelledby="make-label"
               >
                 {availableOptions.makes && availableOptions.makes.length > 0 ? (
                   availableOptions.makes.map(make => (
-                    <SelectItem key={make.value} value={make.value}>
+                    <SelectItem 
+                      key={make.value} 
+                      value={make.value}
+                      textValue={make.label}
+                    >
                       {make.label}
                     </SelectItem>
                   ))
                 ) : (
-                  <SelectItem value="" disabled>No makes available</SelectItem>
+                  <SelectItem value="" disabled textValue="No makes available">
+                    No makes available
+                  </SelectItem>
                 )}
               </Select>
             </div>
             <div className="flex-1">
-              <label className="text-white text-sm mb-1 block">Model</label>
+              <label className="text-white text-sm mb-1 block" id="model-label">Model</label>
               <Select 
                 placeholder="Select model"
                 value={searchParams.model}
                 onChange={(e) => setSearchParams({...searchParams, model: e.target.value})}
                 className="w-full"
+                aria-labelledby="model-label"
               >
                 {availableOptions.models && availableOptions.models.length > 0 ? (
                   availableOptions.models.map(model => (
-                    <SelectItem key={model.value} value={model.value}>
+                    <SelectItem 
+                      key={model.value} 
+                      value={model.value}
+                      textValue={model.label}
+                    >
                       {model.label}
                     </SelectItem>
                   ))
                 ) : (
-                  <SelectItem value="" disabled>No models available</SelectItem>
+                  <SelectItem value="" disabled textValue="No models available">
+                    No models available
+                  </SelectItem>
                 )}
               </Select>
             </div>
@@ -152,38 +166,52 @@ export default function FilterList({ onFilterChange }) {
           
           <div className="flex gap-4">
             <div className="flex-1">
-              <label className="text-white text-sm mb-1 block">Type</label>
+              <label className="text-white text-sm mb-1 block" id="type-label">Type</label>
               <Select 
                 placeholder="Select type"
                 value={searchParams.type}
                 onChange={(e) => setSearchParams({...searchParams, type: e.target.value})}
+                aria-labelledby="type-label"
               >
                 {availableOptions.types.length > 0 ? (
                   availableOptions.types.map(type => (
-                    <SelectItem key={type.value} value={type.value}>
+                    <SelectItem 
+                      key={type.value} 
+                      value={type.value}
+                      textValue={type.label}
+                    >
                       {type.label}
                     </SelectItem>
                   ))
                 ) : (
-                  <SelectItem value="" disabled>No types available</SelectItem>
+                  <SelectItem value="" disabled textValue="No types available">
+                    No types available
+                  </SelectItem>
                 )}
               </Select>
             </div>
             <div className="flex-1">
-              <label className="text-white text-sm mb-1 block">Price Range</label>
+              <label className="text-white text-sm mb-1 block" id="price-label">Price Range</label>
               <Select 
                 placeholder="Select price"
                 value={searchParams.price}
                 onChange={(e) => setSearchParams({...searchParams, price: e.target.value})}
+                aria-labelledby="price-label"
               >
                 {availableOptions.priceRanges.length > 0 ? (
                   availableOptions.priceRanges.map(range => (
-                    <SelectItem key={range.value} value={range.value}>
+                    <SelectItem 
+                      key={range.value} 
+                      value={range.value}
+                      textValue={range.label}
+                    >
                       {range.label}
                     </SelectItem>
                   ))
                 ) : (
-                  <SelectItem value="" disabled>No price ranges available</SelectItem>
+                  <SelectItem value="" disabled textValue="No price ranges available">
+                    No price ranges available
+                  </SelectItem>
                 )}
               </Select>
             </div>
@@ -193,20 +221,27 @@ export default function FilterList({ onFilterChange }) {
         <div className="space-y-2">
           <div className="flex gap-4">
             <div className="flex-1">
-              <label className="text-white text-sm mb-1 block">Steering</label>
+              <label className="text-white text-sm mb-1 block" id="steering-label">Steering</label>
               <Select 
                 placeholder="Select steering"
                 value={searchParams.steering}
                 onChange={(e) => setSearchParams({...searchParams, steering: e.target.value})}
+                aria-labelledby="steering-label"
               >
                 {availableOptions.steerings && availableOptions.steerings.length > 0 ? (
                   availableOptions.steerings.map(steering => (
-                    <SelectItem key={steering.value} value={steering.value}>
+                    <SelectItem 
+                      key={steering.value} 
+                      value={steering.value}
+                      textValue={steering.label}
+                    >
                       {steering.label}
                     </SelectItem>
                   ))
                 ) : (
-                  <SelectItem value="" disabled>No steering options available</SelectItem>
+                  <SelectItem value="" disabled textValue="No steering options available">
+                    No steering options available
+                  </SelectItem>
                 )}
               </Select>
             </div>
@@ -214,26 +249,40 @@ export default function FilterList({ onFilterChange }) {
           
           <div className="flex gap-4">
             <div className="flex-1">
-              <label className="text-white text-sm mb-1 block">Year From</label>
+              <label className="text-white text-sm mb-1 block" id="year-from-label">Year From</label>
               <Select 
                 placeholder="Select year"
                 value={searchParams.yearFrom}
                 onChange={(e) => setSearchParams({...searchParams, yearFrom: e.target.value})}
+                aria-labelledby="year-from-label"
               >
                 {Array.from({length: 24}, (_, i) => 2000 + i).map(year => (
-                  <SelectItem key={year} value={year.toString()}>{year}</SelectItem>
+                  <SelectItem 
+                    key={year} 
+                    value={year.toString()}
+                    textValue={year.toString()}
+                  >
+                    {year}
+                  </SelectItem>
                 ))}
               </Select>
             </div>
             <div className="flex-1">
-              <label className="text-white text-sm mb-1 block">Year To</label>
+              <label className="text-white text-sm mb-1 block" id="year-to-label">Year To</label>
               <Select 
                 placeholder="Select year"
                 value={searchParams.yearTo}
                 onChange={(e) => setSearchParams({...searchParams, yearTo: e.target.value})}
+                aria-labelledby="year-to-label"
               >
                 {Array.from({length: 24}, (_, i) => 2000 + i).map(year => (
-                  <SelectItem key={year} value={year.toString()}>{year}</SelectItem>
+                  <SelectItem 
+                    key={year} 
+                    value={year.toString()}
+                    textValue={year.toString()}
+                  >
+                    {year}
+                  </SelectItem>
                 ))}
               </Select>
             </div>
@@ -242,12 +291,13 @@ export default function FilterList({ onFilterChange }) {
 
         <div className="flex flex-col justify-end">
           <div className="bg-white p-3 rounded-lg">
-            <div className="text-orange-600 font-bold text-lg mb-2">
+            <div className="text-orange-600 font-bold text-lg mb-2" aria-live="polite">
               {totalItems.toLocaleString()} items match
             </div>
             <Button 
               className="w-full bg-theme-secondary hover:bg-theme-secondary-hover text-black"
               onClick={handleSearch}
+              aria-label="Search for matching cars"
             >
               SEARCH
             </Button>

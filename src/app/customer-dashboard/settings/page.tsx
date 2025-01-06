@@ -2,6 +2,9 @@
 
 import { SettingsForm } from "@/components/customer-dashboard/components/SettingsForm"
 
+export const dynamic = 'force-dynamic';
+export const runtime = 'nodejs';
+
 export default function SettingsPage() {
   return (
     <div className="space-y-6">

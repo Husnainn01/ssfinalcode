@@ -65,7 +65,7 @@ export function MainNav() {
 
   return (
     <div className="mx-auto max-w-7xl px-4 py-2 relative z-50">
-      <NavigationMenu className="relative z-50">
+      <NavigationMenu className="relative z-50" aria-label="Main Navigation">
         <NavigationMenuList className="gap-8">
           {/* About Dropdown */}
           <NavigationMenuItem>
@@ -73,6 +73,7 @@ export function MainNav() {
               className="text-base font-medium bg-transparent text-white hover:bg-white/10 
                 data-[state=open]:bg-white/10 hover:text-theme-secondary-hover 
                 data-[state=open]:text-theme-secondary-hover transition-all duration-200"
+              aria-label="About Menu"
             >
               About
             </NavigationMenuTrigger>
@@ -82,24 +83,28 @@ export function MainNav() {
                 <Link 
                   href="/about" 
                   className="block px-4 py-2.5 text-[15px] text-gray-700 rounded-md hover:bg-gradient-to-r from-theme-secondary-hover to-transparent hover:text-theme-primary transition-all duration-200"
+                  role="menuitem"
                 >
                   About Us
                 </Link>
                 <Link 
                   href="/banking" 
                   className="block px-4 py-2.5 text-[15px] text-gray-700 rounded-md hover:bg-gradient-to-r from-theme-secondary-hover to-transparent hover:text-theme-primary transition-all duration-200"
+                  role="menuitem"
                 >
                   Banking Information
                 </Link>
                 <Link 
                   href="/how-to-buy" 
                   className="block px-4 py-2.5 text-[15px] text-gray-700 rounded-md hover:bg-gradient-to-r from-theme-secondary-hover to-transparent hover:text-theme-primary transition-all duration-200"
+                  role="menuitem"
                 >
                   How to Buy
                 </Link>
                 <Link 
                   href="/FAQ" 
                   className="block px-4 py-2.5 text-[15px] text-gray-700 rounded-md hover:bg-gradient-to-r from-theme-secondary-hover to-transparent hover:text-theme-primary transition-all duration-200"
+                  role="menuitem"
                 >
                   FAQ
                 </Link>
@@ -119,6 +124,7 @@ export function MainNav() {
               className="text-base font-medium bg-transparent text-white hover:bg-white/10 
                 data-[state=open]:bg-white/10 hover:text-theme-secondary-hover 
                 data-[state=open]:text-theme-secondary-hover transition-all duration-200"
+              aria-label="Stock List Menu"
             >
               Stock List
             </NavigationMenuTrigger>
@@ -131,12 +137,14 @@ export function MainNav() {
                     <h3 className="text-[16px] font-medium text-theme-primary mb-2 pb-2 border-b border-gray-200/60">
                       Search By Make
                     </h3>
-                    <div className="space-y-0.5">
+                    <div className="space-y-0.5" role="menu">
                       {staticMakes.map((make) => (
                         <Link 
                           key={make._id}
                           href={`/cars/make/${make.name.toLowerCase()}`}
                           className="flex items-center justify-between gap-4 px-3 py-2 text-[14px] text-gray-700 rounded-md hover:bg-gradient-to-r from-theme-secondary-hover to-transparent hover:text-theme-primary hover:shadow-sm transition-all duration-200 group"
+                          role="menuitem"
+                          aria-label={`${make.name} (${make.count.toLocaleString()} vehicles)`}
                         >
                           <span className="font-medium">{make.name}</span>
                           <span className="text-gray-500 text-[13px] group-hover:text-theme-primary/70 shrink-0">
@@ -152,12 +160,14 @@ export function MainNav() {
                     <h3 className="text-[16px] font-medium text-theme-primary mb-2 pb-2 border-b border-gray-200/60">
                       Search By Type
                     </h3>
-                    <div className="space-y-0.5">
+                    <div className="space-y-0.5" role="menu">
                       {staticVehicleTypes.map((vehicle) => (
                         <Link 
                           key={vehicle.type}
                           href={`/type/${vehicle.type.toLowerCase()}`}
                           className="flex items-center justify-between gap-4 px-3 py-2 text-[14px] text-gray-700 rounded-md hover:bg-gradient-to-r from-theme-secondary-hover to-transparent hover:text-theme-primary hover:shadow-sm transition-all duration-200 group"
+                          role="menuitem"
+                          aria-label={`${vehicle.type} (${vehicle.count.toLocaleString()} vehicles)`}
                         >
                           <span className="font-medium">{vehicle.type}</span>
                           <span className="text-gray-500 text-[13px] group-hover:text-theme-primary/70 shrink-0">
@@ -173,15 +183,17 @@ export function MainNav() {
                     <h3 className="text-[16px] font-medium text-theme-primary mb-2 pb-2 border-b border-gray-200/60">
                       Country List
                     </h3>
-                    <div className="space-y-0.5">
+                    <div className="space-y-0.5" role="menu">
                       {staticCountries.map((country) => (
                         <Link 
                           key={country.name}
                           href={`/country/${country.name.toLowerCase()}`}
                           className="flex items-center justify-between gap-4 px-3 py-2 text-[14px] text-gray-700 rounded-md hover:bg-gradient-to-r from-theme-secondary-hover to-transparent hover:text-theme-primary hover:shadow-sm transition-all duration-200 group"
+                          role="menuitem"
+                          aria-label={`${country.name} (${country.count.toLocaleString()} vehicles)`}
                         >
                           <span className="flex items-center gap-2">
-                            <span className="text-base">{country.flag}</span>
+                            <span className="text-base" aria-hidden="true">{country.flag}</span>
                             <span className="font-medium">{country.name}</span>
                           </span>
                           <span className="text-gray-500 text-[13px] group-hover:text-theme-primary/70 shrink-0">
@@ -196,31 +208,32 @@ export function MainNav() {
             </NavigationMenuContent>
           </NavigationMenuItem>
 
-          {/* Auction Link */}
+          {/* Regular Links */}
           <NavigationMenuItem>
             <Link 
               href="/auction" 
               className="text-base font-medium text-white hover:text-theme-secondary-hover px-4 py-2 transition-all duration-200"
+              role="menuitem"
             >
               Auction
             </Link>
           </NavigationMenuItem>
 
-          {/* Shipping Schedule Link */}
           <NavigationMenuItem>
             <Link 
               href="/shipping-schedule" 
               className="text-base font-medium text-white hover:text-theme-secondary-hover px-4 py-2 transition-all duration-200"
+              role="menuitem"
             >
               Shipping Schedule
             </Link>
           </NavigationMenuItem>
 
-          {/* Contact Us Link */}
           <NavigationMenuItem>
             <Link 
               href="/contact-us" 
               className="text-base font-medium text-white hover:text-theme-secondary-hover px-4 py-2 transition-all duration-200"
+              role="menuitem"
             >
               Contact Us
             </Link>

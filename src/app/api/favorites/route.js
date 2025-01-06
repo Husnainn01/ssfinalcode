@@ -6,6 +6,9 @@ import Favorite from '@/models/Favorite'
 import CarListing from '@/models/Car'
 import mongoose from 'mongoose'
 
+export const dynamic = 'force-dynamic';
+export const runtime = 'nodejs';
+
 export async function GET() {
   try {
     // console.log('Starting GET /api/favorites')

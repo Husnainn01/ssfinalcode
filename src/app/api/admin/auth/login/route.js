@@ -1,5 +1,5 @@
 import { NextResponse } from 'next/server';
-import { connectDB } from '@/lib/mongodb';
+import dbConnect from '@/lib/dbConnect';
 import AdminUser from '@/models/AdminUser';
 import { SignJWT } from 'jose';
 
@@ -15,7 +15,7 @@ const VALID_ROLES = {
 export async function POST(request) {
   try {
     console.log('Connecting to database...');
-    await connectDB();
+    await dbConnect();
     console.log('Database connected');
 
     const { email, password } = await request.json();

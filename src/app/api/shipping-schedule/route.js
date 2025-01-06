@@ -1,5 +1,8 @@
 import { NextResponse } from 'next/server'
 
+export const dynamic = 'force-dynamic';
+export const runtime = 'nodejs';
+
 async function fetchRegions(API_KEY) {
   try {
     console.log('Fetching regions with API key:', API_KEY ? 'Present' : 'Missing')

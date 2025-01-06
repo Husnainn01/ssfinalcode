@@ -1,78 +1,50 @@
 import { NextResponse } from 'next/server'
 import dbConnect from '@/lib/dbConnect'
+import Vehicle from '@/models/Vehicle'
+
+export const dynamic = 'force-dynamic'
+export const runtime = 'nodejs'
 
 export async function GET() {
   try {
-    const db = await dbConnect()
+    await dbConnect()
     
     // Fetch vehicles for each section
-    const bestSellers = await db.collection('CarListing')
+    const bestSellers = await Vehicle
       .find({ 
         section: 'popular',
-        status: 'active',
-        visibility: 'Active'
+        status: 'available'
       })
+      .select('make model year price slug')
       .limit(3)
-      .project({
-        title: 1,
-        price: 1,
-        make: 1,
-        model: 1,
-        year: 1,
-        slug: 1
-      })
-      .toArray()
+      .lean()
 
-    const bestValue = await db.collection('CarListing')
+    const bestValue = await Vehicle
       .find({ 
         section: 'bestValue',
-        status: 'active',
-        visibility: 'Active'
+        status: 'available'
       })
+      .select('make model year price slug')
       .limit(3)
-      .project({
-        title: 1,
-        price: 1,
-        make: 1,
-        model: 1,
-        year: 1,
-        slug: 1
-      })
-      .toArray()
+      .lean()
 
-    const premium = await db.collection('CarListing')
+    const premium = await Vehicle
       .find({ 
         section: 'premium',
-        status: 'active',
-        visibility: 'Active'
+        status: 'available'
       })
+      .select('make model year price slug')
       .limit(3)
-      .project({
-        title: 1,
-        price: 1,
-        make: 1,
-        model: 1,
-        year: 1,
-        slug: 1
-      })
-      .toArray()
+      .lean()
 
-    const performance = await db.collection('CarListing')
+    const performance = await Vehicle
       .find({ 
         section: 'performance',
-        status: 'active',
-        visibility: 'Active'
+        status: 'available'
       })
+      .select('make model year price slug')
       .limit(3)
-      .project({
-        title: 1,
-        price: 1,
-        make: 1,
-        model: 1,
-        year: 1,
-        slug: 1
-      })
-      .toArray()
+      .lean()
 
     // Transform the data to match the component's expected format
     const transformData = (cars) => cars.map(car => ({

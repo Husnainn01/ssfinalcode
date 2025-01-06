@@ -2,6 +2,9 @@ import { NextResponse } from 'next/server';
 import { verifyToken } from '@/lib/jwt';
 import dbConnect from '@/lib/dbConnect';
 
+export const dynamic = 'force-dynamic';
+export const runtime = 'edge';
+
 export async function GET(request) {
   try {
     const token = request.cookies.get('auth_token')?.value;

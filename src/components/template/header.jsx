@@ -203,14 +203,18 @@ export default function NavigationHeader() {
               value={searchType}
               onValueChange={setSearchType}
             >
-              <SelectTrigger className="w-[160px] rounded-l bg-white text-black">
-                <SelectValue>
+              <SelectTrigger className="w-[160px] rounded-l bg-white text-black" aria-label="Search type">
+                <SelectValue placeholder="Select search type">
                   {searchType === 'keyword' ? 'By Keyword' : 'By Stock No.'}
                 </SelectValue>
               </SelectTrigger>
               <SelectContent className="bg-white border border-gray-200 shadow-lg">
-                <SelectItem value="keyword" className="hover:bg-gray-100">By Keyword</SelectItem>
-                <SelectItem value="stockNumber" className="hover:bg-gray-100">By Stock No.</SelectItem>
+                <SelectItem value="keyword" textValue="By Keyword" className="hover:bg-gray-100">
+                  By Keyword
+                </SelectItem>
+                <SelectItem value="stockNumber" textValue="By Stock Number" className="hover:bg-gray-100">
+                  By Stock No.
+                </SelectItem>
               </SelectContent>
             </Select>
             <div className="relative flex flex-1">
@@ -220,12 +224,14 @@ export default function NavigationHeader() {
                 className="w-[600px] rounded-l-none border-l-0 text-black"
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
+                aria-label={searchType === 'keyword' ? "Search cars by keyword" : "Search cars by stock number"}
               />
               <Button 
                 type="submit"
                 size="icon" 
                 className="absolute right-0 rounded-l-none bg-theme-secondary hover:bg-theme-secondary-hover"
                 disabled={isSearching}
+                aria-label="Search"
               >
                 <Search className="h-4 w-4 text-theme-primary" />
               </Button>
@@ -241,6 +247,7 @@ export default function NavigationHeader() {
                 variant="ghost" 
                 className="text-theme-background hover:text-theme-secondary whitespace-nowrap ml-auto"
                 onClick={() => router.push('/customer-dashboard/favorites')}
+                aria-label="View favorites"
               >
                 <Heart className="mr-2 h-5 w-5" />
                 <span>Favorites</span>
@@ -251,7 +258,11 @@ export default function NavigationHeader() {
               
               <DropdownMenu>
                 <DropdownMenuTrigger asChild>
-                  <Button variant="ghost" className="text-theme-background hover:text-theme-secondary">
+                  <Button 
+                    variant="ghost" 
+                    className="text-theme-background hover:text-theme-secondary"
+                    aria-label="User menu"
+                  >
                     <div className="flex items-center gap-2">
                       <div className="h-8 w-8 rounded-full bg-theme-secondary flex items-center justify-center">
                         <User className="h-5 w-5" />
@@ -295,12 +306,16 @@ export default function NavigationHeader() {
             </div>
           ) : (
             <DropdownMenu>
-              <DropdownMenuTrigger>
-                <div className="flex items-center gap-2 px-4 py-2 bg-theme-secondary text-theme-primary hover:bg-theme-secondary-hover cursor-pointer rounded-md">
+              <DropdownMenuTrigger asChild>
+                <Button 
+                  variant="ghost"
+                  className="flex items-center gap-2 px-4 py-2 bg-theme-secondary text-theme-primary hover:bg-theme-secondary-hover cursor-pointer rounded-md"
+                  aria-label="Login options"
+                >
                   <User className="h-5 w-5" />
                   <span>Login</span>
                   <ChevronDown className="h-4 w-4" />
-                </div>
+                </Button>
               </DropdownMenuTrigger>
               <DropdownMenuContent 
                 align="end" 

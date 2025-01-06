@@ -4,6 +4,9 @@ import dbConnect from '@/lib/dbConnect';
 import User from '@/models/User';
 import mongoose from 'mongoose';
 
+export const dynamic = 'force-dynamic';
+export const runtime = 'edge';
+
 const SECRET_KEY = new TextEncoder().encode('chendanvasu');
 
 export async function GET(request) {

@@ -1,30 +1,23 @@
 import { SignJWT, jwtVerify } from 'jose';
 import { cookies } from 'next/headers';
-import jwt from 'jsonwebtoken';
 import AdminUser from '@/models/AdminUser';
 import { connectDB } from './mongodb';
 
-export const authOptions = {
-  providers: [
-    // Remove or update this if you're not using NextAuth credentials
-  ],
-};
+const secretKey = new TextEncoder().encode(process.env.JWT_SECRET || 'chendanvasu');
 
 export async function verifyAuth(request) {
   try {
     await connectDB();
     const cookieStore = cookies();
     const token = cookieStore.get('admin_token');
-    // console.log('Admin token:', token);
 
     if (!token) {
       return { success: false };
     }
 
-    const decoded = jwt.verify(token.value, process.env.JWT_SECRET);
-    // console.log('Decoded token:', decoded);
+    const { payload } = await jwtVerify(token.value, secretKey);
 
-    const user = await AdminUser.findById(decoded.userId)
+    const user = await AdminUser.findById(payload.userId)
       .select('-password')
       .lean();
 
@@ -50,13 +43,12 @@ export async function verifyAuth(request) {
 }
 
 export async function createAdminToken(user) {
-  return jwt.sign(
-    { 
-      userId: user._id,
-      role: user.role,
-      email: user.email
-    },
-    process.env.JWT_SECRET,
-    { expiresIn: '24h' }
-  );
+  return new SignJWT({ 
+    userId: user._id.toString(),
+    role: user.role,
+    email: user.email
+  })
+    .setProtectedHeader({ alg: 'HS256' })
+    .setExpirationTime('24h')
+    .sign(secretKey);
 }

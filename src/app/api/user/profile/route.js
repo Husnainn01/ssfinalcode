@@ -2,6 +2,9 @@ import dbConnect from "@/lib/dbConnect"
 import { NextResponse } from "next/server"
 import CustomerUser from "@/lib/CustomerUser"
 
+export const dynamic = 'force-dynamic';
+export const runtime = 'nodejs';
+
 export async function GET(request) {
   try {
     const userId = request.headers.get('x-user-id');

@@ -3,7 +3,9 @@ import ListingPage from "./carPost";
 import { FavoriteButton } from '@/components/ui/FavoriteButton';
 
 export const dynamic = 'force-dynamic';
-export const revalidate = 0;
+export const runtime = 'edge';
+// Commented out revalidate as it's not needed
+// export const revalidate = 0;
 
 async function fetchCar(slug) {
   try {

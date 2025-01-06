@@ -10,6 +10,9 @@ const carModels = {
   // Add more as needed
 };
 
+export const dynamic = 'force-dynamic';
+export const runtime = 'edge';
+
 export async function GET(request) {
   try {
     const { searchParams } = new URL(request.url);

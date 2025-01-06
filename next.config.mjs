@@ -2,16 +2,8 @@ import { withSentryConfig } from "@sentry/nextjs";
 
 /** @type {import('next').NextConfig} */
 const nextConfig = {
-  sentry: {
-    hideSourceMaps: true,
-  },
   transpilePackages: ["@sentry/nextjs", "@opentelemetry/api"],
   output: 'standalone',
-  
-  // Add this section to handle dynamic routes
-  experimental: {
-    serverActions: true,
-  },
   
   // Configure dynamic routing
   async headers() {
@@ -37,17 +29,34 @@ const nextConfig = {
     ]
   },
 
-  // Your existing webpack config
+  // Updated webpack config
   webpack: (config, { isServer }) => {
-    // Fixes npm packages that depend on `fs` module
     if (!isServer) {
       config.resolve.fallback = {
         ...config.resolve.fallback,
         fs: false,
+        net: false,
+        tls: false,
+        crypto: false,
+        stream: false,
+        url: false,
+        zlib: false,
+        http: false,
+        https: false,
+        assert: false,
+        os: false,
+        path: false,
+        'mongodb-client-encryption': false,
+        aws4: false,
+        'gcp-metadata': false,
+        snappy: false,
+        '@mongodb-js/zstd': false,
+        kerberos: false,
+        socks: false
       };
     }
 
-    // Add CKEditor configuration
+    // CKEditor configuration
     config.module.rules.push({
       test: /ckeditor5-[^/\\]+[/\\]theme[/\\]icons[/\\][^/\\]+\.svg$/,
       use: ['raw-loader']
@@ -98,8 +107,8 @@ const nextConfig = {
 };
 
 const sentryWebpackPluginOptions = {
-  silent: true,
   hideSourceMaps: true,
+  silent: true
 };
 
 export default withSentryConfig(nextConfig, sentryWebpackPluginOptions);

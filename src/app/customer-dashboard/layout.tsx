@@ -2,6 +2,9 @@ import { redirect } from 'next/navigation';
 import DashboardLayout from "@/components/customer-dashboard/DashboardLayout"
 import { verifyCustomerAuth } from '@/lib/customerAuth';
 
+export const dynamic = 'force-dynamic';
+export const runtime = 'nodejs';
+
 export default async function CustomerDashboardLayout({
   children,
 }: {

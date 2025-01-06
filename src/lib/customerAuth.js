@@ -1,11 +1,13 @@
+import { SignJWT, jwtVerify } from 'jose';
 import { cookies } from 'next/headers';
-import jwt from 'jsonwebtoken';
 import CustomerUser from './CustomerUser';
-import { connectDB } from './mongodb';
+import dbConnect from './mongodb';
+
+const secretKey = new TextEncoder().encode(process.env.JWT_SECRET || 'chendanvasu');
 
 export async function verifyCustomerAuth() {
   try {
-    await connectDB();
+    await dbConnect();
     const cookieStore = cookies();
     const token = cookieStore.get('token');
 
@@ -16,16 +18,16 @@ export async function verifyCustomerAuth() {
     }
 
     // Verify the token
-    const decoded = jwt.verify(token.value, process.env.JWT_SECRET);
+    const { payload } = await jwtVerify(token.value, secretKey);
     
     // Verify this is a customer token
-    if (decoded.type !== 'customer') {
+    if (payload.type !== 'customer') {
       console.log('Not a customer token');
       return { success: false, message: 'Invalid token type' };
     }
 
     // Find the user
-    const user = await CustomerUser.findById(decoded.userId)
+    const user = await CustomerUser.findById(payload.userId)
       .select('-password')
       .lean();
 
@@ -52,15 +54,15 @@ export async function verifyCustomerAuth() {
 
 export async function createCustomerToken(user) {
   try {
-    const token = jwt.sign(
-      { 
-        userId: user._id.toString(),
-        email: user.email,
-        type: 'customer'
-      },
-      process.env.JWT_SECRET || 'chendanvasu',
-      { expiresIn: '7d' }
-    );
+    const token = await new SignJWT({ 
+      userId: user._id.toString(),
+      email: user.email,
+      type: 'customer'
+    })
+      .setProtectedHeader({ alg: 'HS256' })
+      .setExpirationTime('7d')
+      .sign(secretKey);
+      
     console.log('Customer token created:', !!token);
     return token;
   } catch (error) {
