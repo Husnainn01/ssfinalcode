@@ -1,9 +1,9 @@
 "use client"
 import React, { useEffect, useState } from 'react'
 import { Spinner } from '@nextui-org/spinner'
-import Listing from "@/components/block/listing"
+// import Listing from "@/components/block/listing"
 
-const Blog = ({ baseUrl, id }) => {
+const Blog = ({ id }) => {
     const [blogPost, setBlogPost] = useState([])
     const [loading, setLoading] = useState(true)
 
@@ -13,12 +13,13 @@ const Blog = ({ baseUrl, id }) => {
 
     const fetchPost = async () => {
         try {
+            const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || 'https://www.koideholdings.com'
             const response = await fetch(`${baseUrl}/api/posts`)
             let data = await response.json()
             data = data.filter(listing => listing._id === id)
             setBlogPost(data)
         } catch (e) {
-            console.log(e)
+            console.error('Error fetching post:', e)
         } finally {
             setLoading(false)
         }
@@ -35,7 +36,7 @@ const Blog = ({ baseUrl, id }) => {
     return (
         <div>
             {blogPost.map((item) => (
-                <div className=' w-full m-auto md:w-3/4 px-4 md:mpx-0' key={item._id}>
+                <div className='w-full m-auto md:w-3/4 px-4 md:mpx-0' key={item._id}>
                     <div className='my-10 text-center'>
                         <h1>{item.title}</h1>
                         <p>Date: {item.date} | Category: {item.category}</p>
@@ -50,9 +51,9 @@ const Blog = ({ baseUrl, id }) => {
                 </div>
             ))}
 
-            <div className='px-1 md:px-20'>
+            {/* <div className='px-1 md:px-20'>
                 <Listing />
-            </div>
+            </div> */}
         </div>
     )
 }

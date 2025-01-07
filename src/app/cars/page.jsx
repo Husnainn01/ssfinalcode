@@ -22,7 +22,6 @@ import {
 function Listing() {
     const [listing, setListing] = useState([]);
     const [loading, setLoading] = useState(true);
-    const baseUrl = process.env.NEXT_PUBLIC_BASE_URL;
     const [currentPage, setCurrentPage] = useState(1);
     const itemsPerPage = 12;
     const searchParams = useSearchParams();
@@ -67,7 +66,7 @@ function Listing() {
     const fetchSearchResults = async (query) => {
         setLoading(true);
         try {
-            const response = await fetch(`/api/cars/search?q=${encodeURIComponent(query)}&type=keyword`);
+            const response = await fetch(`${process.env.NEXT_PUBLIC_BASE_URL}/api/cars/search?q=${encodeURIComponent(query)}&type=keyword`);
             const data = await response.json();
             
             if (data.cars && Array.isArray(data.cars)) {
@@ -90,7 +89,7 @@ function Listing() {
         setLoading(true);
         try {
             const queryString = searchParams.toString();
-            const response = await fetch(`${baseUrl}/api/listing${queryString ? `?${queryString}` : ''}`);
+            const response = await fetch(`${process.env.NEXT_PUBLIC_BASE_URL}/api/listing${queryString ? `?${queryString}` : ''}`);
             let data = await response.json();
             data = data.filter(listing => listing.visibility === "Active");
             data.sort((a, b) => new Date(b.date) - new Date(a.date));
@@ -105,7 +104,7 @@ function Listing() {
     const fetchCountryResults = async (country) => {
         setLoading(true);
         try {
-            const response = await fetch(`/api/listing?country=${encodeURIComponent(country)}`);
+            const response = await fetch(`${process.env.NEXT_PUBLIC_BASE_URL}/api/listing?country=${encodeURIComponent(country)}`);
             const data = await response.json();
             
             if (Array.isArray(data)) {
@@ -129,7 +128,7 @@ function Listing() {
     const fetchMakeResults = async (make) => {
         setLoading(true);
         try {
-            const response = await fetch(`/api/listing?make=${encodeURIComponent(make)}`);
+            const response = await fetch(`${process.env.NEXT_PUBLIC_BASE_URL}/api/listing?make=${encodeURIComponent(make)}`);
             const data = await response.json();
             
             if (Array.isArray(data)) {
@@ -153,7 +152,7 @@ function Listing() {
     const fetchTypeResults = async (type) => {
         setLoading(true);
         try {
-            const response = await fetch(`/api/listing?type=${encodeURIComponent(type)}`);
+            const response = await fetch(`${process.env.NEXT_PUBLIC_BASE_URL}/api/listing?type=${encodeURIComponent(type)}`);
             const data = await response.json();
             
             if (Array.isArray(data)) {
@@ -177,7 +176,7 @@ function Listing() {
     const fetchOtherCategoryResults = async (category) => {
         setLoading(true);
         try {
-            const response = await fetch(`/api/listing?category=${encodeURIComponent(category)}`);
+            const response = await fetch(`${process.env.NEXT_PUBLIC_BASE_URL}/api/listing?category=${encodeURIComponent(category)}`);
             const data = await response.json();
             
             if (Array.isArray(data)) {

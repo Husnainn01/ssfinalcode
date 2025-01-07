@@ -1,6 +1,6 @@
 import React from 'react'
 import BlogPost from "./blog"
-const baseUrl = process.env.BASE_URL
+const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || 'https://www.koideholdings.com'
 
 const page = ({params}) => {
   return (
