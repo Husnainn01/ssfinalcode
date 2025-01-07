@@ -9,11 +9,10 @@ export const runtime = 'edge';
 
 async function fetchCar(slug) {
   try {
-    const baseUrl = process.env.NEXT_PUBLIC_BASE_URL;
     console.log('Fetching car with slug:', slug);
     
     const timestamp = Date.now();
-    const res = await fetch(`${baseUrl}/api/cars/${slug}?t=${timestamp}`, {
+    const res = await fetch(`${process.env.NEXT_PUBLIC_BASE_URL}/api/cars/${slug}?t=${timestamp}`, {
       cache: 'no-store',
       headers: {
         'Cache-Control': 'no-cache, no-store, must-revalidate',
