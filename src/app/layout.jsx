@@ -3,6 +3,7 @@ import "./globals.css"
 import RootLayoutClient from './components/RootLayoutClient'
 import { metadata } from './metadata'
 import { FavoritesProvider } from '@/context/FavoritesContext'
+import { SpeedInsights } from "@vercel/speed-insights/next"
 
 const inter = Inter({ subsets: ['latin'] })
 
@@ -14,7 +15,8 @@ export default function RootLayout({ children }) {
       <body className={inter.className}>
         <FavoritesProvider>
           <RootLayoutClient>
-              {children}
+            {children}
+            <SpeedInsights />
           </RootLayoutClient>
         </FavoritesProvider>
       </body>
