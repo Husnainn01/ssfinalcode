@@ -26,6 +26,8 @@ import {
 } from "@/components/ui/dropdown-menu"
 import { MainNav } from '@/components/block/main-nav'
 import { toast } from "@/components/ui/use-toast"
+import { MobileMenu } from '@/components/block/MobileMenu'
+import { MobileSearch } from '@/components/block/MobileSearch'
 
 export default function NavigationHeader() {
   const { user, isAuthenticated, isLoading } = useCustomerAuth()
@@ -150,12 +152,12 @@ export default function NavigationHeader() {
 
   return (
     <header className="bg-theme-primary text-theme-background relative z-50">
-      {/* Top Bar */}
-      <div className="border-b border-theme-primary-hover px-4 py-1 text-sm relative z-50">
+      {/* Top Bar - Hide on mobile */}
+      <div className="hidden md:block border-b border-theme-primary-hover px-4 py-1 text-sm relative z-50">
         <div className="mx-auto flex max-w-7xl items-center justify-between">
-          <div className="flex items-center gap-4">
+          <div className="flex items-center gap-4 overflow-x-auto whitespace-nowrap">
             <span className="font-semibold">SS Holdings Trusted - Used Car Dealer</span>
-            <span className="flex items-center gap-1">
+            <span className="hidden lg:flex items-center gap-1">
               {isLoading ? (
                 <span className="animate-pulse">Loading...</span>
               ) : (
@@ -171,7 +173,7 @@ export default function NavigationHeader() {
                 </>
               )}
             </span>
-            <span className="flex items-center gap-1">
+            <span className="hidden lg:flex items-center gap-1">
               <Clock className="h-4 w-4 text-theme-secondary" />
               {timeLoading ? (
                 <span className="animate-pulse">Loading time...</span>
@@ -184,21 +186,22 @@ export default function NavigationHeader() {
       </div>
 
       {/* Main Navigation */}
-      <div className="mx-auto flex max-w-7xl items-center justify-between px-4 py-1 relative z-50">
+      <div className="mx-auto flex max-w-7xl items-center justify-between px-4 py-2 relative z-50">
         {/* Logo and Search */}
-        <div className="flex items-center gap-2" style={{ width: '60%' }}>
+        <div className="flex items-center gap-2 w-full lg:w-[60%]">
           <Link 
             href="/" 
-            className="flex-shrink-0 -my-60 hover:opacity-80 transition-opacity cursor-pointer"
+            className="flex-shrink-0 hover:opacity-80 transition-opacity cursor-pointer"
           >
             <img
               src="/sss-logo.png"
               alt="SS Holdings"
-              className="h-[40px] w-auto"
+              className="h-[30px] md:h-[40px] w-auto"
             />
           </Link>
           
-          <form onSubmit={handleSearch} className="flex w-full max-w-2xl">
+          {/* Search Form - Hide on mobile */}
+          <form onSubmit={handleSearch} className="hidden md:flex w-full max-w-2xl">
             <Select 
               value={searchType}
               onValueChange={setSearchType}
@@ -239,8 +242,20 @@ export default function NavigationHeader() {
           </form>
         </div>
 
-        {/* User Actions */}
-        <div className="flex items-center justify-end gap-8" style={{ width: '40%' }}>
+        {/* Mobile Search Button */}
+        <MobileSearch 
+          onSearch={({ query, searchType }) => {
+            handleSearch({
+              preventDefault: () => {},
+              query,
+              searchType
+            })
+          }}
+          isSearching={isSearching}
+        />
+
+        {/* User Actions - Hide on mobile */}
+        <div className="hidden md:flex items-center justify-end gap-8 lg:w-[40%]">
           {isAuthenticated && user ? (
             <div className="flex items-center gap-8">
               <Button 
@@ -354,10 +369,18 @@ export default function NavigationHeader() {
             </DropdownMenu>
           )}
         </div>
+
+        {/* Mobile Menu */}
+        <MobileMenu 
+          isAuthenticated={isAuthenticated}
+          user={user}
+          favoritesCount={favoritesCount}
+          onLogout={handleLogout}
+        />
       </div>
 
-      {/* Navigation Menu */}
-      <nav className="relative z-50">
+      {/* Navigation Menu - Hide on mobile */}
+      <nav className="hidden md:block relative z-50">
         <MainNav />
       </nav>
     </header>

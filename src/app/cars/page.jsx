@@ -2,6 +2,7 @@
 import React, { useState, useEffect } from 'react';
 import { FaCar, FaGasPump } from 'react-icons/fa';
 import { TbSteeringWheel } from 'react-icons/tb';
+import { TbEngine } from "react-icons/tb";
 import { Image, Skeleton, Button } from "@nextui-org/react";
 import Link from 'next/link';
 import SidebarComponent from "@/components/template/leftsidebar";
@@ -27,6 +28,17 @@ function Listing() {
     const searchParams = useSearchParams();
     const router = useRouter();
     const [filterMessage, setFilterMessage] = useState('');
+    const [isMobile, setIsMobile] = useState(false);
+
+    useEffect(() => {
+        const checkMobile = () => {
+            setIsMobile(window.innerWidth < 768); // 768px is typical tablet breakpoint
+        };
+
+        checkMobile();
+        window.addEventListener('resize', checkMobile);
+        return () => window.removeEventListener('resize', checkMobile);
+    }, []);
 
     useEffect(() => {
         const searchQuery = searchParams.get('search');
@@ -368,217 +380,226 @@ function Listing() {
                 {/* Car Listings Grid */}
                 <div className="space-y-3 px-4">
                     {currentItems.map(item => (
-                        <div key={item.id} className="bg-white rounded-lg overflow-hidden shadow-sm hover:shadow-md transition-all duration-300">
-                            {/* Main Container */}
-                            <div className="flex h-[230px] relative">
-                                {/* Sold Badge */}
-                                {item.offerType === "Sold" && (
-                                    <div className="absolute -left-8 top-4 bg-red-500 text-white px-10 py-1 transform -rotate-45 z-10 shadow-md">
-                                        <span className="text-sm font-semibold">SOLD</span>
+                        isMobile ? (
+                            // Mobile Card Design
+                            <MobileCarCard item={item} key={item._id} />
+                        ) : (
+                            // Your Existing Desktop Card Design (unchanged)
+                            <div key={item._id} className="relative bg-white rounded-lg shadow-sm hover:shadow-md transition-shadow">
+                                {/* Main Container */}
+                                <div className="flex h-[230px] relative">
+                                    {/* Sold Badge */}
+                                    {item.offerType === "Sold" && (
+                                        <div className="absolute top-0 left-0 w-[120px] h-[120px] overflow-hidden z-50">
+                                            <div className="bg-red-600 text-white text-sm font-semibold py-1 px-12 absolute 
+                                                transform -translate-x-[30%] translate-y-[30%] rotate-[-45deg] shadow-md">
+                                                SOLD
+                                            </div>
+                                        </div>
+                                    )}
+                                    
+                                    {/* Left Image Section */}
+                                    <div className="relative w-[220px] p-2">
+                                        <Link href={`/cars/${item._id}`}>
+                                            <img
+                                                src={item.images?.[0] || item.image}
+                                                alt={item.title}
+                                                className={`w-full h-full object-cover rounded-lg ${item.offerType === "Sold" ? "opacity-80" : ""}`}
+                                            />
+                                        </Link>
+                                        <div className="absolute top-4 right-4 bg-black/50 rounded">
+                                            <FavoriteButton carId={item._id} />
+                                        </div>
+                                        <div className="absolute bottom-4 left-4 text-[10px] bg-gray-900/80 text-white px-2 py-0.5 rounded">
+                                            Stock No. {item.stockNumber}
+                                        </div>
+                                    </div>
+
+                                    {/* Right Content Section */}
+                                    <div className="flex-1 p-3 flex flex-col">
+                                        {/* Upper Content Section - Reduced spacing */}
+                                        <div className="space-y-1.5">
+                                            {/* Title and Price Row */}
+                                            <div className="flex justify-between items-start border-b border-gray-100 pb-1.5">
+                                                <h2 className="text-blue-600 text-base font-bold hover:text-blue-700">
+                                                    <Link href={`/cars/${item._id}`}>
+                                                        {item.make} {item.model} {item.year}
+                                                    </Link>
+                                                </h2>
+                                                <div className="text-right">
+                                                    <div className="text-xl font-bold text-red-600">
+                                                        ${item.price?.toLocaleString()}
+                                                    </div>
+                                                    <div className="text-xs text-gray-600">
+                                                        Total Price: ${(item.price)?.toLocaleString()}
+                                                    </div>
+                                                    <div className="text-[10px] text-gray-500">
+                                                        C&F TO PORT (ASK)
+                                                    </div>
+                                                </div>
+                                            </div>
+
+                                            {/* Specs Grid - Reduced margin */}
+                                            <div className="grid grid-cols-5 gap-x-3 mt-1.5">
+                                                {/* First Row */}
+                                                <div className="space-y-1 border-r border-gray-100">
+                                                    <div className="text-[10px] text-gray-500">Mileage</div>
+                                                    <div className="text-xs font-medium">{item.mileage?.toLocaleString()} km</div>
+                                                </div>
+                                                <div className="space-y-1 border-r border-gray-100">
+                                                    <div className="text-[10px] text-gray-500">Year</div>
+                                                    <div className="text-xs font-medium">{item.year}</div>
+                                                </div>
+                                                <div className="space-y-1 border-r border-gray-100">
+                                                    <div className="text-[10px] text-gray-500">Engine</div>
+                                                    <div className="text-xs font-medium">{item.vehicleEngine || '650cc'}</div>
+                                                </div>
+                                                <div className="space-y-1 border-r border-gray-100">
+                                                    <div className="text-[10px] text-gray-500">Trans.</div>
+                                                    <div className="text-xs font-medium">{item.vehicleTransmission}</div>
+                                                </div>
+                                                <div className="space-y-1">
+                                                    <div className="text-[10px] text-gray-500">Location</div>
+                                                    <div className="text-xs font-medium flex items-center gap-2">
+                                                        <CountryFlag country={item.country} />
+                                                        <span className="capitalize">{item.country || 'N/A'}</span>
+                                                    </div>
+                                                </div>
+                                            </div>
+
+                                            {/* Details Grid - Using actual database field names */}
+                                            <div className="grid grid-cols-4 gap-x-3 gap-y-0.5 text-xs mt-1.5">
+                                                <div className="flex justify-between border-b border-gray-100 pb-0.5">
+                                                    <span className="text-gray-500">VIN</span>
+                                                    <span>{item.vin || 'N/A'}</span>
+                                                </div>
+                                                <div className="flex justify-between border-b border-gray-100 pb-0.5">
+                                                    <span className="text-gray-500">Drive</span>
+                                                    <span>{item.driveWheelConfiguration || 'N/A'}</span>
+                                                </div>
+                                                <div className="flex justify-between border-b border-gray-100 pb-0.5">
+                                                    <span className="text-gray-500">Fuel</span>
+                                                    <span>{item.fuelType || 'N/A'}</span>
+                                                </div>
+                                                {/* <div className="flex justify-between border-b border-gray-100 pb-0.5">
+                                                    <span className="text-gray-500">Seats</span>
+                                                    <span>{item.vehicleSeatingCapacity || 'N/A'}</span>
+                                                </div> */}
+                                                {/* <div className="flex justify-between border-b border-gray-100 pb-0.5">
+                                                    <span className="text-gray-500">Engine</span>
+                                                    <span>{item.vehicleEngine || 'N/A'}</span>
+                                                </div> */}
+                                                <div className="flex justify-between border-b border-gray-100 pb-0.5">
+                                                    <span className="text-gray-500">Color</span>
+                                                    <span>{item.color || 'N/A'}</span>
+                                                </div>
+                                                {/* <div className="flex justify-between border-b border-gray-100 pb-0.5">
+                                                    <span className="text-gray-500">Transmission</span>
+                                                    <span>{item.vehicleTransmission || 'N/A'}</span>
+                                                </div> */}
+                                                <div className="flex justify-between border-b border-gray-100 pb-0.5">
+                                                    <span className="text-gray-500">Doors</span>
+                                                    <span>{item.numberOfDoors || 'N/A'}</span>
+                                                </div>
+                                                <div className="flex justify-between border-b border-gray-100 pb-0.5">
+                                                    <span className="text-gray-500">Body Type</span>
+                                                    <span>{item.bodyType || 'N/A'}</span>
+                                                </div>
+                                                <div className="flex justify-between border-b border-gray-100 pb-0.5">
+                                                    <span className="text-gray-500">Cylinders</span>
+                                                    <span>{item.cylinders || 'N/A'}</span>
+                                                </div>
+                                                {/* <div className="flex justify-between border-b border-gray-100 pb-0.5">
+                                                    <span className="text-gray-500">Mileage</span>
+                                                    <span>{item.mileage ? `${item.mileage} ${item.mileageUnit}` : 'N/A'}</span>
+                                                </div> */}
+                                                <div className="flex justify-between border-b border-gray-100 pb-0.5">
+                                                    <span className="text-gray-500">Condition</span>
+                                                    <span>{item.itemCondition || 'N/A'}</span>
+                                                </div>
+                                            </div>
+
+                                            {/* Features - Using carFeature from database */}
+                                            <div className="flex flex-wrap gap-1.5 mt-1.5">
+                                                {item.carFeature && item.carFeature.length > 0 ? (
+                                                    <>
+                                                        {/* Display first 9 features */}
+                                                        {item.carFeature.slice(0, 9).map((feature, index) => (
+                                                            <span 
+                                                                key={index} 
+                                                                className="text-[10px] bg-gray-100 text-gray-600 px-1.5 py-0.5 rounded"
+                                                            >
+                                                                {feature.trim()}
+                                                            </span>
+                                                        ))}
+                                                        
+                                                        {/* Show "Show More" button if there are more than 9 features */}
+                                                        {item.carFeature.length > 9 && (
+                                                            <Link 
+                                                                href={`/cars/${item.slug}`}
+                                                                className="text-[10px] bg-primary-100 text-primary-600 px-1.5 py-0.5 rounded hover:bg-primary-200 transition-colors cursor-pointer flex items-center gap-0.5"
+                                                            >
+                                                                +{item.carFeature.length - 9} more
+                                                                <svg 
+                                                                    xmlns="http://www.w3.org/2000/svg" 
+                                                                    viewBox="0 0 20 20" 
+                                                                    fill="currentColor" 
+                                                                    className="w-3 h-3"
+                                                                >
+                                                                    <path 
+                                                                        fillRule="evenodd" 
+                                                                        d="M7.21 14.77a.75.75 0 01.02-1.06L11.168 10 7.23 6.29a.75.75 0 111.04-1.08l4.5 4.25a.75.75 0 010 1.08l-4.5 4.25a.75.75 0 01-1.06-.02z" 
+                                                                        clipRule="evenodd" 
+                                                                    />
+                                                                </svg>
+                                                            </Link>
+                                                        )}
+                                                    </>
+                                                ) : (
+                                                    <span className="text-[10px] text-gray-400">
+                                                        No features available
+                                                    </span>
+                                                )}
+                                            </div>
+                                        </div>
+
+                                        {/* Action Buttons - Matched sizes including height */}
+                                        <div className="flex justify-end items-center gap-2 mt-1">
+                                            <InquiryPopup 
+                                                carDetails={item} 
+                                                className="bg-[#EB843F] hover:bg-[#d66201] text-white px-8 h-[30px] rounded text-xs font-medium transition-colors duration-200 min-w-[100px] text-center flex items-center justify-center"
+                                            >
+                                                INQUIRY
+                                            </InquiryPopup>
+                                            
+                                            <Link href={`/cars/${item._id}`}>
+                                                <button className="bg-[#EB843F] hover:bg-[#0F1A4A] text-white px-8 h-[30px] rounded text-xs font-medium transition-colors duration-200 min-w-[100px] text-center flex items-center justify-center">
+                                                    VIEW MORE
+                                                </button>
+                                            </Link>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                {/* Only show edit/delete buttons if in admin route */}
+                                {isAdminRoute() && (
+                                    <div className="flex gap-2 absolute bottom-4 right-2 z-50">
+                                        <Link
+                                            href={`/admin/cars/edit/${item._id}`}
+                                            className="w-min h-min p-2 rounded-lg bg-primary-50 cursor-pointer text-lg text-black shadow-inner"
+                                        >
+                                            <MdModeEdit />
+                                        </Link>
+                                        <i
+                                            onClick={() => handleDeleteClick(item._id)}
+                                            className="w-min h-min p-2 rounded-lg bg-red-50 cursor-pointer text-lg text-black shadow-inner"
+                                        >
+                                            <MdOutlineDelete />
+                                        </i>
                                     </div>
                                 )}
-                                
-                                {/* Left Image Section */}
-                                <div className="relative w-[220px] p-2">
-                                    <Link href={`/cars/${item._id}`}>
-                                        <img
-                                            src={item.images?.[0] || item.image}
-                                            alt={item.title}
-                                            className={`w-full h-full object-cover rounded-lg ${item.offerType === "Sold" ? "opacity-80" : ""}`}
-                                        />
-                                    </Link>
-                                    <div className="absolute top-4 right-4 bg-black/50 rounded">
-                                        <FavoriteButton carId={item._id} />
-                                    </div>
-                                    <div className="absolute bottom-4 left-4 text-[10px] bg-gray-900/80 text-white px-2 py-0.5 rounded">
-                                        Stock No. {item.stockNumber}
-                                    </div>
-                                </div>
-
-                                {/* Right Content Section */}
-                                <div className="flex-1 p-3 flex flex-col">
-                                    {/* Upper Content Section - Reduced spacing */}
-                                    <div className="space-y-1.5">
-                                        {/* Title and Price Row */}
-                                        <div className="flex justify-between items-start border-b border-gray-100 pb-1.5">
-                                            <h2 className="text-blue-600 text-base font-bold hover:text-blue-700">
-                                                <Link href={`/cars/${item._id}`}>
-                                                    {item.make} {item.model} {item.year}
-                                                </Link>
-                                            </h2>
-                                            <div className="text-right">
-                                                <div className="text-xl font-bold text-red-600">
-                                                    ${item.price?.toLocaleString()}
-                                                </div>
-                                                <div className="text-xs text-gray-600">
-                                                    Total Price: ${(item.price)?.toLocaleString()}
-                                                </div>
-                                                <div className="text-[10px] text-gray-500">
-                                                    C&F TO PORT (ASK)
-                                                </div>
-                                            </div>
-                                        </div>
-
-                                        {/* Specs Grid - Reduced margin */}
-                                        <div className="grid grid-cols-5 gap-x-3 mt-1.5">
-                                            {/* First Row */}
-                                            <div className="space-y-1 border-r border-gray-100">
-                                                <div className="text-[10px] text-gray-500">Mileage</div>
-                                                <div className="text-xs font-medium">{item.mileage?.toLocaleString()} km</div>
-                                            </div>
-                                            <div className="space-y-1 border-r border-gray-100">
-                                                <div className="text-[10px] text-gray-500">Year</div>
-                                                <div className="text-xs font-medium">{item.year}</div>
-                                            </div>
-                                            <div className="space-y-1 border-r border-gray-100">
-                                                <div className="text-[10px] text-gray-500">Engine</div>
-                                                <div className="text-xs font-medium">{item.vehicleEngine || '650cc'}</div>
-                                            </div>
-                                            <div className="space-y-1 border-r border-gray-100">
-                                                <div className="text-[10px] text-gray-500">Trans.</div>
-                                                <div className="text-xs font-medium">{item.vehicleTransmission}</div>
-                                            </div>
-                                            <div className="space-y-1">
-                                                <div className="text-[10px] text-gray-500">Location</div>
-                                                <div className="text-xs font-medium flex items-center gap-2">
-                                                    <CountryFlag country={item.country} />
-                                                    <span className="capitalize">{item.country || 'N/A'}</span>
-                                                </div>
-                                            </div>
-                                        </div>
-
-                                        {/* Details Grid - Using actual database field names */}
-                                        <div className="grid grid-cols-4 gap-x-3 gap-y-0.5 text-xs mt-1.5">
-                                            <div className="flex justify-between border-b border-gray-100 pb-0.5">
-                                                <span className="text-gray-500">VIN</span>
-                                                <span>{item.vin || 'N/A'}</span>
-                                            </div>
-                                            <div className="flex justify-between border-b border-gray-100 pb-0.5">
-                                                <span className="text-gray-500">Drive</span>
-                                                <span>{item.driveWheelConfiguration || 'N/A'}</span>
-                                            </div>
-                                            <div className="flex justify-between border-b border-gray-100 pb-0.5">
-                                                <span className="text-gray-500">Fuel</span>
-                                                <span>{item.fuelType || 'N/A'}</span>
-                                            </div>
-                                            {/* <div className="flex justify-between border-b border-gray-100 pb-0.5">
-                                                <span className="text-gray-500">Seats</span>
-                                                <span>{item.vehicleSeatingCapacity || 'N/A'}</span>
-                                            </div> */}
-                                            {/* <div className="flex justify-between border-b border-gray-100 pb-0.5">
-                                                <span className="text-gray-500">Engine</span>
-                                                <span>{item.vehicleEngine || 'N/A'}</span>
-                                            </div> */}
-                                            <div className="flex justify-between border-b border-gray-100 pb-0.5">
-                                                <span className="text-gray-500">Color</span>
-                                                <span>{item.color || 'N/A'}</span>
-                                            </div>
-                                            {/* <div className="flex justify-between border-b border-gray-100 pb-0.5">
-                                                <span className="text-gray-500">Transmission</span>
-                                                <span>{item.vehicleTransmission || 'N/A'}</span>
-                                            </div> */}
-                                            <div className="flex justify-between border-b border-gray-100 pb-0.5">
-                                                <span className="text-gray-500">Doors</span>
-                                                <span>{item.numberOfDoors || 'N/A'}</span>
-                                            </div>
-                                            <div className="flex justify-between border-b border-gray-100 pb-0.5">
-                                                <span className="text-gray-500">Body Type</span>
-                                                <span>{item.bodyType || 'N/A'}</span>
-                                            </div>
-                                            <div className="flex justify-between border-b border-gray-100 pb-0.5">
-                                                <span className="text-gray-500">Cylinders</span>
-                                                <span>{item.cylinders || 'N/A'}</span>
-                                            </div>
-                                            {/* <div className="flex justify-between border-b border-gray-100 pb-0.5">
-                                                <span className="text-gray-500">Mileage</span>
-                                                <span>{item.mileage ? `${item.mileage} ${item.mileageUnit}` : 'N/A'}</span>
-                                            </div> */}
-                                            <div className="flex justify-between border-b border-gray-100 pb-0.5">
-                                                <span className="text-gray-500">Condition</span>
-                                                <span>{item.itemCondition || 'N/A'}</span>
-                                            </div>
-                                        </div>
-
-                                        {/* Features - Using carFeature from database */}
-                                        <div className="flex flex-wrap gap-1.5 mt-1.5">
-                                            {item.carFeature && item.carFeature.length > 0 ? (
-                                                <>
-                                                    {/* Display first 9 features */}
-                                                    {item.carFeature.slice(0, 9).map((feature, index) => (
-                                                        <span 
-                                                            key={index} 
-                                                            className="text-[10px] bg-gray-100 text-gray-600 px-1.5 py-0.5 rounded"
-                                                        >
-                                                            {feature.trim()}
-                                                        </span>
-                                                    ))}
-                                                    
-                                                    {/* Show "Show More" button if there are more than 9 features */}
-                                                    {item.carFeature.length > 9 && (
-                                                        <Link 
-                                                            href={`/cars/${item.slug}`}
-                                                            className="text-[10px] bg-primary-100 text-primary-600 px-1.5 py-0.5 rounded hover:bg-primary-200 transition-colors cursor-pointer flex items-center gap-0.5"
-                                                        >
-                                                            +{item.carFeature.length - 9} more
-                                                            <svg 
-                                                                xmlns="http://www.w3.org/2000/svg" 
-                                                                viewBox="0 0 20 20" 
-                                                                fill="currentColor" 
-                                                                className="w-3 h-3"
-                                                            >
-                                                                <path 
-                                                                    fillRule="evenodd" 
-                                                                    d="M7.21 14.77a.75.75 0 01.02-1.06L11.168 10 7.23 6.29a.75.75 0 111.04-1.08l4.5 4.25a.75.75 0 010 1.08l-4.5 4.25a.75.75 0 01-1.06-.02z" 
-                                                                    clipRule="evenodd" 
-                                                                />
-                                                            </svg>
-                                                        </Link>
-                                                    )}
-                                                </>
-                                            ) : (
-                                                <span className="text-[10px] text-gray-400">
-                                                    No features available
-                                                </span>
-                                            )}
-                                        </div>
-                                    </div>
-
-                                    {/* Action Buttons - Matched sizes including height */}
-                                    <div className="flex justify-end items-center gap-2 mt-1">
-                                        <InquiryPopup 
-                                            carDetails={item} 
-                                            className="bg-[#EB843F] hover:bg-[#d66201] text-white px-8 h-[30px] rounded text-xs font-medium transition-colors duration-200 min-w-[100px] text-center flex items-center justify-center"
-                                        >
-                                            INQUIRY
-                                        </InquiryPopup>
-                                        
-                                        <Link href={`/cars/${item._id}`}>
-                                            <button className="bg-[#EB843F] hover:bg-[#0F1A4A] text-white px-8 h-[30px] rounded text-xs font-medium transition-colors duration-200 min-w-[100px] text-center flex items-center justify-center">
-                                                VIEW MORE
-                                            </button>
-                                        </Link>
-                                    </div>
-                                </div>
                             </div>
-
-                            {/* Only show edit/delete buttons if in admin route */}
-                            {isAdminRoute() && (
-                                <div className="flex gap-2 absolute bottom-4 right-2 z-50">
-                                    <Link
-                                        href={`/admin/cars/edit/${item._id}`}
-                                        className="w-min h-min p-2 rounded-lg bg-primary-50 cursor-pointer text-lg text-black shadow-inner"
-                                    >
-                                        <MdModeEdit />
-                                    </Link>
-                                    <i
-                                        onClick={() => handleDeleteClick(item._id)}
-                                        className="w-min h-min p-2 rounded-lg bg-red-50 cursor-pointer text-lg text-black shadow-inner"
-                                    >
-                                        <MdOutlineDelete />
-                                    </i>
-                                </div>
-                            )}
-                        </div>
+                        )
                     ))}
                 </div>
 
@@ -597,5 +618,162 @@ function Listing() {
         </div>
     );
 }
+
+// Create a separate component for mobile card design
+const MobileCarCard = ({ item }) => {
+    return (
+        <div className="bg-white rounded-lg shadow-sm">
+            <div className="relative">
+                {/* Image Section */}
+                <Link href={`/cars/${item.slug}`}>
+                    <div className="aspect-[16/10] relative overflow-hidden rounded-t-lg">
+                        <Image
+                            src={item.image || '/placeholder.png'}
+                            alt={item.title}
+                            className="object-cover"
+                            fill
+                            loading="lazy"
+                        />
+                    </div>
+                </Link>
+
+                {/* Stock Number Badge - Adjusted position */}
+                <div className="absolute bottom-8 left-2 z-20">
+                    <div className="bg-black/60 backdrop-blur-sm text-white px-2 py-1 rounded text-xs">
+                        Stock #: {item.stockNumber}
+                    </div>
+                </div>
+
+                {/* Sold Badge */}
+                {item.offerType === "Sold" && (
+                    <div className="absolute top-0 left-0 w-[120px] h-[120px] overflow-hidden z-50">
+                        <div className="bg-red-600 text-white text-sm font-semibold py-1 px-12 absolute 
+                            transform -translate-x-[30%] translate-y-[30%] rotate-[-45deg] shadow-md">
+                            SOLD
+                        </div>
+                    </div>
+                )}
+
+                {/* Favorite Button with background */}
+                <div className="absolute top-2 right-2 z-10">
+                    <div className="bg-black/60 backdrop-blur-sm p-1 rounded-full">
+                        <FavoriteButton carId={item._id} />
+                    </div>
+                </div>
+            </div>
+
+            {/* Content Section */}
+            <div className="p-3">
+                {/* Title and Price */}
+                <div className="flex justify-between items-start gap-2 mb-2">
+                    <h3 className="text-sm font-medium line-clamp-2">
+                        {item.title}
+                    </h3>
+                    <div className="text-right flex-shrink-0">
+                        <div className="text-base font-bold text-red-600">
+                            ${item.price?.toLocaleString()}
+                        </div>
+                        <div className="text-[10px] text-gray-500">
+                            C&F TO PORT (ASK)
+                        </div>
+                    </div>
+                </div>
+
+                {/* Key Specs */}
+                <div className="grid grid-cols-5 gap-2 text-xs border-t border-b py-2 mb-2">
+                    <div className="flex flex-col items-center text-center">
+                        <FaCar className="text-gray-600 mb-1" />
+                        <span className="text-[10px]">{item.year}</span>
+                    </div>
+                    <div className="flex flex-col items-center text-center">
+                        <FaGasPump className="text-gray-600 mb-1" />
+                        <span className="text-[10px]">{item.fuelType}</span>
+                    </div>
+                    <div className="flex flex-col items-center text-center">
+                        <TbSteeringWheel className="text-gray-600 mb-1" />
+                        <span className="text-[10px]">{item.vehicleTransmission}</span>
+                    </div>
+                    <div className="flex flex-col items-center text-center">
+                        <FaCar className="text-gray-600 mb-1" />
+                        <span className="text-[10px]">{item.mileage} {item.mileageUnit}</span>
+                    </div>
+                    <div className="flex flex-col items-center text-center">
+                        <TbEngine className="text-gray-600 mb-1" />
+                        <span className="text-[10px]">{item.vehicleEngine}</span>
+                    </div>
+                </div>
+
+                {/* Details Grid */}
+                <div className="grid grid-cols-2 gap-x-3 gap-y-0.5 text-[10px] mb-2">
+                    <div className="flex justify-between border-b border-gray-100 pb-0.5">
+                        <span className="text-gray-500">Color</span>
+                        <span>{item.color || 'N/A'}</span>
+                    </div>
+                    <div className="flex justify-between border-b border-gray-100 pb-0.5">
+                        <span className="text-gray-500">Doors</span>
+                        <span>{item.numberOfDoors || 'N/A'}</span>
+                    </div>
+                    <div className="flex justify-between border-b border-gray-100 pb-0.5">
+                        <span className="text-gray-500">Body Type</span>
+                        <span>{item.bodyType || 'N/A'}</span>
+                    </div>
+                    <div className="flex justify-between border-b border-gray-100 pb-0.5">
+                        <span className="text-gray-500">Cylinders</span>
+                        <span>{item.cylinders || 'N/A'}</span>
+                    </div>
+                    <div className="flex justify-between border-b border-gray-100 pb-0.5">
+                        <span className="text-gray-500">Condition</span>
+                        <span>{item.itemCondition || 'N/A'}</span>
+                    </div>
+                </div>
+
+                {/* Features */}
+                <div className="flex flex-wrap gap-1.5 mb-2">
+                    {item.carFeature && item.carFeature.length > 0 ? (
+                        <>
+                            {item.carFeature.slice(0, 9).map((feature, index) => (
+                                <span 
+                                    key={index} 
+                                    className="text-[10px] bg-gray-100 text-gray-600 px-1.5 py-0.5 rounded"
+                                >
+                                    {feature.trim()}
+                                </span>
+                            ))}
+                            {item.carFeature.length > 9 && (
+                                <Link 
+                                    href={`/cars/${item.slug}`}
+                                    className="text-[10px] bg-primary-100 text-primary-600 px-1.5 py-0.5 rounded hover:bg-primary-200 transition-colors cursor-pointer flex items-center gap-0.5"
+                                >
+                                    +{item.carFeature.length - 9} more
+                                </Link>
+                            )}
+                        </>
+                    ) : (
+                        <span className="text-[10px] text-gray-400">
+                            No features available
+                        </span>
+                    )}
+                </div>
+
+                {/* Action Buttons */}
+                <div className="flex gap-2">
+                    <InquiryPopup 
+                        carDetails={item} 
+                        className="flex-1 bg-[#EB843F] hover:bg-[#d66201] text-white h-[30px] rounded text-xs font-medium transition-colors flex items-center justify-center"
+                    >
+                        INQUIRY
+                    </InquiryPopup>
+                    
+                    <Link href={`/cars/${item.slug}`} className="flex-1">
+                        <button className="w-full bg-[#172656] hover:bg-[#0F1A4A] text-white h-[30px] rounded text-xs font-medium transition-colors flex items-center justify-center">
+                            VIEW MORE
+                        </button>
+                    </Link>
+                </div>
+            </div>
+        </div>
+    );
+};
+
 export default Listing;
 

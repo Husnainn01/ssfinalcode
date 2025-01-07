@@ -8,6 +8,19 @@ import { Select, SelectItem } from "@nextui-org/react"
 import { useRouter, useSearchParams } from 'next/navigation'
 
 export default function FilterList({ onFilterChange, size = "default" }) {
+  const [isMobile, setIsMobile] = useState(false);
+  
+  // Add screen size detection
+  useEffect(() => {
+    const checkMobile = () => {
+      setIsMobile(window.innerWidth < 768);
+    };
+    
+    checkMobile();
+    window.addEventListener('resize', checkMobile);
+    return () => window.removeEventListener('resize', checkMobile);
+  }, []);
+
   const router = useRouter()
   const searchParams = useSearchParams()
   
@@ -128,7 +141,15 @@ export default function FilterList({ onFilterChange, size = "default" }) {
     }
   }[size]
 
-  return (
+  return isMobile ? (
+    <MobileFilter 
+      filters={filters}
+      setFilters={setFilters}
+      availableOptions={availableOptions}
+      totalItems={totalItems}
+      handleSearch={handleSearch}
+    />
+  ) : (
     <div className="bg-theme-secondary p-3 rounded-lg shadow-md w-[calc(100%-50px)] mx-auto my-4">
       <div className="flex items-center text-white font-semibold mb-2">
         <span className="mr-2">🔍</span>
@@ -313,5 +334,157 @@ export default function FilterList({ onFilterChange, size = "default" }) {
         </div>
       </div>
     </div>
-  )
+  );
 }
+
+const MobileFilter = ({ filters, setFilters, availableOptions, totalItems, handleSearch }) => {
+  return (
+    <div className="bg-theme-secondary p-3 rounded-lg shadow-md mx-2 my-3">
+      <div className="flex items-center justify-between text-white font-semibold mb-3">
+        <div className="flex items-center">
+          <span className="mr-2">🔍</span>
+          SEARCH FOR CARS
+        </div>
+        <div className="text-sm">
+          {totalItems.toLocaleString()} items
+        </div>
+      </div>
+      
+      <div className="grid grid-cols-2 gap-2">
+        <div>
+          <label className="text-white text-xs mb-1 block">Make</label>
+          <Select 
+            placeholder="Select make"
+            value={filters.make}
+            onChange={(e) => setFilters({...filters, make: e.target.value})}
+            classNames={{
+              base: "max-h-[32px]",
+              trigger: "bg-white min-h-unit-7 py-0",
+              value: "text-default-700 text-small"
+            }}
+            size="sm"
+          >
+            {availableOptions.makes?.map(make => (
+              <SelectItem key={make.value} value={make.value}>
+                {make.label}
+              </SelectItem>
+            ))}
+          </Select>
+        </div>
+
+        <div>
+          <label className="text-white text-xs mb-1 block">Model</label>
+          <Select 
+            placeholder="Select model"
+            value={filters.model}
+            onChange={(e) => setFilters({...filters, model: e.target.value})}
+            classNames={{
+              base: "max-h-[32px]",
+              trigger: "bg-white min-h-unit-7 py-0",
+              value: "text-default-700 text-small"
+            }}
+            size="sm"
+          >
+            {availableOptions.models?.map(model => (
+              <SelectItem key={model.value} value={model.value}>
+                {model.label}
+              </SelectItem>
+            ))}
+          </Select>
+        </div>
+
+        <div>
+          <label className="text-white text-xs mb-1 block">Type</label>
+          <Select 
+            placeholder="Select type"
+            value={filters.type}
+            onChange={(e) => setFilters({...filters, type: e.target.value})}
+            classNames={{
+              base: "max-h-[32px]",
+              trigger: "bg-white min-h-unit-7 py-0",
+              value: "text-default-700 text-small"
+            }}
+            size="sm"
+          >
+            {availableOptions.types?.map(type => (
+              <SelectItem key={type.value} value={type.value}>
+                {type.label}
+              </SelectItem>
+            ))}
+          </Select>
+        </div>
+
+        <div>
+          <label className="text-white text-xs mb-1 block">Price Range</label>
+          <Select 
+            placeholder="Select price"
+            value={filters.price}
+            onChange={(e) => setFilters({...filters, price: e.target.value})}
+            classNames={{
+              base: "max-h-[32px]",
+              trigger: "bg-white min-h-unit-7 py-0",
+              value: "text-default-700 text-small"
+            }}
+            size="sm"
+          >
+            {availableOptions.priceRanges?.map(range => (
+              <SelectItem key={range.value} value={range.value}>
+                {range.label}
+              </SelectItem>
+            ))}
+          </Select>
+        </div>
+
+        <div className="col-span-2">
+          <div className="grid grid-cols-2 gap-2">
+            <div>
+              <label className="text-white text-xs mb-1 block">Year From</label>
+              <Select 
+                placeholder="From"
+                value={filters.yearFrom}
+                onChange={(e) => setFilters({...filters, yearFrom: e.target.value})}
+                classNames={{
+                  base: "max-h-[32px]",
+                  trigger: "bg-white min-h-unit-7 py-0",
+                  value: "text-default-700 text-small"
+                }}
+                size="sm"
+              >
+                {Array.from({length: 24}, (_, i) => 2000 + i).map(year => (
+                  <SelectItem key={year} value={year.toString()}>{year}</SelectItem>
+                ))}
+              </Select>
+            </div>
+            <div>
+              <label className="text-white text-xs mb-1 block">Year To</label>
+              <Select 
+                placeholder="To"
+                value={filters.yearTo}
+                onChange={(e) => setFilters({...filters, yearTo: e.target.value})}
+                classNames={{
+                  base: "max-h-[32px]",
+                  trigger: "bg-white min-h-unit-7 py-0",
+                  value: "text-default-700 text-small"
+                }}
+                size="sm"
+              >
+                {Array.from({length: 24}, (_, i) => 2000 + i).map(year => (
+                  <SelectItem key={year} value={year.toString()}>{year}</SelectItem>
+                ))}
+              </Select>
+            </div>
+          </div>
+        </div>
+
+        <div className="col-span-2 mt-2">
+          <Button 
+            className="w-full bg-[#172656] hover:bg-[#0F1A4A] text-white h-[36px]"
+            onClick={handleSearch}
+          >
+            Search Cars
+          </Button>
+        </div>
+      </div>
+    </div>
+  );
+};
