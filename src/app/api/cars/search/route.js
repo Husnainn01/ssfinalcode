@@ -2,10 +2,17 @@ import dbConnect from '@/lib/dbConnect'
 import { rateLimit } from '@/lib/rate-limit'
 
 export const dynamic = 'force-dynamic';
-export const runtime = 'edge';
+export const runtime = 'nodejs';
 
 export async function GET(request) {
     try {
+        // Add CORS headers helper at the top
+        const corsHeaders = {
+            'Access-Control-Allow-Origin': 'https://www.koideholdings.com',
+            'Access-Control-Allow-Methods': 'GET, POST, PUT, DELETE, OPTIONS',
+            'Access-Control-Allow-Headers': 'Content-Type, Authorization'
+        };
+
         // 1. Rate limiting
         const limiter = rateLimit({
             interval: 60 * 1000, // 60 seconds
@@ -122,14 +129,17 @@ export async function GET(request) {
             count: sanitizedCars.length,
             query: query,
             type: type
-        })
+        }, { 
+            headers: corsHeaders 
+        });
 
     } catch (error) {
-        console.error('Search error:', error)
+        console.error('Search error:', error.message);
         return Response.json({ 
             error: 'Search failed'
         }, { 
-            status: 500 
-        })
+            status: 500,
+            headers: corsHeaders 
+        });
     }
 } 
