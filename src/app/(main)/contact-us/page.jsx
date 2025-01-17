@@ -129,34 +129,34 @@ export default function ContactPage() {
   ]
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-gray-50 to-white py-12">
-      <div className="mx-auto max-w-7xl px-4">
+    <div className="min-h-screen bg-gradient-to-b from-gray-50 to-white py-8 md:py-12">
+      <div className="mx-auto max-w-7xl px-4 sm:px-6">
         <Breadcrumbs items={breadcrumbItems} />
         
-        <div className="mb-12 text-center">
-          <h1 className="mb-4 text-4xl font-bold text-gray-900">Contact Us</h1>
-          <p className="text-lg text-gray-600">
+        <div className="mb-8 md:mb-12 text-center">
+          <h1 className="mb-3 md:mb-4 text-3xl md:text-4xl font-bold text-gray-900">Contact Us</h1>
+          <p className="text-base md:text-lg text-gray-600 px-4">
             We're here to help and answer any questions you might have.
           </p>
         </div>
 
         {/* Contact Methods */}
-        <div className="mb-16 grid gap-8 md:grid-cols-3">
+        <div className="mb-8 md:mb-16 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-8">
           {contactMethods.map((method, index) => (
             <div 
               key={index}
-              className="group rounded-2xl border border-gray-200 bg-white p-8 text-center shadow-sm transition-all hover:border-[#629584] hover:shadow-md"
+              className="group rounded-2xl border border-gray-200 bg-white p-6 md:p-8 text-center shadow-sm transition-all hover:border-[#629584] hover:shadow-md"
             >
-              <div className="mx-auto mb-6 rounded-full bg-[#629584]/10 p-4 w-16 h-16 flex items-center justify-center text-[#629584] group-hover:bg-[#629584] group-hover:text-white transition-colors">
-                <method.icon className="h-8 w-8" />
+              <div className="mx-auto mb-4 md:mb-6 rounded-full bg-[#629584]/10 p-3 md:p-4 w-12 h-12 md:w-16 md:h-16 flex items-center justify-center text-[#629584] group-hover:bg-[#629584] group-hover:text-white transition-colors">
+                <method.icon className="h-6 w-6 md:h-8 md:w-8" />
               </div>
-              <h2 className="mb-4 text-xl font-semibold text-gray-800">{method.title}</h2>
+              <h2 className="mb-3 md:mb-4 text-lg md:text-xl font-semibold text-gray-800">{method.title}</h2>
               {method.details.map((detail, detailIndex) => (
-                <p key={detailIndex} className="text-gray-600">{detail}</p>
+                <p key={detailIndex} className="text-sm md:text-base text-gray-600">{detail}</p>
               ))}
               <a
                 href={method.action}
-                className="mt-6 inline-flex items-center justify-center rounded-lg border-2 border-[#629584] px-6 py-2 text-sm font-medium text-[#629584] transition-all hover:bg-[#629584] hover:text-white focus:outline-none focus:ring-2 focus:ring-[#629584] focus:ring-offset-2"
+                className="mt-4 md:mt-6 inline-flex items-center justify-center rounded-lg border-2 border-[#629584] px-4 md:px-6 py-2 text-sm font-medium text-[#629584] transition-all hover:bg-[#629584] hover:text-white focus:outline-none focus:ring-2 focus:ring-[#629584] focus:ring-offset-2 w-full md:w-auto"
               >
                 {method.actionText}
               </a>
@@ -165,8 +165,8 @@ export default function ContactPage() {
         </div>
 
         {/* Contact Form */}
-        <div className="mb-16 rounded-2xl border border-gray-200 bg-white p-8 shadow-sm">
-          <h2 className="mb-8 text-center text-2xl font-semibold text-gray-800">Send Us a Message</h2>
+        <div className="mb-8 md:mb-16 rounded-2xl border border-gray-200 bg-white p-4 md:p-8 shadow-sm">
+          <h2 className="mb-6 md:mb-8 text-center text-xl md:text-2xl font-semibold text-gray-800">Send Us a Message</h2>
           
           {status.success && (
             <div className="mb-6 rounded-lg bg-green-50 p-4 text-green-700">
@@ -180,72 +180,72 @@ export default function ContactPage() {
             </div>
           )}
 
-          <form onSubmit={handleSubmit} className="mx-auto max-w-2xl space-y-6">
-            <div className="grid gap-6 md:grid-cols-2">
+          <form onSubmit={handleSubmit} className="mx-auto max-w-2xl space-y-4 md:space-y-6">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-6">
               <div>
-                <label htmlFor="firstName" className="mb-2 block text-sm font-medium text-gray-700">First Name</label>
+                <label htmlFor="firstName" className="mb-1 md:mb-2 block text-sm font-medium text-gray-700">First Name</label>
                 <input
                   id="firstName"
                   name="firstName"
                   type="text"
                   value={formData.firstName}
                   onChange={handleChange}
-                  className="w-full rounded-lg border border-gray-300 px-4 py-2 focus:border-[#629584] focus:outline-none focus:ring-2 focus:ring-[#629584]/20"
+                  className="w-full rounded-lg border border-gray-300 px-3 md:px-4 py-2 text-sm md:text-base focus:border-[#629584] focus:outline-none focus:ring-2 focus:ring-[#629584]/20"
                   required
                 />
               </div>
               <div>
-                <label htmlFor="lastName" className="mb-2 block text-sm font-medium text-gray-700">Last Name</label>
+                <label htmlFor="lastName" className="mb-1 md:mb-2 block text-sm font-medium text-gray-700">Last Name</label>
                 <input
                   id="lastName"
                   name="lastName"
                   type="text"
                   value={formData.lastName}
                   onChange={handleChange}
-                  className="w-full rounded-lg border border-gray-300 px-4 py-2 focus:border-[#629584] focus:outline-none focus:ring-2 focus:ring-[#629584]/20"
+                  className="w-full rounded-lg border border-gray-300 px-3 md:px-4 py-2 text-sm md:text-base focus:border-[#629584] focus:outline-none focus:ring-2 focus:ring-[#629584]/20"
                   required
                 />
               </div>
             </div>
             <div>
-              <label htmlFor="email" className="mb-2 block text-sm font-medium text-gray-700">Email</label>
+              <label htmlFor="email" className="mb-1 md:mb-2 block text-sm font-medium text-gray-700">Email</label>
               <input
                 id="email"
                 name="email"
                 type="email"
                 value={formData.email}
                 onChange={handleChange}
-                className="w-full rounded-lg border border-gray-300 px-4 py-2 focus:border-[#629584] focus:outline-none focus:ring-2 focus:ring-[#629584]/20"
+                className="w-full rounded-lg border border-gray-300 px-3 md:px-4 py-2 text-sm md:text-base focus:border-[#629584] focus:outline-none focus:ring-2 focus:ring-[#629584]/20"
                 required
               />
             </div>
             <div>
-              <label htmlFor="subject" className="mb-2 block text-sm font-medium text-gray-700">Subject</label>
+              <label htmlFor="subject" className="mb-1 md:mb-2 block text-sm font-medium text-gray-700">Subject</label>
               <input
                 id="subject"
                 name="subject"
                 type="text"
                 value={formData.subject}
                 onChange={handleChange}
-                className="w-full rounded-lg border border-gray-300 px-4 py-2 focus:border-[#629584] focus:outline-none focus:ring-2 focus:ring-[#629584]/20"
+                className="w-full rounded-lg border border-gray-300 px-3 md:px-4 py-2 text-sm md:text-base focus:border-[#629584] focus:outline-none focus:ring-2 focus:ring-[#629584]/20"
                 required
               />
             </div>
             <div>
-              <label htmlFor="message" className="mb-2 block text-sm font-medium text-gray-700">Message</label>
+              <label htmlFor="message" className="mb-1 md:mb-2 block text-sm font-medium text-gray-700">Message</label>
               <textarea
                 id="message"
                 name="message"
                 rows="4"
                 value={formData.message}
                 onChange={handleChange}
-                className="w-full rounded-lg border border-gray-300 px-4 py-2 focus:border-[#629584] focus:outline-none focus:ring-2 focus:ring-[#629584]/20"
+                className="w-full rounded-lg border border-gray-300 px-3 md:px-4 py-2 text-sm md:text-base focus:border-[#629584] focus:outline-none focus:ring-2 focus:ring-[#629584]/20"
                 required
               ></textarea>
             </div>
 
-            {/* Add Turnstile before the submit button */}
-            <div className="flex justify-center">
+            {/* Turnstile */}
+            <div className="flex justify-center overflow-hidden">
               <Turnstile
                 siteKey={process.env.NEXT_PUBLIC_TURNSTILE_SITE_KEY}
                 onSuccess={setTurnstileToken}
@@ -262,7 +262,7 @@ export default function ContactPage() {
             <button
               type="submit"
               disabled={status.loading || !turnstileToken}
-              className="w-full rounded-lg bg-[#629584] px-6 py-3 text-sm font-medium text-white transition-all hover:bg-[#4a7164] focus:outline-none focus:ring-2 focus:ring-[#629584] focus:ring-offset-2 disabled:opacity-50"
+              className="w-full rounded-lg bg-[#629584] px-4 md:px-6 py-2 md:py-3 text-sm md:text-base font-medium text-white transition-all hover:bg-[#4a7164] focus:outline-none focus:ring-2 focus:ring-[#629584] focus:ring-offset-2 disabled:opacity-50"
             >
               {status.loading ? 'Sending...' : 'Send Message'}
             </button>
@@ -271,16 +271,16 @@ export default function ContactPage() {
 
         {/* Social Links */}
         <div className="text-center">
-          <h2 className="mb-6 text-2xl font-semibold text-gray-800">Follow Us</h2>
-          <div className="flex justify-center space-x-6">
+          <h2 className="mb-4 md:mb-6 text-xl md:text-2xl font-semibold text-gray-800">Follow Us</h2>
+          <div className="flex justify-center space-x-4 md:space-x-6">
             {socialLinks.map((social, index) => (
               <a
                 key={index}
                 href={social.href}
-                className="rounded-full bg-[#629584]/10 p-3 text-[#629584] transition-all hover:bg-[#629584] hover:text-white"
+                className="rounded-full bg-[#629584]/10 p-2 md:p-3 text-[#629584] transition-all hover:bg-[#629584] hover:text-white"
                 aria-label={social.label}
               >
-                <social.icon className="h-6 w-6" />
+                <social.icon className="h-5 w-5 md:h-6 md:w-6" />
               </a>
             ))}
           </div>

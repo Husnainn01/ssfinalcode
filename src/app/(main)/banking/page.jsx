@@ -70,7 +70,7 @@ export default function BankingInformation() {
       <div className="w-full md:w-3/5 lg:w-4/6">
         {/* Enhanced Header Section */}
         <motion.header 
-          className="bg-gradient-to-r from-[#14225D] to-[#1a2d7c] text-white py-24 px-4 relative overflow-hidden"
+          className="bg-gradient-to-r from-[#14225D] to-[#1a2d7c] text-white py-12 md:py-24 px-4 relative overflow-hidden"
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           transition={{ duration: 0.7 }}
@@ -87,12 +87,12 @@ export default function BankingInformation() {
               initial={{ scale: 0.9, opacity: 0 }}
               animate={{ scale: 1, opacity: 1 }}
               transition={{ duration: 0.5 }}
-              className="mb-8"
+              className="mb-6 md:mb-8"
             >
-              <Building className="w-16 h-16 mx-auto text-white/80" />
+              <Building className="w-12 h-12 md:w-16 md:h-16 mx-auto text-white/80" />
             </motion.div>
             <motion.h1 
-              className="text-4xl md:text-6xl font-bold mb-6"
+              className="text-3xl md:text-4xl lg:text-6xl font-bold mb-4 md:mb-6"
               initial={{ y: 20, opacity: 0 }}
               animate={{ y: 0, opacity: 1 }}
               transition={{ duration: 0.7, delay: 0.2 }}
@@ -100,7 +100,7 @@ export default function BankingInformation() {
               Banking Information
             </motion.h1>
             <motion.p 
-              className="text-xl text-gray-200 max-w-2xl mx-auto"
+              className="text-lg md:text-xl text-gray-200 max-w-2xl mx-auto px-4"
               initial={{ y: 20, opacity: 0 }}
               animate={{ y: 0, opacity: 1 }}
               transition={{ duration: 0.7, delay: 0.4 }}
@@ -115,21 +115,21 @@ export default function BankingInformation() {
           <Breadcrumbs items={breadcrumbItems} />
         </div>
 
-        <div className="px-4 md:px-8 py-12 bg-gray-50/50">
+        <div className="px-4 md:px-8 py-8 md:py-12 bg-gray-50/50">
           {/* Enhanced Important Notice */}
           <motion.div
-            className="max-w-4xl mx-auto bg-gradient-to-r from-yellow-50 to-orange-50 p-6 rounded-2xl shadow-md border border-yellow-100 mb-12"
+            className="max-w-4xl mx-auto bg-gradient-to-r from-yellow-50 to-orange-50 p-4 md:p-6 rounded-2xl shadow-md border border-yellow-100 mb-8 md:mb-12"
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.5, delay: 0.2 }}
           >
             <div className="flex items-start space-x-4">
-              <div className="bg-yellow-100 rounded-xl p-3">
-                <ShieldCheck className="w-6 h-6 text-yellow-600" />
+              <div className="bg-yellow-100 rounded-xl p-2 md:p-3">
+                <ShieldCheck className="w-5 h-5 md:w-6 md:h-6 text-yellow-600" />
               </div>
               <div>
-                <h3 className="text-lg font-semibold text-yellow-800 mb-2">Important Notice</h3>
-                <p className="text-yellow-700">
+                <h3 className="text-base md:text-lg font-semibold text-yellow-800 mb-2">Important Notice</h3>
+                <p className="text-sm md:text-base text-yellow-700">
                   Please verify all banking details before making any transfers. Contact our support team to confirm transaction details.
                 </p>
               </div>
@@ -137,7 +137,7 @@ export default function BankingInformation() {
           </motion.div>
 
           {/* Enhanced Bank Accounts Grid */}
-          <div className="max-w-5xl mx-auto grid md:grid-cols-2 gap-8 mb-16">
+          <div className="max-w-5xl mx-auto grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-8 mb-8 md:mb-16">
             {bankAccounts.map((account, index) => (
               <motion.div
                 key={account.bank}
@@ -147,15 +147,15 @@ export default function BankingInformation() {
                 className="group"
               >
                 <Card className="overflow-hidden transition-all duration-300 hover:shadow-xl">
-                  <CardHeader className="bg-gradient-to-r from-[#14225D] to-[#1a2d7c] text-white">
+                  <CardHeader className="bg-gradient-to-r from-[#14225D] to-[#1a2d7c] text-white p-4 md:p-6">
                     <CardTitle className="flex items-center space-x-4">
                       <div className="bg-white/10 rounded-xl p-2 group-hover:scale-110 transition-transform duration-300">
-                        {account.Icon && <account.Icon className="w-6 h-6" />}
+                        {account.Icon && <account.Icon className="w-5 h-5 md:w-6 md:h-6" />}
                       </div>
-                      <span className="text-xl">{account.bank}</span>
+                      <span className="text-lg md:text-xl">{account.bank}</span>
                     </CardTitle>
                   </CardHeader>
-                  <CardContent className="space-y-6 p-6">
+                  <CardContent className="space-y-4 md:space-y-6 p-4 md:p-6">
                     {[
                       { label: 'Account Name', value: account.accountName },
                       { label: 'Account Number', value: account.accountNumber },
@@ -164,12 +164,12 @@ export default function BankingInformation() {
                     ].map((detail) => (
                       <motion.div 
                         key={detail.label} 
-                        className="flex justify-between items-center p-3 rounded-xl hover:bg-gray-50 transition-colors duration-200"
+                        className="flex flex-col sm:flex-row justify-between items-start sm:items-center p-2 md:p-3 rounded-xl hover:bg-gray-50 transition-colors duration-200 gap-2 sm:gap-4"
                         whileHover={{ x: 5 }}
                       >
-                        <span className="text-gray-600 font-medium">{detail.label}:</span>
-                        <div className="flex items-center space-x-3">
-                          <span className="font-semibold text-gray-800">{detail.value}</span>
+                        <span className="text-gray-600 font-medium text-sm md:text-base">{detail.label}:</span>
+                        <div className="flex items-center space-x-3 w-full sm:w-auto justify-between sm:justify-end">
+                          <span className="font-semibold text-gray-800 text-sm md:text-base">{detail.value}</span>
                           <Button
                             variant="ghost"
                             size="sm"
@@ -194,18 +194,18 @@ export default function BankingInformation() {
             animate={{ opacity: 1 }}
             transition={{ duration: 0.5, delay: 0.6 }}
           >
-            <h2 className="text-2xl font-bold mb-8 text-[#14225D] text-center">Payment Guidelines</h2>
-            <div className="grid md:grid-cols-2 gap-6">
+            <h2 className="text-xl md:text-2xl font-bold mb-6 md:mb-8 text-[#14225D] text-center">Payment Guidelines</h2>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-6">
               <motion.div whileHover={{ y: -5 }} transition={{ duration: 0.3 }}>
                 <Card className="h-full hover:shadow-lg transition-shadow duration-300">
-                  <CardContent className="p-8">
+                  <CardContent className="p-6 md:p-8">
                     <div className="flex items-start space-x-4">
-                      <div className="bg-[#14225D]/5 rounded-xl p-3">
-                        <Globe className="w-6 h-6 text-[#14225D]" />
+                      <div className="bg-[#14225D]/5 rounded-xl p-2 md:p-3">
+                        <Globe className="w-5 h-5 md:w-6 md:h-6 text-[#14225D]" />
                       </div>
                       <div>
-                        <h3 className="font-semibold text-lg mb-3 text-[#14225D]">International Transfers</h3>
-                        <p className="text-gray-600 leading-relaxed">
+                        <h3 className="font-semibold text-base md:text-lg mb-2 md:mb-3 text-[#14225D]">International Transfers</h3>
+                        <p className="text-sm md:text-base text-gray-600 leading-relaxed">
                           Please ensure all international transfers include your invoice number as reference.
                         </p>
                       </div>
@@ -215,14 +215,14 @@ export default function BankingInformation() {
               </motion.div>
               <motion.div whileHover={{ y: -5 }} transition={{ duration: 0.3 }}>
                 <Card className="h-full hover:shadow-lg transition-shadow duration-300">
-                  <CardContent className="p-8">
+                  <CardContent className="p-6 md:p-8">
                     <div className="flex items-start space-x-4">
-                      <div className="bg-[#14225D]/5 rounded-xl p-3">
-                        <CreditCard className="w-6 h-6 text-[#14225D]" />
+                      <div className="bg-[#14225D]/5 rounded-xl p-2 md:p-3">
+                        <CreditCard className="w-5 h-5 md:w-6 md:h-6 text-[#14225D]" />
                       </div>
                       <div>
-                        <h3 className="font-semibold text-lg mb-3 text-[#14225D]">Processing Time</h3>
-                        <p className="text-gray-600 leading-relaxed">
+                        <h3 className="font-semibold text-base md:text-lg mb-2 md:mb-3 text-[#14225D]">Processing Time</h3>
+                        <p className="text-sm md:text-base text-gray-600 leading-relaxed">
                           Bank transfers typically process within 2-3 business days.
                         </p>
                       </div>

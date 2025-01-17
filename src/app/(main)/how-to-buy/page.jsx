@@ -118,26 +118,23 @@ export default function HowToBuy() {
       transition={{ duration: 0.5 }}
     >
       <div className="max-w-7xl mx-auto px-4">
-        <div className="overflow-x-auto py-4">
-          <div className="flex justify-center space-x-4">
+        <div className="overflow-x-auto py-2 md:py-4 scrollbar-hide">
+          <div className="flex space-x-2 md:space-x-4 min-w-max md:justify-center px-4">
             {steps.map((step, index) => (
               <button
                 key={step.id}
                 onClick={() => scrollToSection(index)}
                 className={`
-                  flex items-center px-6 py-3 rounded-xl text-sm font-medium
-                  transition-all duration-300 transform hover:scale-105
+                  flex items-center px-3 md:px-6 py-2 md:py-3 rounded-xl text-xs md:text-sm font-medium
+                  transition-all duration-300 transform hover:scale-105 whitespace-nowrap
                   ${activeStep === index 
                     ? 'bg-gradient-to-r from-[#14225D] to-[#1a2d7c] text-white shadow-lg' 
                     : 'text-gray-600 hover:bg-gray-50 hover:shadow-md'
                   }
                 `}
               >
-                <step.icon className={`w-4 h-4 mr-2 ${activeStep === index ? 'animate-pulse' : ''}`} />
+                <step.icon className={`w-3 h-3 md:w-4 md:h-4 mr-1 md:mr-2 ${activeStep === index ? 'animate-pulse' : ''}`} />
                 <span>Step {index + 1}</span>
-                {index < steps.length - 1 && (
-                  <ChevronRight className="w-4 h-4 ml-2 text-gray-400" />
-                )}
               </button>
             ))}
           </div>
@@ -156,7 +153,7 @@ export default function HowToBuy() {
       </div>
 
       {/* Main Content */}
-      <div className="w-full md:w-3/5 lg:w-5/6">
+      <div className="w-full md:w-3/5 lg:w-4/6">
         {/* Professional Hero Section */}
         <motion.header 
           className="relative bg-[#14225D] text-white overflow-hidden"
@@ -174,39 +171,39 @@ export default function HowToBuy() {
           </div>
 
           {/* Main Content */}
-          <div className="relative z-10 px-6 py-20 lg:py-28">
+          <div className="relative z-10 px-4 md:px-6 py-12 md:py-20 lg:py-28">
             <div className="max-w-6xl mx-auto">
-              <div className="grid lg:grid-cols-2 gap-12 items-center">
+              <div className="grid lg:grid-cols-2 gap-8 md:gap-12 items-center">
                 {/* Left Column - Text Content */}
                 <motion.div
                   initial={{ opacity: 0, x: -20 }}
                   animate={{ opacity: 1, x: 0 }}
                   transition={{ duration: 0.7 }}
-                  className="space-y-6"
+                  className="space-y-4 md:space-y-6"
                 >
-                  <h1 className="text-4xl lg:text-5xl xl:text-6xl font-bold leading-tight">
+                  <h1 className="text-3xl sm:text-4xl lg:text-5xl xl:text-6xl font-bold leading-tight">
                     Your Guide to <br/>
                     <span className="text-transparent bg-clip-text bg-gradient-to-r from-white to-blue-200">
                       Purchasing Process
                     </span>
                   </h1>
-                  <p className="text-lg lg:text-xl text-gray-200 max-w-xl">
+                  <p className="text-base md:text-lg lg:text-xl text-gray-200 max-w-xl">
                     Follow our comprehensive step-by-step guide to purchase your dream car from SS Holdings with confidence and ease.
                   </p>
                   
                   {/* CTA Buttons */}
-                  <div className="flex flex-wrap gap-4 pt-4">
+                  <div className="flex flex-col sm:flex-row gap-3 md:gap-4 pt-4">
                     <motion.button
                       whileHover={{ scale: 1.02 }}
-                      className="px-8 py-3 bg-white text-[#14225D] rounded-lg font-semibold 
-                               hover:shadow-lg transition-all duration-300"
+                      className="px-6 md:px-8 py-3 bg-white text-[#14225D] rounded-lg font-semibold 
+                               hover:shadow-lg transition-all duration-300 text-sm md:text-base"
                     >
                       View Inventory
                     </motion.button>
                     <motion.button
                       whileHover={{ scale: 1.02 }}
-                      className="px-8 py-3 border border-white/30 rounded-lg font-semibold
-                               hover:bg-white/10 transition-all duration-300"
+                      className="px-6 md:px-8 py-3 border border-white/30 rounded-lg font-semibold
+                               hover:bg-white/10 transition-all duration-300 text-sm md:text-base"
                     >
                       Contact Us
                     </motion.button>
@@ -218,7 +215,7 @@ export default function HowToBuy() {
                   initial={{ opacity: 0, x: 20 }}
                   animate={{ opacity: 1, x: 0 }}
                   transition={{ duration: 0.7, delay: 0.2 }}
-                  className="grid grid-cols-2 gap-6"
+                  className="grid grid-cols-2 gap-3 md:gap-6"
                 >
                   {[
                     { number: "6", label: "Simple Steps", sublabel: "Easy Process" },
@@ -231,12 +228,12 @@ export default function HowToBuy() {
                       initial={{ opacity: 0, y: 20 }}
                       animate={{ opacity: 1, y: 0 }}
                       transition={{ duration: 0.5, delay: 0.3 + index * 0.1 }}
-                      className="bg-white/10 backdrop-blur-sm rounded-xl p-6 hover:bg-white/[0.15] 
+                      className="bg-white/10 backdrop-blur-sm rounded-xl p-4 md:p-6 hover:bg-white/[0.15] 
                                transition-all duration-300 border border-white/[0.05]"
                     >
-                      <div className="text-3xl font-bold">{stat.number}</div>
-                      <div className="text-sm font-medium text-gray-300">{stat.label}</div>
-                      <div className="text-xs text-gray-400">{stat.sublabel}</div>
+                      <div className="text-2xl md:text-3xl font-bold">{stat.number}</div>
+                      <div className="text-xs md:text-sm font-medium text-gray-300">{stat.label}</div>
+                      <div className="text-[10px] md:text-xs text-gray-400">{stat.sublabel}</div>
                     </motion.div>
                   ))}
                 </motion.div>
@@ -254,7 +251,7 @@ export default function HowToBuy() {
         {renderNavigation()}
 
         {/* Steps Content */}
-        <div className="px-4 md:px-8 max-w-5xl mx-auto py-12">
+        <div className="px-4 md:px-8 max-w-5xl mx-auto py-8 md:py-12">
           {steps.map((step, index) => (
             <motion.div
               key={step.id}
@@ -262,24 +259,24 @@ export default function HowToBuy() {
               initial={{ opacity: 0, x: -20 }}
               animate={{ opacity: 1, x: 0 }}
               transition={{ duration: 0.7, delay: index * 0.1 }}
-              className="mb-20"
+              className="mb-12 md:mb-20"
               id={step.id}
             >
-              <div className="flex items-start space-x-6">
-                <div className="flex-shrink-0 w-16 h-16 rounded-2xl bg-gradient-to-br from-[#14225D] to-[#1a2d7c] flex items-center justify-center shadow-lg transform hover:scale-105 transition-transform duration-300">
-                  <step.icon className="w-8 h-8 text-white" />
+              <div className="flex flex-col md:flex-row md:items-start md:space-x-6 space-y-4 md:space-y-0">
+                <div className="flex-shrink-0 w-12 h-12 md:w-16 md:h-16 rounded-2xl bg-gradient-to-br from-[#14225D] to-[#1a2d7c] flex items-center justify-center shadow-lg transform hover:scale-105 transition-transform duration-300">
+                  <step.icon className="w-6 h-6 md:w-8 md:h-8 text-white" />
                 </div>
                 <div className="flex-grow">
-                  <div className="flex items-center mb-4">
-                    <span className="text-[#14225D] font-bold mr-2 text-lg">Step {index + 1}</span>
-                    <ArrowRight className="w-5 h-5 text-gray-400 mx-2" />
-                    <h2 className="text-2xl font-bold text-gray-800">{step.title}</h2>
+                  <div className="flex items-center mb-3 md:mb-4">
+                    <span className="text-[#14225D] font-bold mr-2 text-base md:text-lg">Step {index + 1}</span>
+                    <ArrowRight className="w-4 h-4 md:w-5 md:h-5 text-gray-400 mx-2" />
+                    <h2 className="text-xl md:text-2xl font-bold text-gray-800">{step.title}</h2>
                   </div>
-                  <p className="text-gray-600 mb-6 text-lg leading-relaxed">
+                  <p className="text-gray-600 mb-4 md:mb-6 text-base md:text-lg leading-relaxed">
                     {step.description}
                   </p>
-                  <div className="bg-gray-50 rounded-2xl p-8 shadow-lg hover:shadow-xl transition-shadow duration-300 border border-gray-100">
-                    <ul className="space-y-4">
+                  <div className="bg-gray-50 rounded-2xl p-4 md:p-8 shadow-lg hover:shadow-xl transition-shadow duration-300 border border-gray-100">
+                    <ul className="space-y-3 md:space-y-4">
                       {step.details.map((detail, idx) => (
                         <motion.li 
                           key={idx} 
@@ -289,7 +286,7 @@ export default function HowToBuy() {
                           transition={{ duration: 0.5, delay: idx * 0.1 }}
                         >
                           <span className="w-2 h-2 bg-gradient-to-r from-[#14225D] to-[#1a2d7c] rounded-full mr-3"></span>
-                          <span className="text-base">{detail}</span>
+                          <span className="text-sm md:text-base">{detail}</span>
                         </motion.li>
                       ))}
                     </ul>
@@ -304,26 +301,26 @@ export default function HowToBuy() {
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.7, delay: 0.6 }}
-            className="text-center py-16 bg-gradient-to-br from-gray-50 to-gray-100 rounded-3xl shadow-lg border border-gray-200"
+            className="text-center py-8 md:py-16 px-4 md:px-8 bg-gradient-to-br from-gray-50 to-gray-100 rounded-3xl shadow-lg border border-gray-200"
           >
-            <h3 className="text-3xl font-bold text-[#14225D] mb-6">
+            <h3 className="text-2xl md:text-3xl font-bold text-[#14225D] mb-4 md:mb-6">
               Ready to Start Your Journey?
             </h3>
-            <p className="text-gray-600 mb-10 text-lg max-w-2xl mx-auto">
+            <p className="text-gray-600 mb-6 md:mb-10 text-base md:text-lg max-w-2xl mx-auto">
               Browse our inventory or contact our team to begin your car buying journey today.
             </p>
-            <div className="flex justify-center gap-6">
-              <Link href="/cars">
+            <div className="flex flex-col sm:flex-row justify-center gap-4 md:gap-6">
+              <Link href="/cars" className="w-full sm:w-auto">
                 <motion.button
-                  className="bg-gradient-to-r from-[#14225D] to-[#1a2d7c] text-white px-10 py-4 rounded-xl hover:shadow-xl transition-all duration-300 text-lg font-medium transform hover:scale-105"
+                  className="w-full sm:w-auto bg-gradient-to-r from-[#14225D] to-[#1a2d7c] text-white px-6 md:px-10 py-3 md:py-4 rounded-xl hover:shadow-xl transition-all duration-300 text-base md:text-lg font-medium transform hover:scale-105"
                   whileHover={{ y: -2 }}
                 >
                   View Inventory
                 </motion.button>
               </Link>
-              <Link href="/contact-us">
+              <Link href="/contact-us" className="w-full sm:w-auto">
                 <motion.button
-                  className="bg-white text-[#14225D] border-2 border-[#14225D] px-10 py-4 rounded-xl hover:shadow-xl transition-all duration-300 text-lg font-medium transform hover:scale-105"
+                  className="w-full sm:w-auto bg-white text-[#14225D] border-2 border-[#14225D] px-6 md:px-10 py-3 md:py-4 rounded-xl hover:shadow-xl transition-all duration-300 text-base md:text-lg font-medium transform hover:scale-105"
                   whileHover={{ y: -2 }}
                 >
                   Contact Us
