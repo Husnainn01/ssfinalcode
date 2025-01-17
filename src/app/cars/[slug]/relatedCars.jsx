@@ -65,24 +65,14 @@ function RelatedCars() {
         <div className="grid grid-cols-1 gap-4">
             {limitedListing.map((item) => (
                 <div key={item.id} className="bg-white rounded-lg overflow-hidden shadow-sm hover:shadow-md transition-all duration-300">
-                    {/* Main Container */}
-                    <div className="flex h-[180px] relative">
-                        {/* Sold Badge */}
-                        {item.offerType === "Sold" && (
-                            <div className="absolute -left-8 top-4 bg-red-500 text-white px-10 py-1 transform -rotate-45 z-10 shadow-md">
-                                <span className="text-sm font-semibold">SOLD</span>
-                            </div>
-                        )}
-                        
+                    <div className="flex flex-col md:flex-row relative">
                         {/* Left Image Section */}
-                        <div className="relative w-[180px] p-2">
+                        <div className="relative w-full md:w-[180px] h-[180px] p-2">
                             <Link href={`/cars/${item._id}`}>
                                 <img
                                     src={item.images?.[0] || item.image}
                                     alt={item.title}
-                                    className={`w-full h-full object-cover rounded-lg ${
-                                        item.offerType === "Sold" ? "opacity-80" : ""
-                                    }`}
+                                    className="w-full h-full object-cover rounded-lg"
                                 />
                             </Link>
                             <div className="absolute top-4 right-4 bg-black/50 rounded">
@@ -94,9 +84,9 @@ function RelatedCars() {
                         </div>
 
                         {/* Right Content Section */}
-                        <div className="flex-1 p-3 flex flex-col">
+                        <div className="flex-1 p-3">
                             {/* Title and Price Row */}
-                            <div className="flex justify-between items-start border-b border-gray-100 pb-2">
+                            <div className="flex justify-between items-start mb-2">
                                 <h2 className="text-blue-600 text-base font-bold hover:text-blue-700">
                                     <Link href={`/cars/${item._id}`}>
                                         {item.year} {item.make} {item.model}
@@ -116,7 +106,7 @@ function RelatedCars() {
                             </div>
 
                             {/* Specs Grid */}
-                            <div className="grid grid-cols-5 gap-x-3 mt-2">
+                            <div className="grid grid-cols-5 gap-2 mb-2">
                                 <div className="space-y-1 border-r border-gray-100">
                                     <div className="text-[10px] text-gray-500">Mileage</div>
                                     <div className="text-xs font-medium">{item.mileage?.toLocaleString()} km</div>
@@ -143,7 +133,7 @@ function RelatedCars() {
                             </div>
 
                             {/* Features */}
-                            <div className="flex flex-wrap gap-1.5 mt-1.5">
+                            <div className="flex flex-wrap gap-1.5 mb-2">
                                 {item.carFeature && item.carFeature.length > 0 ? (
                                     item.carFeature.map((feature, index) => (
                                         <span 
@@ -161,16 +151,16 @@ function RelatedCars() {
                             </div>
 
                             {/* Action Buttons */}
-                            <div className="flex justify-end items-center gap-2 mt-1">
+                            <div className="flex justify-end items-center gap-2">
                                 <InquiryPopup 
                                     carDetails={item} 
-                                    className="bg-[#EB843F] hover:bg-[#d66201] text-white px-8 h-[30px] rounded text-xs font-medium transition-colors duration-200 min-w-[100px] text-center flex items-center justify-center"
+                                    className="bg-[#EB843F] hover:bg-[#d66201] text-white px-8 h-[30px] rounded text-xs font-medium transition-colors min-w-[100px] text-center flex items-center justify-center"
                                 >
                                     INQUIRY
                                 </InquiryPopup>
                                 
                                 <Link href={`/cars/${item._id}`}>
-                                    <button className="bg-[#EB843F] hover:bg-[#d66201] text-white px-8 h-[30px] rounded text-xs font-medium transition-colors duration-200 min-w-[100px] text-center flex items-center justify-center">
+                                    <button className="bg-[#EB843F] hover:bg-[#d66201] text-white px-8 h-[30px] rounded text-xs font-medium transition-colors min-w-[100px] text-center flex items-center justify-center">
                                         VIEW MORE
                                     </button>
                                 </Link>

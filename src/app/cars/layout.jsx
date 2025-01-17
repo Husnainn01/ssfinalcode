@@ -8,7 +8,7 @@ export default function CarsLayout({ children }) {
   return (
     <>
       <Header />
-      <main className="min-h-screen bg-[#E2F1E7] pt-[1px]">
+      <main className="bg-[#E2F1E7]">
         {children}
       </main>
       <Footer />

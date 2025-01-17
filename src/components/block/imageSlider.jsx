@@ -1,5 +1,5 @@
 "use client";
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { Button } from "@nextui-org/react";
 import { ChevronLeft, ChevronRight, Download } from "lucide-react";
 import JSZip from "jszip";
@@ -7,7 +7,6 @@ import { saveAs } from "file-saver";
 import NextImage from "next/image";
 import { useToast } from "@/components/ui/use-toast";
 import { FavoriteButton } from "@/components/ui/FavoriteButton";
-import ImageMagnifier from 'react-image-magnifier-zoom';
 
 export default function ImageSlider({ images, carId }) {
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
@@ -42,14 +41,14 @@ export default function ImageSlider({ images, carId }) {
   return (
     <div className="relative">
       {/* Main Slider */}
-      <div className="relative h-[500px]">
+      <div className="relative h-[500px] md:h-[600px]">
         <div className="relative h-full w-full">
-          <ImageMagnifier
+          <NextImage
             src={images[currentImageIndex]}
-            width={900}
-            height={500}
-            magnifierSize={120}
-            zoomLevel={2.5}
+            alt={`Car Image ${currentImageIndex + 1}`}
+            fill
+            className="object-contain"
+            priority
           />
 
           {/* Favorite Button */}
@@ -59,13 +58,13 @@ export default function ImageSlider({ images, carId }) {
 
           {/* Navigation Arrows */}
           <button
-            onClick={() => handlePrevious()}
+            onClick={handlePrevious}
             className="absolute left-2 top-1/2 -translate-y-1/2 bg-black/50 p-2 rounded-full text-white hover:bg-black/70 z-20"
           >
             <ChevronLeft className="h-6 w-6" />
           </button>
           <button
-            onClick={() => handleNext()}
+            onClick={handleNext}
             className="absolute right-2 top-1/2 -translate-y-1/2 bg-black/50 p-2 rounded-full text-white hover:bg-black/70 z-20"
           >
             <ChevronRight className="h-6 w-6" />
@@ -73,14 +72,15 @@ export default function ImageSlider({ images, carId }) {
         </div>
       </div>
 
-      {/* Thumbnails Section */}
+      {/* Controls and thumbnails */}
       <div className="mt-4">
         <div className="flex justify-between items-center mb-2">
-          <div className="flex gap-2">
+          <div className="flex gap-2 flex-wrap">
             <Button
               size="sm"
               variant="flat"
               onClick={() => setShowThumbnails(!showThumbnails)}
+              className="text-xs"
             >
               {showThumbnails ? 'Hide thumbnails' : 'Show thumbnails'}
             </Button>
@@ -89,6 +89,7 @@ export default function ImageSlider({ images, carId }) {
               variant="flat"
               onClick={downloadImages}
               startContent={<Download className="h-4 w-4" />}
+              className="text-xs"
             >
               Download All
             </Button>
@@ -96,7 +97,7 @@ export default function ImageSlider({ images, carId }) {
         </div>
 
         {showThumbnails && (
-          <div className="grid grid-cols-6 gap-2 mt-2">
+          <div className="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-6 gap-2 mt-2">
             {images.map((image, index) => (
               <div
                 key={index}

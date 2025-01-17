@@ -6,8 +6,16 @@ import { Button } from "@/components/ui/button"
 import { Sheet, SheetContent, SheetHeader, SheetTrigger } from "@/components/ui/sheet"
 import Link from 'next/link'
 import { motion, AnimatePresence } from "framer-motion"
+import { usePathname } from 'next/navigation'
 
 export function MobileMenu({ isAuthenticated, user, favoritesCount, onLogout }) {
+  const pathname = usePathname()
+  
+  // Don't render if we're on a car details page
+  if (pathname.startsWith('/cars/')) {
+    return null
+  }
+
   const [isOpen, setIsOpen] = useState(false)
   const [openSubmenu, setOpenSubmenu] = useState(null)
 
@@ -67,7 +75,7 @@ export function MobileMenu({ isAuthenticated, user, favoritesCount, onLogout }) 
       </SheetTrigger>
       <SheetContent 
         side="right" 
-        className="w-[300px] sm:w-[380px] p-0 bg-[#387478]"
+        className="w-[350px] p-0 bg-[#387478]"
         hideCloseButton
       >
         <SheetHeader className="p-4 border-b border-white/20">

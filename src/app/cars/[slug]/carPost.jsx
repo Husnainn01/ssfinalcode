@@ -24,6 +24,7 @@ import CarInquiryForm from "@/components/block/carInquiryForm";
 import ImageSlider from "@/components/block/imageSlider";
 
 export default function ListingPage({ car, slug, favoriteButton }) {
+  const [isMobile, setIsMobile] = useState(false);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
   const baseUrl = process.env.NEXT_PUBLIC_BASE_URL;
@@ -44,6 +45,18 @@ export default function ListingPage({ car, slug, favoriteButton }) {
       slider2.current.slickGoTo(0);
     }
   }, [car.images]);
+
+  // Updated screen size detection
+  useEffect(() => {
+    const checkMobile = () => {
+      const width = window.innerWidth;
+      setIsMobile(width <= 768); // Changed to check if width is less than or equal to 768px
+    };
+    
+    checkMobile();
+    window.addEventListener('resize', checkMobile);
+    return () => window.removeEventListener('resize', checkMobile);
+  }, []);
 
   const getCarImages = () => {
     if (!car) return [];
@@ -104,7 +117,13 @@ export default function ListingPage({ car, slug, favoriteButton }) {
     return <div>Car not found</div>;
   }
 
-  return (
+  return isMobile ? (
+    <MobileCarDetail 
+      car={car}
+      renderImageSlider={renderImageSlider}
+      favoriteButton={favoriteButton}
+    />
+  ) : (
     <div className="px-4 sm:px-6 lg:px-20 mt-3 md:mt-10">
       <div>
         <div className="flex flex-col lg:flex-row gap-8">
@@ -199,3 +218,101 @@ export default function ListingPage({ car, slug, favoriteButton }) {
     </div>
   );
 }
+const MobileCarDetail = ({ car, renderImageSlider, favoriteButton }) => {
+  if (!car) return <div>Car not found</div>;
+
+  return (
+    <div className="px-4 w-full">
+      {/* Image Slider Section */}
+      <div className="relative w-full">
+        {car.offerType === "Sold" && (
+          <div className="absolute top-0 left-0 w-[120px] h-[120px] overflow-hidden z-50">
+            <div className="bg-red-600 text-white text-sm font-semibold py-1 px-12 absolute 
+                transform -translate-x-[30%] translate-y-[30%] rotate-[-45deg] shadow-md">
+              SOLD
+            </div>
+          </div>
+        )}
+        <div className="w-full overflow-hidden flex justify-center">
+          {renderImageSlider()}
+        </div>
+      </div>
+
+      {/* Car Details */}
+      <div className="mt-4">
+        <div className="flex flex-col">
+          <h1 className="font-semibold my-2 text-2xl">{car.title}</h1>
+        </div>
+
+        <h2 className="text-xl font-semibold mt-4">Car Overview</h2>
+        <div className="p-4 rounded-md grid grid-cols-1 gap-2">
+          {[
+            {icon: FaCar, label: "Stock Number", value: car.stockNumber},
+            { icon: FaCar, label: "Make", value: car.make },
+            { icon: FaCarAlt, label: "Model", value: car.model },
+            { icon: FaCalendarAlt, label: "Year", value: car.year },
+            { icon: FaTachometerAlt, label: "Mileage", value: `${car.mileage} ${car.mileageUnit}` },
+            { icon: FaTag, label: "Condition", value: car.itemCondition },
+            { icon: FaClock, label: "Availability", value: car.availability },
+            { icon: FaBarcode, label: "VIN", value: car.vin },
+            { icon: FaCarAlt, label: "Body Type", value: car.bodyType },
+            { icon: FaPalette, label: "Color", value: car.color },
+            { icon: FaGears, label: "Drive Wheel", value: car.driveWheelConfiguration },
+            { icon: FaDoorClosed, label: "Doors", value: car.numberOfDoors },
+            { icon: FaGasPump, label: "Fuel Type", value: car.fuelType },
+            { icon: FaCarSide, label: "Engine", value: car.vehicleEngine },
+            { icon: FaUsers, label: "Seating", value: car.vehicleSeatingCapacity },
+            { icon: FaExchangeAlt, label: "Transmission", value: car.vehicleTransmission },
+            { icon: FaCogs, label: "Cylinders", value: car.cylinders },
+            { icon: FaMapMarkerAlt, label: "Country", value: car.country },
+            { icon: FaMapMarkerAlt, label: "Category", value: car.category },
+          ].map(({ icon: Icon, label, value }, index) => (
+            <p key={index} className="flex items-center gap-2 p-2 rounded-md shadow-sm bg-white">
+              <Icon className="text-gray-700" />
+              <span className="font-medium">{label}:</span>
+              <span className="text-gray-600">{value}</span>
+            </p>
+          ))}
+        </div>
+
+        {/* Car Features Section */}
+        <div className="bg-gray-100 p-4 rounded-md mt-2">
+          <h3 className="font-semibold mb-2">Features</h3>
+          <div className="grid grid-cols-1 gap-4">
+            {car.carFeature.map((feature, index) => (
+              <div key={index} className="flex items-center">
+                <FaCheckCircle className="text-green-500 mr-2" />
+                <span>{feature}</span>
+              </div>
+            ))}
+          </div>
+        </div>
+
+        {/* Car Safety Features Section */}
+        <div className="bg-gray-100 p-4 rounded-md mt-2">
+          <h3 className="font-semibold mb-2">Safety Features</h3>
+          <div className="grid grid-cols-1 gap-4">
+            {car.carSafetyFeature.map((safety, index) => (
+              <div key={index} className="flex items-center">
+                <FaCheckCircle className="text-green-500 mr-2" />
+                <span>{safety}</span>
+              </div>
+            ))}
+          </div>
+        </div>
+
+        {/* Inquiry Form */}
+        <div className="mt-4">
+          <CarInquiryForm carDetails={car} />
+        </div>
+
+        {/* Related Cars */}
+        <div className="mt-6">
+          <h4 className="mb-3 font-semibold">Related Cars</h4>
+          <RelatedCars />
+        </div>
+      </div>
+    </div>
+  );
+};
+

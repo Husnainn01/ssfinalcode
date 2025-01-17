@@ -12,8 +12,15 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select"
+import { usePathname } from 'next/navigation'
 
 export function MobileSearch({ onSearch, isSearching }) {
+  const pathname = usePathname()
+  
+  if (pathname.startsWith('/cars/')) {
+    return null
+  }
+
   const [isOpen, setIsOpen] = useState(false)
   const [query, setQuery] = useState('')
   const [searchType, setSearchType] = useState('keyword')
@@ -54,9 +61,9 @@ export function MobileSearch({ onSearch, isSearching }) {
               animate={{ y: 0, opacity: 1 }}
               exit={{ y: -20, opacity: 0 }}
               transition={{ duration: 0.2 }}
-              className="bg-[#387478] shadow-lg"
+              className="bg-[#387478] shadow-lg w-full max-w-[350px] mx-auto"
             >
-              <div className="max-w-3xl mx-auto p-4">
+              <div className="p-4">
                 <form onSubmit={handleSubmit} className="space-y-4">
                   {/* Search Type Select */}
                   <Select

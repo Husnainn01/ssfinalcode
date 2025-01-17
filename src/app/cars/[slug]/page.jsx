@@ -46,7 +46,7 @@ export default async function CarDetailsPage({ params }) {
     }
 
     return (
-      <div className="mb-10">
+      <div className="bg-[#E2F1E7]">
         <ListingPage 
           car={car} 
           slug={params.slug}

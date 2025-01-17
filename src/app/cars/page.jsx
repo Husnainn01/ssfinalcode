@@ -764,7 +764,7 @@ const MobileCarCard = ({ item }) => {
                         INQUIRY
                     </InquiryPopup>
                     
-                    <Link href={`/cars/${item.slug}`} className="flex-1">
+                    <Link href={`/cars/${item._id}`} className="flex-1">
                         <button className="w-full bg-[#172656] hover:bg-[#0F1A4A] text-white h-[30px] rounded text-xs font-medium transition-colors flex items-center justify-center">
                             VIEW MORE
                         </button>
