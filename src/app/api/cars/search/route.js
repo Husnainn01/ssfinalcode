@@ -8,7 +8,7 @@ export async function GET(request) {
     try {
         // Add CORS headers helper at the top
         const corsHeaders = {
-            'Access-Control-Allow-Origin': 'https://www.koideholdings.com',
+            'Access-Control-Allow-Origin': 'https://www.sky-linetrading.com',
             'Access-Control-Allow-Methods': 'GET, POST, PUT, DELETE, OPTIONS',
             'Access-Control-Allow-Headers': 'Content-Type, Authorization'
         };
