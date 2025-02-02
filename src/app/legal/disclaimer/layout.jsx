@@ -5,10 +5,10 @@ export const metadata = {
   title: 'Disclaimer | SS Holdings',
   description: 'Read our disclaimer to understand the limitations and terms of use for SS Holdings website and services.',
   openGraph: {
-    title: 'Disclaimer | SS Holdings',
-    description: 'Read our disclaimer to understand the limitations and terms of use for SS Holdings website and services.',
+    title: 'Disclaimer | Global Drive Motors',
+    description: 'Read our disclaimer to understand the limitations and terms of use for Global Drive Motors website and services.',
     type: 'website',
-    url: 'https://ss-holdings.com/legal/disclaimer',
+    url: 'https://globaldrivemotors.com/legal/disclaimer',
   },
 }
 

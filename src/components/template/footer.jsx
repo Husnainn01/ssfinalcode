@@ -122,7 +122,7 @@ export default function Footer() {
                       <MapPin className="h-5 w-5 text-white transition-all duration-300 group-hover:text-[#629584] group-hover:scale-110" />
                     </div>
                   </div>
-                  <p className="leading-relaxed pt-2">Aichi Ken Nagoya Shi Minati Ku Nishifukuta 1-1506</p>
+                  <p className="leading-relaxed pt-2">Aichi Ken Iga Shi Minato-ku Nishifukuta 1-1506</p>
                 </div>
 
                 <div className="flex items-center gap-3 group">
@@ -132,8 +132,8 @@ export default function Footer() {
                       <Phone className="h-5 w-5 text-white transition-all duration-300 group-hover:text-[#629584] group-hover:scale-110" />
                     </div>
                   </div>
-                  <a href="tel:+81052-387-9772" className="pt-2 hover:text-[#629584] transition-colors">
-                    +81 052-387-9772
+                  <a href="tel:+81000-000-0000" className="pt-2 hover:text-[#629584] transition-colors">
+                    +81 000-000-0000
                   </a>
                 </div>
 
@@ -145,7 +145,7 @@ export default function Footer() {
                     </div>
                   </div>
                   <a href="mailto:csd@ss.Holdings" className="pt-2 hover:text-[#629584] transition-colors">
-                    csd@ss.Holdings
+                    csd@globaldrivemotors.com
                   </a>
                 </div>
               </div>
@@ -299,7 +299,7 @@ export default function Footer() {
       <div className="bg-[#1A1A1A] py-6 text-sm">
         <div className="mx-auto flex max-w-7xl flex-col items-center justify-between gap-4 px-4 text-center md:flex-row md:text-left">
           <div className="text-gray-400">
-            © {new Date().getFullYear()} SS Holdings CO.,LTD. All rights reserved.
+            © {new Date().getFullYear()} Global Drive Motors CO.,LTD. All rights reserved.
           </div>
           <div className="flex flex-wrap justify-center gap-6 text-gray-400">
             {[

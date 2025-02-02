@@ -156,7 +156,7 @@ export default function NavigationHeader() {
       <div className="hidden md:block border-b border-theme-primary-hover px-4 py-1 text-sm relative z-50">
         <div className="mx-auto flex max-w-7xl items-center justify-between">
           <div className="flex items-center gap-4 overflow-x-auto whitespace-nowrap">
-            <span className="font-semibold">Sky Line Trading - Used Car Dealer</span>
+            <span className="font-semibold">Global Drive Motors - Used Car Dealer</span>
             <span className="hidden lg:flex items-center gap-1">
               {isLoading ? (
                 <span className="animate-pulse">Loading...</span>
@@ -195,7 +195,7 @@ export default function NavigationHeader() {
           >
             <img
               src="/sss-logo.png"
-              alt="SS Holdings"
+              alt="Global Drive Motors"
               className="h-[30px] md:h-[40px] w-auto"
             />
           </Link>

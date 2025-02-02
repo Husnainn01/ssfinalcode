@@ -13,7 +13,7 @@ const Blog = ({ id }) => {
 
     const fetchPost = async () => {
         try {
-            const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || 'https://www.koideholdings.com'
+            const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || 'https://www.globaldrivemotors.com'
             const response = await fetch(`${baseUrl}/api/posts`)
             let data = await response.json()
             data = data.filter(listing => listing._id === id)

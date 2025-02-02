@@ -5,10 +5,10 @@ export const metadata = {
     title: 'Privacy Policy | SS Holdings',
     description: 'Learn how SS Holdings collects, uses, and protects your personal information.',
     openGraph: {
-      title: 'Privacy Policy | SS Holdings',
-      description: 'Learn how SS Holdings collects, uses, and protects your personal information.',
+      title: 'Privacy Policy | Global Drive Motors',
+      description: 'Learn how Global Drive Motors collects, uses, and protects your personal information.',
       type: 'website',
-      url: 'https://ss-holdings.com/legal/privacy',
+      url: 'https://globaldrivemotors.com/legal/privacy',
     },
 }
 

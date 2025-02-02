@@ -1,11 +1,11 @@
 export const metadata = {
-    title: 'Sitemap | SS Holdings',
-    description: 'Navigate through all pages and sections of SS Holdings website.',
+    title: 'Sitemap | Global Drive Motors',
+    description: 'Navigate through all pages and sections of Global Drive Motors website.',
     openGraph: {
-      title: 'Sitemap | SS Holdings',
-      description: 'Navigate through all pages and sections of SS Holdings website.',
+      title: 'Sitemap | Global Drive Motors',
+      description: 'Navigate through all pages and sections of Global Drive Motors website.',
       type: 'website',
-      url: 'https://ss-holdings.com/sitemap',
+      url: 'https://globaldrivemotors.com/sitemap',
     },
   }
 

@@ -2,13 +2,13 @@ import Header from '@/components/template/header'
 import Component from '@/components/template/leftsidebar'
 
 export const metadata = {
-    title: 'Terms and Conditions | SS Holdings',
-    description: 'Read our terms and conditions to understand your rights and responsibilities when using SS Holdings services.',
+    title: 'Terms and Conditions | Global Drive Motors',
+    description: 'Read our terms and conditions to understand your rights and responsibilities when using Global Drive Motors services.',
     openGraph: {
-      title: 'Terms and Conditions | SS Holdings',
-      description: 'Read our terms and conditions to understand your rights and responsibilities when using SS Holdings services.',
+      title: 'Terms and Conditions | Global Drive Motors',
+      description: 'Read our terms and conditions to understand your rights and responsibilities when using Global Drive Motors services.',
       type: 'website',
-      url: 'https://ss-holdings.com/legal/terms',
+      url: 'https://globaldrivemotors.com/legal/terms',
     },
   }
   
