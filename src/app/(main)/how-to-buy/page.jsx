@@ -188,7 +188,7 @@ export default function HowToBuy() {
                     </span>
                   </h1>
                   <p className="text-base md:text-lg lg:text-xl text-gray-200 max-w-xl">
-                    Follow our comprehensive step-by-step guide to purchase your dream car from SS Holdings with confidence and ease.
+                    Follow our comprehensive step-by-step guide to purchase your dream car from Global Drive Motors with confidence and ease.
                   </p>
                   
                   {/* CTA Buttons */}

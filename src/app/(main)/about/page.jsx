@@ -60,7 +60,7 @@ export default function InteractiveAboutUs() {
         <header className="relative h-[50vh] md:h-[80vh] overflow-hidden">
           <Image
             src="/about-hero.jpg"
-            alt="SS Holdings Headquarters"
+            alt="Global Drive Motors Headquarters"
             layout="fill"
             objectFit="cover"
             priority
@@ -365,7 +365,7 @@ export default function InteractiveAboutUs() {
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true }}
             >
-              Experience Excellence with SS Holdings
+              Experience Excellence with Global Drive Motors
             </motion.h2>
             <motion.p 
               className="text-lg md:text-xl text-gray-300 mb-8 md:mb-12 max-w-2xl mx-auto px-4"

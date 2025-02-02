@@ -30,7 +30,7 @@ export default function BankingInformation() {
   const bankAccounts = [
     {
       bank: 'Japan Bank',
-      accountName: 'SS Holdings Co., Ltd',
+      accountName: 'Global Drive Motors Co., Ltd',
       accountNumber: '1234-5678-9012',
       swiftCode: 'JPBKJPJT',
       branch: 'Tokyo Main Branch',
@@ -38,7 +38,7 @@ export default function BankingInformation() {
     },
     {
       bank: 'International Bank',
-      accountName: 'SS Holdings Co., Ltd',
+      accountName: 'Global Drive Motors Co., Ltd',
       accountNumber: '9876-5432-1098',
       swiftCode: 'INTBJPJT',
       branch: 'Osaka Branch',
