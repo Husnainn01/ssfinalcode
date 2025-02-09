@@ -121,7 +121,7 @@ export default function ListingPage({ car, slug, favoriteButton }) {
       favoriteButton={favoriteButton}
     />
   ) : (
-    <div className="px-4 sm:px-6 lg:px-20 mt-3 md:mt-10">
+    <div className="px-4 sm:px-6 lg:px-20">
       <div>
         <div className="flex flex-col lg:flex-row gap-8">
           <div className="w-full lg:w-3/5">
