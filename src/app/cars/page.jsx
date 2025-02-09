@@ -520,11 +520,11 @@ function Listing() {
                                             </div>
 
                                             {/* Features - Using carFeature from database */}
-                                            <div className="flex flex-wrap gap-1.5 mt-1.5">
+                                            <div className="flex flex-wrap gap-1.5 mb-2">
                                                 {item.carFeature && item.carFeature.length > 0 ? (
                                                     <>
-                                                        {/* Display first 9 features */}
-                                                        {item.carFeature.slice(0, 9).map((feature, index) => (
+                                                        {/* Show only first 8 features */}
+                                                        {item.carFeature.slice(0, 8).map((feature, index) => (
                                                             <span 
                                                                 key={index} 
                                                                 className="text-[10px] bg-gray-100 text-gray-600 px-1.5 py-0.5 rounded"
@@ -532,26 +532,13 @@ function Listing() {
                                                                 {feature.trim()}
                                                             </span>
                                                         ))}
-                                                        
-                                                        {/* Show "Show More" button if there are more than 9 features */}
-                                                        {item.carFeature.length > 9 && (
+                                                        {/* Show +X more if there are additional features */}
+                                                        {item.carFeature.length > 8 && (
                                                             <Link 
-                                                                href={`/cars/${item.slug}`}
+                                                                href={`/cars/${item._id}`}
                                                                 className="text-[10px] bg-primary-100 text-primary-600 px-1.5 py-0.5 rounded hover:bg-primary-200 transition-colors cursor-pointer flex items-center gap-0.5"
                                                             >
-                                                                +{item.carFeature.length - 9} more
-                                                                <svg 
-                                                                    xmlns="http://www.w3.org/2000/svg" 
-                                                                    viewBox="0 0 20 20" 
-                                                                    fill="currentColor" 
-                                                                    className="w-3 h-3"
-                                                                >
-                                                                    <path 
-                                                                        fillRule="evenodd" 
-                                                                        d="M7.21 14.77a.75.75 0 01.02-1.06L11.168 10 7.23 6.29a.75.75 0 111.04-1.08l4.5 4.25a.75.75 0 010 1.08l-4.5 4.25a.75.75 0 01-1.06-.02z" 
-                                                                        clipRule="evenodd" 
-                                                                    />
-                                                                </svg>
+                                                                +{item.carFeature.length - 8} more
                                                             </Link>
                                                         )}
                                                     </>
@@ -731,7 +718,8 @@ const MobileCarCard = ({ item }) => {
                 <div className="flex flex-wrap gap-1.5 mb-2">
                     {item.carFeature && item.carFeature.length > 0 ? (
                         <>
-                            {item.carFeature.slice(0, 9).map((feature, index) => (
+                            {/* Show only first 8 features */}
+                            {item.carFeature.slice(0, 8).map((feature, index) => (
                                 <span 
                                     key={index} 
                                     className="text-[10px] bg-gray-100 text-gray-600 px-1.5 py-0.5 rounded"
@@ -739,12 +727,13 @@ const MobileCarCard = ({ item }) => {
                                     {feature.trim()}
                                 </span>
                             ))}
-                            {item.carFeature.length > 9 && (
+                            {/* Show +X more if there are additional features */}
+                            {item.carFeature.length > 8 && (
                                 <Link 
-                                    href={`/cars/${item.slug}`}
+                                    href={`/cars/${item._id}`}
                                     className="text-[10px] bg-primary-100 text-primary-600 px-1.5 py-0.5 rounded hover:bg-primary-200 transition-colors cursor-pointer flex items-center gap-0.5"
                                 >
-                                    +{item.carFeature.length - 9} more
+                                    +{item.carFeature.length - 8} more
                                 </Link>
                             )}
                         </>
