@@ -189,9 +189,14 @@ function Listing() {
                                         {/* Image Container with Stock Number and Favorite Button */}
                                         <div className="relative">
                                             <img
-                                                src={item.image}
+                                                src={item.images?.[0] || item.image || '/placeholder-car.png'}
                                                 alt={`${item.make} ${item.model}`}
                                                 className="w-full h-28 object-cover"
+                                                onError={(e) => {
+                                                    console.error('Image load error:', item.image);
+                                                    e.target.onerror = null; // Prevent infinite loop
+                                                    e.target.src = '/placeholder-car.png';
+                                                }}
                                             />
                                             <div className="absolute top-2 right-2 bg-black/70 px-2 py-1 
                                                 rounded text-xs text-white backdrop-blur-sm font-medium">
@@ -300,9 +305,14 @@ function Listing() {
                                         {/* Image Container with Stock Number and Favorite Button */}
                                         <div className="relative">
                                             <img
-                                                src={item.image}
+                                                src={item.images?.[0] || item.image || '/placeholder-car.png'}
                                                 alt={`${item.make} ${item.model}`}
                                                 className="w-full h-28 object-cover"
+                                                onError={(e) => {
+                                                    console.error('Image load error:', item.image);
+                                                    e.target.onerror = null;
+                                                    e.target.src = '/placeholder-car.png';
+                                                }}
                                             />
                                             <div className="absolute top-2 right-2 bg-black/70 px-2 py-1 
                                                 rounded text-xs text-white backdrop-blur-sm font-medium">

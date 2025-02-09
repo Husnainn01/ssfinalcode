@@ -63,18 +63,15 @@ export default function ListingPage({ car, slug, favoriteButton }) {
     
     let allImages = [];
     
-    // Add the main image if it exists
-    if (car.image) {
-      allImages.push(car.image);
-    }
-    
-    // Add additional images if they exist
+    // Only use the images array, ignore the single image field
     if (Array.isArray(car.images) && car.images.length > 0) {
-      allImages = [...allImages, ...car.images.filter(img => img && img.trim() !== '')];
+      allImages = car.images.filter(img => 
+        img && 
+        img.trim() !== '' && 
+        !img.startsWith('blob:') && 
+        img.startsWith('https://') // Ensure we only use valid URLs
+      );
     }
-    
-    // Remove duplicates and empty values
-    allImages = [...new Set(allImages)].filter(img => img && img.trim() !== '');
     
     return allImages;
   };

@@ -38,6 +38,28 @@ export default function ImageSlider({ images, carId }) {
     saveAs(content, "car-images.zip");
   };
 
+  const getCarImages = () => {
+    if (!car) return [];
+    
+    let allImages = [];
+    
+    // Only add images from the images array, ignore the blob URL
+    if (Array.isArray(car.images) && car.images.length > 0) {
+      allImages = car.images.filter(img => 
+        img && 
+        img.trim() !== '' && 
+        !img.startsWith('blob:')
+      );
+    }
+    
+    // Remove duplicates
+    allImages = [...new Set(allImages)];
+    
+    console.log('Processed images:', allImages); // Debug log
+    
+    return allImages;
+  };
+
   return (
     <div className="relative">
       {/* Main Slider */}

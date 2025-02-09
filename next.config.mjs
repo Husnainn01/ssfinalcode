@@ -5,6 +5,20 @@ const nextConfig = {
   transpilePackages: ["@sentry/nextjs", "@opentelemetry/api"],
   output: 'standalone',
   
+  // Add images configuration for Cloudinary
+  images: {
+    domains: [
+      'res.cloudinary.com',  // Add Cloudinary domain
+      'www.globaldrivemotors.com'
+    ],
+    remotePatterns: [
+      {
+        protocol: "https",
+        hostname: "**",
+      },
+    ],
+  },
+
   // Configure dynamic routing
   async headers() {
     return [
@@ -91,14 +105,6 @@ const nextConfig = {
     return config;
   },
 
-  images: {
-    remotePatterns: [
-      {
-        protocol: "https",
-        hostname: "**",
-      },
-    ],
-  },
   env: {
     MONGODB_USER: process.env.MONGODB_USER,
     MONGODB_PASSWORD: process.env.MONGODB_PASSWORD,
