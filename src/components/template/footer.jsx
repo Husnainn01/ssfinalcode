@@ -54,12 +54,13 @@ export default function Footer() {
           <div className="md:col-span-4">
             <div className="mb-8">
               <Image
-                src="/sss-logo.png"
-                alt="SS Holdings"
+                src="/hswlogo.svg"
+                alt="HSW Global"
                 width={300}
                 height={100}
                 className="h-[100px] w-auto object-contain"
                 priority
+
               />
             </div>
             <div className="space-y-8">
@@ -144,11 +145,13 @@ export default function Footer() {
                       <Mail className="h-5 w-5 text-white transition-all duration-300 group-hover:text-[#629584] group-hover:scale-110" />
                     </div>
                   </div>
-                  <a href="mailto:csd@ss.Holdings" className="pt-2 hover:text-[#629584] transition-colors">
-                    csd@globaldrivemotors.com
+                  <a href="mailto:csd@hsw.global" className="pt-2 hover:text-[#629584] transition-colors">
+                    csd@hsw.global
                   </a>
                 </div>
               </div>
+
+
             </div>
           </div>
 
@@ -299,9 +302,10 @@ export default function Footer() {
       <div className="bg-[#1A1A1A] py-6 text-sm">
         <div className="mx-auto flex max-w-7xl flex-col items-center justify-between gap-4 px-4 text-center md:flex-row md:text-left">
           <div className="text-gray-400">
-            © {new Date().getFullYear()} Global Drive Motors CO.,LTD. All rights reserved.
+            © {new Date().getFullYear()} HSW Global CO.,LTD. All rights reserved.
           </div>
           <div className="flex flex-wrap justify-center gap-6 text-gray-400">
+
             {[
               { label: "Terms & Conditions", href: "/legal/terms" },
               { label: "Privacy Policy", href: "/legal/privacy" },

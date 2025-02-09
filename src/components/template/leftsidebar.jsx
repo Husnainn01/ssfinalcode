@@ -13,7 +13,6 @@ import {
   Container,
   Forklift,
   ChevronRight,
-  Globe,
   CircleUserRound,
   Leaf,
   Battery,
@@ -36,20 +35,20 @@ export default function Component() {
     { _id: '8', name: 'Subaru' },
     { _id: '9', name: 'Hino' },
     { _id: '10', name: 'Volkswagen' },
-    { _id: '11', name: 'BMW' },
-    { _id: '12', name: 'Isuzu' },
-    { _id: '13', name: 'Lexus' },
-    { _id: '14', name: 'Mercedes-Benz' },
-    { _id: '15', name: 'Audi' },
-    { _id: '16', name: 'Volvo' },
-    { _id: '17', name: 'Land Rover' },
-    { _id: '18', name: 'Ford' },
-    { _id: '19', name: 'Peugeot' },
-    { _id: '20', name: 'Jeep' },
-    { _id: '21', name: 'Citroen' },
-    { _id: '22', name: 'Jaguar' },
-    { _id: '23', name: 'Hyundai' },
-    { _id: '24', name: 'KIA' },
+    // { _id: '11', name: 'BMW' },
+    // { _id: '12', name: 'Isuzu' },
+    // { _id: '13', name: 'Lexus' },
+    // { _id: '14', name: 'Mercedes-Benz' },
+    // { _id: '15', name: 'Audi' },
+    // { _id: '16', name: 'Volvo' },
+    // { _id: '17', name: 'Land Rover' },
+    // { _id: '18', name: 'Ford' },
+    // { _id: '19', name: 'Peugeot' },
+    // { _id: '20', name: 'Jeep' },
+    // { _id: '21', name: 'Citroen' },
+    // { _id: '22', name: 'Jaguar' },
+    // { _id: '23', name: 'Hyundai' },
+    // { _id: '24', name: 'KIA' },
   ]
 
   const staticVehicleTypes = [
@@ -65,33 +64,6 @@ export default function Component() {
     { type: 'Motorcycle', icon: Bike },
   ]
 
-  const staticCountries = [
-    { name: 'Australia', flag: '🇦🇺', slug: 'australia' },
-    { name: 'USA', flag: '🇺🇸', slug: 'usa' },
-    { name: 'New Zealand', flag: '🇳🇿', slug: 'new-zealand' },
-    { name: 'Ireland', flag: '🇮🇪', slug: 'ireland' },
-    { name: 'UAE', flag: '🇦🇪', slug: 'uae' },
-    { name: 'Kenya', flag: '🇰🇳', slug: 'kenya' },
-    { name: 'Uganda', flag: '🇺🇬', slug: 'uganda' },
-    { name: 'Zambia', flag: '🇿🇲', slug: 'zambia' },
-    { name: 'Malawi', flag: '🇲🇼', slug: 'malawi' },
-    { name: 'Guinea', flag: '🇬🇳', slug: 'guinea' },
-    { name: 'Papua New Guinea', flag: '🇵🇬', slug: 'papua-new-guinea' },
-    { name: 'DR Congo', flag: '🇨🇩', slug: 'dr-congo' },
-    { name: 'Pakistan', flag: '🇵🇰', slug: 'pakistan' },
-    { name: 'South Africa', flag: '🇿🇦', slug: 'south-africa' },
-    { name: 'Thailand', flag: '🇹🇭', slug: 'thailand' },
-    { name: 'Georgia', flag: '🇬🇪', slug: 'georgia' },
-    { name: 'UK', flag: '🇬🇧', slug: 'uk' },
-    { name: 'Rwanda', flag: '🇰🇼', slug: 'rwanda' },
-    { name: 'Fiji', flag: '🇫🇯', slug: 'fiji' },
-    { name: 'Sri Lanka', flag: '🇱🇰', slug: 'sri-lanka' },
-    { name: 'Russia', flag: '🇷🇺', slug: 'russia' },
-    { name: 'Mongolia', flag: '🇲🇳', slug: 'mongolia' },
-    { name: 'Philippines', flag: '🇵🇭', slug: 'philippines' },
-    { name: 'Japan', flag: '🇯🇵', slug: 'japan' },
-  ]
-
   const otherCategories = [
     { type: 'Left Hand Drive', icon: CircleUserRound },
     { type: 'Fuel Efficient Vehicles', icon: Leaf },
@@ -105,30 +77,6 @@ export default function Component() {
   return (
     <div className="bg-theme-primary h-full sticky top-0 pt-4 shadow-xl border-r border-gray-700">
       <div className="flex flex-col">
-        {/* Vehicles In Stock */}
-        <div className="mb-8">
-          <h2 className="bg-[#243642] px-4 py-2 text-[#E2F1E7] font-medium flex items-center gap-2 shadow-md relative z-10">
-            <Globe className="h-4 w-4 text-[#629584]" />
-            <span>Vehicles In Stock</span>
-          </h2>
-          <div className="mt-3 relative">
-            {staticCountries.map((country) => (
-              <Link 
-                key={country.name} 
-                href={`/cars?country=${country.name}`}
-                className="flex items-center gap-3 px-4 py-2 hover:bg-[#2d4050] transition-all duration-200 group hover:shadow-md"
-              >
-                <span className="w-6 h-6 flex items-center justify-center text-lg">
-                  {country.flag}
-                </span>
-                <span className="flex-1 text-[#E2F1E7] group-hover:text-[#E2F1E7]">
-                  {country.name}
-                </span>
-              </Link>
-            ))}
-          </div>
-        </div>
-
         {/* Shop By Make */}
         <div className="mb-8">
           <h2 className="bg-[#243642] px-4 py-2 text-[#E2F1E7] font-medium flex items-center gap-2 shadow-md relative z-10">

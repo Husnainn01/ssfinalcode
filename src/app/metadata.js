@@ -1,14 +1,14 @@
 export const metadata = {
-  title: 'Global Drive Motors',
+  title: 'HSW GLOBAL',
   description: 'Japanese Used Cars for Sale',
 };
 
 export const adminMetadata = {
-  title: 'Admin Dashboard - Global Drive Motors',
+  title: 'Admin Dashboard - HSW GLOBAL',
   description: 'Admin dashboard for managing car listings and content',
 };
 
 export const customerMetadata = {
-  title: 'Customer Dashboard - Global Drive Motors',
+  title: 'Customer Dashboard - HSW GLOBAL',
   description: 'Customer dashboard for managing orders and preferences',
 };

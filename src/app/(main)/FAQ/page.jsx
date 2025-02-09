@@ -180,7 +180,7 @@ export default function FAQ() {
               animate={{ y: 0, opacity: 1 }}
               transition={{ duration: 0.7, delay: 0.4 }}
             >
-              Find answers to common questions about buying and importing vehicles from Global Drive Motors
+              Find answers to common questions about buying and importing vehicles from HSW GLOBAL
             </motion.p>
           </div>
         </motion.header>

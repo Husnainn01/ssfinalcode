@@ -30,6 +30,7 @@ export default function CarInquiryForm({ carDetails }) {
   });
   const [errors, setErrors] = useState({});
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [selectedPriceType, setSelectedPriceType] = useState('FOB');
 
   const vehicleDetails = {
     model: carDetails?.title || "N/A",
@@ -201,10 +202,43 @@ export default function CarInquiryForm({ carDetails }) {
               <h4 className="text-lg font-semibold text-gray-900">Quick Quote Request</h4>
             </div>
             <div className="text-right">
-              <p className="text-3xl font-bold text-blue-950">
-                ${carDetails.price.toLocaleString()}
-              </p>
-              <div className="flex items-center gap-1.5 text-gray-600 mt-1 justify-end">
+              <div className="flex items-center justify-end gap-2">
+                <span className="text-lg font-semibold text-gray-700">FOB:</span>
+                <p className="text-3xl font-bold text-blue-950">
+                  ${carDetails.price.toLocaleString()}
+                </p>
+              </div>
+
+              <div className="flex flex-col items-end gap-1.5 mt-2">
+                <div className="flex items-center justify-between w-[100px]">
+                  <button
+                    onClick={() => setSelectedPriceType('C&F')}
+                    className={`px-3 py-1 text-xs rounded-full min-w-[60px] ${
+                      selectedPriceType === 'C&F' 
+                        ? 'bg-blue-600 text-white' 
+                        : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
+                    }`}
+                  >
+                    C&F
+                  </button>
+                  <span className="text-xs text-gray-500">ASK</span>
+                </div>
+                <div className="flex items-center justify-between w-[100px]">
+                  <button
+                    onClick={() => setSelectedPriceType('CIF')}
+                    className={`px-3 py-1 text-xs rounded-full min-w-[60px] ${
+                      selectedPriceType === 'CIF' 
+                        ? 'bg-blue-600 text-white' 
+                        : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
+                    }`}
+                  >
+                    CIF
+                  </button>
+                  <span className="text-xs text-gray-500">ASK</span>
+                </div>
+              </div>
+
+              <div className="flex items-center gap-1.5 text-gray-600 mt-2 justify-end">
                 <FaMapMarkerAlt className="w-3.5 h-3.5" />
                 <span className="text-sm font-medium flex items-center gap-1">
                   {carDetails.country || "N/A"}

@@ -1,4 +1,4 @@
 export const metadata = {
-  title: 'About Us | Global Drive Motors',
-  description: 'Learn more about Global Drive Motors, your trusted Japanese used car dealer'
+  title: 'About Us | HSW GLOBAL',
+  description: 'Learn more about HSW GLOBAL, DREAM CAR CLICK AWAY'
 } 

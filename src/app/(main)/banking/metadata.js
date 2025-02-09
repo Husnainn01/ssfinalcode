@@ -1,4 +1,4 @@
 export const metadata = {
-  title: 'Banking Information | Global Drive Motors',
-  description: 'Secure banking and payment information for Global Drive Motors customers'
+  title: 'Banking Information | HSW GLOBAL',
+  description: 'Secure banking and payment information for HSW GLOBAL customers'
 } 
