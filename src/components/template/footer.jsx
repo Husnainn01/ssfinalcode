@@ -241,7 +241,7 @@ export default function Footer() {
                   </a>
                 </li>
                 <li>
-                  <a href="/blog" className="group inline-flex items-center text-[#E2F1E7] transition-all hover:text-[#629584]">
+                  <a href="/blogPost" className="group inline-flex items-center text-[#E2F1E7] transition-all hover:text-[#629584]">
                     <span className="translate-x-0 transition-transform group-hover:translate-x-1">Blog</span>
                   </a>
                 </li>

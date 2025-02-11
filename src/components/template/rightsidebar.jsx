@@ -47,7 +47,7 @@ const RightSidebar = () => {
       <div className="grid grid-cols-2 gap-4">
         {/* Korea Stock */}
         <Link 
-          href="/stock/korea" 
+          href="/cars?country=Korea" 
           className="group bg-white rounded-xl shadow-md hover:shadow-lg transition-all duration-300 overflow-hidden"
         >
           <div className="bg-gradient-to-r from-blue-900 to-blue-800 p-3">
@@ -64,7 +64,7 @@ const RightSidebar = () => {
 
         {/* USA Stock */}
         <Link 
-          href="/stock/usa" 
+          href="/cars?country=USA" 
           className="group bg-white rounded-xl shadow-md hover:shadow-lg transition-all duration-300 overflow-hidden"
         >
           <div className="bg-gradient-to-r from-blue-900 to-blue-800 p-3">

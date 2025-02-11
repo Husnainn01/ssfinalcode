@@ -107,6 +107,9 @@ const PostList = () => {
     'For Handicapped'
   ];
 
+  const [isCountryOpen, setIsCountryOpen] = useState(false);
+  const [countrySearch, setCountrySearch] = useState("");
+
   useEffect(() => {
     const fetchData = async () => {
       try {
@@ -468,13 +471,69 @@ const PostList = () => {
             modelData.map((model) => model.model),
             isModelDisabled
           )}
-          {renderSelectField(
-            "Country",
-            "country",
-            formData.country,
-            Array.isArray(countryData) ? countryData.map(country => country.name) : [],
-            false
-          )}
+          <div className="relative">
+            <label className="block text-sm mb-1 text-purple-600">Country</label>
+            <div 
+              className="w-full px-3 py-2 bg-white rounded-md border border-gray-200 cursor-pointer"
+              onClick={() => setIsCountryOpen(!isCountryOpen)}
+            >
+              <div className="flex justify-between items-center">
+                <span className={`text-sm ${!formData.country ? 'text-gray-500' : 'text-gray-900'}`}>
+                  {formData.country || "Select"}
+                </span>
+                <span className="text-gray-400">
+                  <svg width="12" height="12" viewBox="0 0 12 12" fill="none">
+                    <path d="M3 4.5L6 7.5L9 4.5" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
+                  </svg>
+                </span>
+              </div>
+            </div>
+            
+            {isCountryOpen && (
+              <div className="absolute w-full mt-1 border border-gray-200 rounded-md bg-white shadow-sm z-50">
+                <div className="p-2 border-b border-gray-200">
+                  <div className="relative">
+                    <input
+                      type="text"
+                      placeholder="Type a country"
+                      value={countrySearch}
+                      onChange={(e) => setCountrySearch(e.target.value)}
+                      className="w-full px-3 py-2 text-sm bg-gray-50 border border-gray-200 rounded-md pr-8"
+                    />
+                    <span className="absolute right-2 top-1/2 -translate-y-1/2 text-gray-400">
+                      <svg width="14" height="14" viewBox="0 0 24 24" fill="none">
+                        <path d="M21 21L15 15M17 10C17 13.866 13.866 17 10 17C6.13401 17 3 13.866 3 10C3 6.13401 6.13401 3 10 3C13.866 3 17 6.13401 17 10Z" 
+                          stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+                      </svg>
+                    </span>
+                  </div>
+                </div>
+                
+                <div className="p-1">
+                  <p className="text-xs text-gray-500 px-2 py-1">Please select:</p>
+                  <div className="max-h-48 overflow-y-auto">
+                    {countryData
+                      .filter(country => 
+                        country.name.toLowerCase().includes(countrySearch.toLowerCase())
+                      )
+                      .map((country) => (
+                        <div
+                          key={country.name}
+                          className="px-3 py-1.5 text-sm hover:bg-gray-50 cursor-pointer"
+                          onClick={() => {
+                            setFormData(prev => ({ ...prev, country: country.name }));
+                            setIsCountryOpen(false);
+                            setCountrySearch("");
+                          }}
+                        >
+                          {country.name}
+                        </div>
+                      ))}
+                  </div>
+                </div>
+              </div>
+            )}
+          </div>
           {renderSelectField(
             "Other Categories",
             "category",
