@@ -1,5 +1,5 @@
 "use client";
-import { FaHome, FaCar, FaPlus, FaList, FaBlogger, FaTags, FaUserShield } from 'react-icons/fa';
+import { FaHome, FaCar, FaPlus, FaList, FaBlogger, FaTags, FaUserShield, FaGlobe } from 'react-icons/fa';
 import { IoIosColorPalette } from "react-icons/io";
 import { SiRollsroyce } from "react-icons/si";
 import { GiCarDoor } from "react-icons/gi";
@@ -76,6 +76,7 @@ const AdminMenu = ({ children }) => {
               <MenuItem href="/admin/dashboard/listing/features" icon={GiCarDoor} label="Features" />
               <MenuItem href="/admin/dashboard/listing/safety-features" icon={AiOutlineSafety} label="Safety" />
               <MenuItem href="/admin/dashboard/listing/type" icon={FaList} label="Type" />
+              <MenuItem href="/admin/dashboard/listing/countries" icon={FaGlobe} label="Countries" />
             </MenuSection>
 
             <MenuSection title="Content Management">

@@ -42,8 +42,8 @@ export default function Header() {
           <div className="flex items-center justify-between px-4 md:px-8 py-4">
             <Link href="/" className="flex items-center space-x-3">
               <img 
-                src="/ss-logo6.png" 
-                alt="Logo" 
+                src="/hswlogo.svg" 
+                alt="HSW Global Logo" 
                 className="h-8 w-auto transition-transform duration-200 hover:scale-105" 
               />
               <span className="hidden md:block font-semibold text-xl">

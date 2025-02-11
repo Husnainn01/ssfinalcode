@@ -1,7 +1,7 @@
 "use client";
 import { useEffect, useState } from "react";
-import { MdDelete, MdModeEdit } from "react-icons/md";
-import { Input, Button, Spinner } from "@nextui-org/react";
+import { MdDelete, MdModeEdit, MdSearch } from "react-icons/md";
+import { Input, Button, Spinner, Pagination } from "@nextui-org/react";
 import CustomModal from '@/components/block/modal';
 import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
@@ -14,7 +14,10 @@ export default function Types() {
     const [error, setError] = useState("");
     const [deleteTypeId, setDeleteTypeId] = useState(null);
     const [isDeleteModalVisible, setIsDeleteModalVisible] = useState(false);
+    const [currentPage, setCurrentPage] = useState(1);
+    const itemsPerPage = 10;
     const typesApiEndpoint = "/api/listing/type";
+    const [searchQuery, setSearchQuery] = useState("");
 
     useEffect(() => {
         fetchData();
@@ -25,13 +28,49 @@ export default function Types() {
             const response = await fetch(typesApiEndpoint);
             if (!response.ok) throw new Error("Network response was not ok");
             const data = await response.json();
-            setTypesData(data);
+            // Sort types alphabetically
+            const sortedData = data.sort((a, b) => a.type.localeCompare(b.type));
+            setTypesData(sortedData);
         } catch (error) {
             console.error("Error fetching data:", error);
             toast.error("Failed to fetch types");
         } finally {
             setLoading(false);
         }
+    };
+
+    // Filter types based on search query
+    const filteredTypes = typesData.filter(type =>
+        type.type.toLowerCase().includes(searchQuery.toLowerCase())
+    );
+
+    // Group filtered types by first letter
+    const groupedTypes = filteredTypes.reduce((groups, type) => {
+        const firstLetter = type.type.charAt(0).toUpperCase();
+        if (!groups[firstLetter]) {
+            groups[firstLetter] = [];
+        }
+        groups[firstLetter].push(type);
+        return groups;
+    }, {});
+
+    // Get sorted array of letters
+    const letters = Object.keys(groupedTypes).sort();
+
+    // Get paginated letters
+    const getPageItems = (items, page) => {
+        const start = (page - 1) * itemsPerPage;
+        const end = start + itemsPerPage;
+        return items.slice(start, end);
+    };
+
+    const paginatedLetters = getPageItems(letters, currentPage);
+
+    // Handle page change
+    const handlePageChange = (page) => {
+        setCurrentPage(page);
+        // Smooth scroll to top of list
+        document.querySelector('.types-list')?.scrollIntoView({ behavior: 'smooth' });
     };
 
     const handleAddType = async (e) => {
@@ -146,29 +185,84 @@ export default function Types() {
                 </div>
 
                 <div className="w-full lg:w-1/2 p-4 rounded-lg shadow-md bg-white">
-                    <h2 className="text-xl font-bold mb-4">Type List</h2>
-                    <ul className="list-disc pl-5 space-y-4">
-                        {typesData.map((typeItem) => (
-                            <li key={typeItem._id} className="flex justify-between items-center p-4 rounded-md bg-slate-50">
-                                <p className="font-medium">{typeItem.type}</p>
-                                <div className="flex space-x-2">
-                                    <button
-                                        onClick={() => {
-                                            setSelectedType(typeItem);
-                                            setNewType(typeItem.type);
-                                        }}
-                                        className="h-8 w-8 shadow-inner rounded-full flex justify-center items-center bg-teal-50">
-                                        <MdModeEdit />
-                                    </button>
-                                    <button
-                                        onClick={() => openDeleteModal(typeItem._id)}
-                                        className="h-8 w-8 shadow-inner rounded-full flex justify-center items-center bg-red-50">
-                                        <MdDelete />
-                                    </button>
+                    <div className="flex flex-col space-y-4">
+                        <h2 className="text-xl font-bold">Type List</h2>
+                        
+                        {/* Search Bar */}
+                        <div className="relative">
+                            <Input
+                                type="text"
+                                placeholder="Search types..."
+                                value={searchQuery}
+                                onChange={(e) => setSearchQuery(e.target.value)}
+                                startContent={<MdSearch className="text-gray-400" />}
+                                className="w-full"
+                                classNames={{
+                                    input: "bg-transparent",
+                                    inputWrapper: "bg-default-100"
+                                }}
+                            />
+                        </div>
+
+                        <div className="types-list space-y-6 max-h-[600px] overflow-y-auto mt-4">
+                            {paginatedLetters.map(letter => (
+                                <div key={letter} className="mb-4">
+                                    <h3 className="text-lg font-semibold text-gray-700 mb-2 border-b border-gray-200 pb-1 sticky top-0 bg-white">
+                                        {letter}
+                                    </h3>
+                                    <ul className="space-y-2">
+                                        {groupedTypes[letter].map((typeItem) => (
+                                            <li 
+                                                key={typeItem._id} 
+                                                className="flex justify-between items-center p-3 rounded-md bg-slate-50 hover:bg-slate-100 transition-colors"
+                                            >
+                                                <p className="font-medium">{typeItem.type}</p>
+                                                <div className="flex space-x-2">
+                                                    <button
+                                                        onClick={() => {
+                                                            setSelectedType(typeItem);
+                                                            setNewType(typeItem.type);
+                                                        }}
+                                                        className="h-8 w-8 shadow-inner rounded-full flex justify-center items-center bg-teal-50 hover:bg-teal-100 transition-colors"
+                                                    >
+                                                        <MdModeEdit />
+                                                    </button>
+                                                    <button
+                                                        onClick={() => openDeleteModal(typeItem._id)}
+                                                        className="h-8 w-8 shadow-inner rounded-full flex justify-center items-center bg-red-50 hover:bg-red-100 transition-colors"
+                                                    >
+                                                        <MdDelete />
+                                                    </button>
+                                                </div>
+                                            </li>
+                                        ))}
+                                    </ul>
                                 </div>
-                            </li>
-                        ))}
-                    </ul>
+                            ))}
+                            
+                            {/* No results message */}
+                            {Object.keys(groupedTypes).length === 0 && (
+                                <div className="text-center py-8 text-gray-500">
+                                    No types found matching your search.
+                                </div>
+                            )}
+                        </div>
+
+                        {/* Pagination */}
+                        {Object.keys(groupedTypes).length > 0 && (
+                            <div className="mt-6 flex justify-center">
+                                <Pagination
+                                    total={Math.ceil(Object.keys(groupedTypes).length / itemsPerPage)}
+                                    page={currentPage}
+                                    onChange={handlePageChange}
+                                    color="primary"
+                                    size="sm"
+                                    showControls
+                                    className="overflow-visible"
+                                />
+                            </div>
+                        )}
+                    </div>
                 </div>
             </div>
 
