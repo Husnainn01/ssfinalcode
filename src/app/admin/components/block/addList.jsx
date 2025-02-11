@@ -309,7 +309,11 @@ const PostList = () => {
     if (!formData.offerType) errors.offerType = "Offer Type is required";
     if (!formData.priceCurrency) errors.priceCurrency = "Price Currency is required";
     if (!formData.stockNumber.trim()) errors.stockNumber = "Stock Number is required";
-    if (!formData.section) errors.section = "Section is required";
+    if (!formData.section) {
+      errors.section = "Display section is required";
+    } else if (!sectionOptions.includes(formData.section)) {
+      errors.section = "Invalid section selected";
+    }
     if (!formData.country) errors.country = "Country is required";
     if (!formData.mileageUnit) errors.mileageUnit = "Mileage Unit is required";
 
@@ -333,41 +337,41 @@ const PostList = () => {
     setIsSubmitting(true);
 
     try {
+      if (!validateForm()) {
+        toast.error("Please fill in all required fields");
+        setIsSubmitting(false);
+        return;
+      }
+
       // Upload images first
       const imageUrls = await uploadImages();
-
-      // Prepare the data
-      const submitData = {
+      
+      // Prepare the data for submission
+      const submissionData = {
         ...formData,
         images: imageUrls,
-        country: formData.country.toLowerCase(), // Ensure country is lowercase for consistent routing
-        visibility: "Active", // Add default visibility
-        status: "active",    // Add default status
-        offerType: formData.offerType || "In Stock" // Add default offer type if not set
+        image: imageUrls[0], // Main image
+        section: formData.section, // This will now be either "recent" or "popular", not both
+        date: new Date().toISOString(),
       };
 
-      // Submit to your API
-      const response = await fetch('/api/listing/create', {
-        method: 'POST',
+      const response = await fetch("/api/listing/car", {
+        method: "POST",
         headers: {
-          'Content-Type': 'application/json',
+          "Content-Type": "application/json",
         },
-        body: JSON.stringify(submitData),
+        body: JSON.stringify(submissionData),
       });
 
       if (!response.ok) {
-        throw new Error('Failed to create listing');
+        throw new Error("Failed to submit listing");
       }
 
-      toast.success('Listing created successfully');
-      // Reset form or redirect
-      setResetImageUpload(prev => !prev);
-      setFormData({
-        // ... reset form data
-      });
+      toast.success("Listing added successfully!");
+      resetForm();
     } catch (error) {
-      console.error('Error creating listing:', error);
-      toast.error(error.message || 'Failed to create listing');
+      console.error("Error submitting form:", error);
+      toast.error(error.message || "Failed to add listing");
     } finally {
       setIsSubmitting(false);
     }
@@ -401,13 +405,14 @@ const PostList = () => {
     name,
     value,
     options,
-    isDisabled = false
+    isDisabled = false,
+    placeholder = "Select"
   ) => (
     <div className="w-full">
       <Select
         label={label}
         variant="bordered"
-        placeholder={`Select ${label}`}
+        placeholder={placeholder}
         name={name}
         color={validationErrors[name] ? "danger" : "secondary"}
         value={value}
@@ -517,7 +522,14 @@ const PostList = () => {
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
           {renderSelectField("Visibility", "visibility", formData.visibility, visibilityOptions)}
           {renderSelectField("Offer Type", "offerType", formData.offerType, offerTypeOptions)}
-          {renderSelectField("Section", "section", formData.section, sectionOptions)}
+          {renderSelectField(
+            "Display Section",
+            "section",
+            formData.section,
+            sectionOptions,
+            false,
+            "Select where to display this listing"
+          )}
           {renderInputField("date", "date", "Enter date", "Date", "date")}
         </div>
 

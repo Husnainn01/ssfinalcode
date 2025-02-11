@@ -3,12 +3,17 @@ import dbConnect from '@/lib/dbConnect';
 import Car from '@/models/Car';
 import slugify from 'slugify';
 
-// GET method - Get car by slug
+// GET method - Get car by slug and section
 export async function GET(request, { params }) {
   try {
     await dbConnect();
     const { slug } = params;
-    const car = await Car.findOne({ slug });
+    const { searchParams } = new URL(request.url);
+    const section = searchParams.get('section');
+
+    // Build query based on section if provided
+    const query = section ? { slug, section } : { slug };
+    const car = await Car.findOne(query);
     
     if (!car) {
       return NextResponse.json(
@@ -32,6 +37,14 @@ export async function POST(request) {
     await dbConnect();
     const data = await request.json();
     
+    // Validate section
+    if (!['recent', 'popular'].includes(data.section)) {
+      return NextResponse.json(
+        { error: 'Invalid section. Must be either "recent" or "popular".' },
+        { status: 400 }
+      );
+    }
+
     // Generate slug from title
     const slug = slugify(data.title, {
       lower: true,
@@ -42,7 +55,8 @@ export async function POST(request) {
     const carData = {
       ...data,
       slug,
-      images: data.images || [], // Ensure images array exists
+      images: data.images || [],
+      section: data.section, // Ensure section is set
       createdAt: new Date(),
       updatedAt: new Date()
     };
@@ -55,11 +69,12 @@ export async function POST(request) {
       const timestamp = Date.now();
       await Promise.all([
         fetch(`${baseUrl}/api/revalidate?path=/cars&t=${timestamp}`),
-        fetch(`${baseUrl}/api/revalidate?path=/admin/dashboard/listing&t=${timestamp}`)
+        fetch(`${baseUrl}/api/revalidate?path=/admin/dashboard/listing&t=${timestamp}`),
+        // Add section-specific revalidation
+        fetch(`${baseUrl}/api/revalidate?path=/cars/${data.section}&t=${timestamp}`)
       ]);
     } catch (revalidateError) {
       console.error('Revalidation error:', revalidateError);
-      // Continue even if revalidation fails
     }
 
     return NextResponse.json(
@@ -82,9 +97,12 @@ export async function PUT(request, { params }) {
     const { slug } = params;
     const data = await request.json();
 
-    // Ensure images array is properly handled
-    if (data.images) {
-      console.log('New image order:', data.images);
+    // Validate section if it's being updated
+    if (data.section && !['recent', 'popular'].includes(data.section)) {
+      return NextResponse.json(
+        { error: 'Invalid section. Must be either "recent" or "popular".' },
+        { status: 400 }
+      );
     }
 
     const updatedCar = await Car.findOneAndUpdate(
@@ -111,11 +129,14 @@ export async function PUT(request, { params }) {
 
     // Force revalidation
     try {
+      const baseUrl = process.env.NEXT_PUBLIC_API_URL;
       const timestamp = Date.now();
       await Promise.all([
-        fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/revalidate?path=/cars/${slug}&t=${timestamp}`),
-        fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/revalidate?path=/admin/dashboard/listing&t=${timestamp}`),
-        fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/revalidate?path=/cars&t=${timestamp}`)
+        fetch(`${baseUrl}/api/revalidate?path=/cars/${slug}&t=${timestamp}`),
+        fetch(`${baseUrl}/api/revalidate?path=/admin/dashboard/listing&t=${timestamp}`),
+        fetch(`${baseUrl}/api/revalidate?path=/cars&t=${timestamp}`),
+        // Add section-specific revalidation
+        fetch(`${baseUrl}/api/revalidate?path=/cars/${updatedCar.section}&t=${timestamp}`)
       ]);
     } catch (revalidateError) {
       console.error('Revalidation error:', revalidateError);

@@ -53,7 +53,8 @@ const CarSchema = new mongoose.Schema({
   section: {
     type: String,
     enum: ['recent', 'popular'],
-    default: 'recent'
+    default: 'recent',
+    required: true
   },
   offerType: {
     type: String,

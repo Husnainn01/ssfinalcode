@@ -390,8 +390,18 @@ export default function PostList({ params }) {
       errors.year = 'Valid year is required';
     }
 
+    if (!formData.section) {
+      errors.section = "Section is required";
+    } else if (!["recent", "popular"].includes(formData.section)) {
+      errors.section = "Invalid section selected";
+    }
+
     setValidationErrors(errors);
-    return Object.keys(errors).length === 0;
+    if (Object.keys(errors).length > 0) {
+      Object.values(errors).forEach(error => toast.error(error));
+      return false;
+    }
+    return true;
   };
 
   const handleSubmit = async (e) => {
@@ -399,31 +409,22 @@ export default function PostList({ params }) {
     setIsSubmitting(true);
 
     try {
-      // First, validate the form
       if (!validateForm()) {
         setIsSubmitting(false);
         return;
       }
 
-      // Upload new images if any
       const newImageUrls = selectedFiles.length > 0 ? await uploadImages() : [];
-      console.log('New image URLs:', newImageUrls);
-
-      // Important: Use reorderedImages instead of formData.images
-      // This ensures we keep the current order of existing images
       const allImages = [...reorderedImages, ...newImageUrls];
-      console.log('All images to be saved:', allImages);
 
-      // Prepare the submission data
       const submitData = {
         ...formData,
-        images: allImages, // Use the combined array with preserved order
+        images: allImages,
         country: formData.country.toLowerCase(),
+        section: formData.section
       };
 
-      // Remove _id from the submission data
       delete submitData._id;
-      console.log('Data being submitted:', submitData);
 
       const response = await fetch(`/api/cars/${id}`, {
         method: 'PUT',
@@ -434,30 +435,27 @@ export default function PostList({ params }) {
       });
 
       const responseData = await response.json();
-      console.log('Response from server:', responseData);
 
       if (!response.ok) {
         throw new Error(responseData.message || 'Failed to update listing');
       }
 
-      // Update local state with the response data
       setFormData(responseData);
       setExistingImages(responseData.images || []);
-      setReorderedImages(responseData.images || []); // Make sure to update reorderedImages
+      setReorderedImages(responseData.images || []);
 
       toast.success('Listing updated successfully');
       
-      // Force a cache revalidation before redirecting
       await Promise.all([
         fetch(`/api/revalidate?path=/cars/${id}`),
         fetch(`/api/revalidate?path=/admin/dashboard/listing`),
         fetch(`/api/revalidate?path=/cars`),
+        fetch(`/api/revalidate?path=/cars/${formData.section}`)
       ]);
       
-      // Add a longer delay before redirecting
       setTimeout(() => {
         router.push('/admin/dashboard/listing');
-        router.refresh(); // Force a router refresh
+        router.refresh();
       }, 2000);
 
     } catch (error) {

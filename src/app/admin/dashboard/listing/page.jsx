@@ -1,7 +1,7 @@
 "use client";
 import React, { useState, useEffect } from "react";
 import Link from "next/link";
-import { Image, Skeleton } from "@nextui-org/react";
+import { Image, Skeleton, Pagination } from "@nextui-org/react";
 import { MdOutlineDelete, MdModeEdit } from "react-icons/md";
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
@@ -21,6 +21,23 @@ export default function CarListing() {
   // Initialize toggle states properly
   const [toggleStates, setToggleStates] = useState({});
 
+  // Add pagination state
+  const [currentPage, setCurrentPage] = useState(1);
+  const itemsPerPage = 12;
+
+  // Add pagination calculation
+  const totalPages = Math.ceil(filteredListing.length / itemsPerPage);
+  const currentItems = filteredListing.slice(
+    (currentPage - 1) * itemsPerPage,
+    currentPage * itemsPerPage
+  );
+
+  // Add page change handler
+  const handlePageChange = (page) => {
+    setCurrentPage(page);
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  };
+
   useEffect(() => {
     fetchData();
   }, []);
@@ -32,6 +49,7 @@ export default function CarListing() {
           item.title.toLowerCase().includes(searchQuery.toLowerCase())
         )
       );
+      setCurrentPage(1); // Reset to first page when searching
     } else {
       setFilteredListing(listing);
     }
@@ -270,102 +288,120 @@ export default function CarListing() {
       {notFound && !loading && <p className="text-center mt-4">Not Found</p>}
 
       {!loading && !error && !notFound && (
-        <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4">
-          {filteredListing.map((item, index) => (
-            <div
-              key={item._id}
-              className="listingCard shadow-md p-4 mb-4 rounded-lg flex flex-col gap-1 bg-white relative"
-            >
-              <div className="relative h-[200px] mb-4">
-                <p className={`absolute top-2 left-2 z-10 text-white text-sm px-2 py-1 rounded-md font-medium ${
-                  item.visibility === "Active" ? "bg-green-600" : "bg-red-600"
-                }`}>
-                  {item.visibility}
-                </p>
-                <div className="absolute top-2 right-2 z-10">
-                  {item.stockNumber ? (
-                    <p className="bg-blue-600 text-white text-sm px-2 py-1 rounded-md font-medium">
-                      Stock #: {item.stockNumber}
-                    </p>
-                  ) : (
-                    <p className="bg-gray-600 text-white text-sm px-2 py-1 rounded-md font-medium">
-                      No Stock #
-                    </p>
+        <>
+          <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4">
+            {currentItems.map((item, index) => (
+              <div
+                key={item._id}
+                className="listingCard shadow-md p-4 mb-4 rounded-lg flex flex-col gap-1 bg-white relative"
+              >
+                <div className="relative h-[200px] mb-4">
+                  <p className={`absolute top-2 left-2 z-10 text-white text-sm px-2 py-1 rounded-md font-medium ${
+                    item.visibility === "Active" ? "bg-green-600" : "bg-red-600"
+                  }`}>
+                    {item.visibility}
+                  </p>
+                  <div className="absolute top-2 right-2 z-10">
+                    {item.stockNumber ? (
+                      <p className="bg-blue-600 text-white text-sm px-2 py-1 rounded-md font-medium">
+                        Stock #: {item.stockNumber}
+                      </p>
+                    ) : (
+                      <p className="bg-gray-600 text-white text-sm px-2 py-1 rounded-md font-medium">
+                        No Stock #
+                      </p>
+                    )}
+                  </div>
+                  <img
+                    src={item.images?.[0] || item.image || '/placeholder.jpg'}
+                    className="h-full w-full object-cover rounded-md"
+                    alt={item.title}
+                    onClick={() => handleToggle(item._id)}
+                  />
+                  <div className="absolute bottom-2 left-2 z-10">
+                    <select
+                      value={item.offerType}
+                      onChange={(e) => handleStatusChange(item._id, e.target.value)}
+                      data-id={item._id}
+                      className={`text-sm px-2 py-1 rounded-md font-medium cursor-pointer transition-colors duration-200
+                        ${item.offerType === "Sold" 
+                          ? "bg-red-100 text-red-600 hover:bg-red-200" 
+                          : "bg-green-100 text-green-600 hover:bg-green-200"}`}
+                    >
+                      <option value="In Stock">In Stock</option>
+                      <option value="Sold">Sold</option>
+                    </select>
+                  </div>
+                  <div className="flex gap-2 absolute bottom-2 right-2 z-10">
+                    <Link
+                      href={`/admin/cars/edit/${item._id}`}
+                      className="w-8 h-8 flex items-center justify-center rounded-lg bg-primary-50 text-black shadow-inner hover:bg-primary-100"
+                    >
+                      <MdModeEdit className="text-lg" />
+                    </Link>
+                    <button
+                      onClick={() => handleDeleteClick(item._id)}
+                      className="w-8 h-8 flex items-center justify-center rounded-lg bg-red-50 text-black shadow-inner hover:bg-red-100"
+                    >
+                      <MdOutlineDelete className="text-lg" />
+                    </button>
+                  </div>
+                  {toggleStates[item._id] && (
+                    <div className="absolute top-full left-0 z-20 bg-white shadow-lg p-2 mt-2 rounded-md">
+                      {(item.images || []).map((img, index) => (
+                        <div key={index} className="relative">
+                          <img 
+                            src={img} 
+                            alt={`${item.title} ${index + 1}`}
+                            className="w-20 h-20 object-cover mb-2 rounded"
+                          />
+                        </div>
+                      ))}
+                    </div>
                   )}
                 </div>
-                <img
-                  src={item.image || item.images?.[0]}
-                  className="h-full w-full object-cover rounded-md"
-                  alt={item.title}
-                  onClick={() => handleToggle(item._id)}
-                />
-                <div className="absolute bottom-2 left-2 z-10">
-                  <select
-                    value={item.offerType}
-                    onChange={(e) => handleStatusChange(item._id, e.target.value)}
-                    data-id={item._id}
-                    className={`text-sm px-2 py-1 rounded-md font-medium cursor-pointer transition-colors duration-200
-                      ${item.offerType === "Sold" 
-                        ? "bg-red-100 text-red-600 hover:bg-red-200" 
-                        : "bg-green-100 text-green-600 hover:bg-green-200"}`}
-                  >
-                    <option value="In Stock">In Stock</option>
-                    <option value="Sold">Sold</option>
-                  </select>
-                </div>
-                <div className="flex gap-2 absolute bottom-2 right-2 z-10">
-                  <Link
-                    href={`/admin/cars/edit/${item._id}`}
-                    className="w-8 h-8 flex items-center justify-center rounded-lg bg-primary-50 text-black shadow-inner hover:bg-primary-100"
-                  >
-                    <MdModeEdit className="text-lg" />
-                  </Link>
-                  <button
-                    onClick={() => handleDeleteClick(item._id)}
-                    className="w-8 h-8 flex items-center justify-center rounded-lg bg-red-50 text-black shadow-inner hover:bg-red-100"
-                  >
-                    <MdOutlineDelete className="text-lg" />
-                  </button>
-                </div>
-                {toggleStates[item._id] && (
-                  <div className="absolute top-full left-0 z-20 bg-white shadow-lg p-2 mt-2 rounded-md">
-                    {item.images?.map((img, index) => (
-                      <div key={index} className="relative">
-                        <img 
-                          src={img} 
-                          alt={`${item.title} ${index + 1}`}
-                          className="w-20 h-20 object-cover mb-2 rounded"
-                        />
-                      </div>
-                    ))}
+                <div className="relative pt-2">
+                  <h2 className="text-base font-semibold mb-2">
+                    {item.title.length > 25 ? `${item.title.substring(0, 25)}...` : item.title}
+                  </h2>
+                  <div className="flex flex-wrap gap-2 text-sm">
+                    <p className="text-gray-600">
+                      Stock #: {item.stockNumber || 'N/A'}
+                    </p>
+                    <p className="text-gray-600">
+                      Make: {item.make}
+                    </p>
+                    <p className="text-gray-600">
+                      Model: {item.model}
+                    </p>
+                    <p className="text-gray-600">
+                      Price: ${item.price}
+                    </p>
                   </div>
-                )}
-              </div>
-              <div className="relative pt-2">
-                <h2 className="text-base font-semibold mb-2">
-                  {item.title.length > 25 ? `${item.title.substring(0, 25)}...` : item.title}
-                </h2>
-                <div className="flex flex-wrap gap-2 text-sm">
-                  <p className="text-gray-600">
-                    Stock #: {item.stockNumber || 'N/A'}
-                  </p>
-                  <p className="text-gray-600">
-                    Make: {item.make}
-                  </p>
-                  <p className="text-gray-600">
-                    Model: {item.model}
-                  </p>
-                  <p className="text-gray-600">
-                    Price: ${item.price}
+                  <p className="absolute -top-4 right-0 text-6xl opacity-5 font-bold">
+                    {index + 1}
                   </p>
                 </div>
-                <p className="absolute -top-4 right-0 text-6xl opacity-5 font-bold">
-                  {index + 1}
-                </p>
               </div>
+            ))}
+          </div>
+
+          {/* Add pagination component */}
+          {filteredListing.length > itemsPerPage && (
+            <div className="flex justify-center mt-6">
+              <Pagination
+                total={totalPages}
+                page={currentPage}
+                onChange={handlePageChange}
+                classNames={{
+                  wrapper: "gap-2",
+                  item: "w-8 h-8",
+                  cursor: "bg-primary text-white font-medium",
+                }}
+              />
             </div>
-          ))}
-        </div>
+          )}
+        </>
       )}
       <ToastContainer position="bottom-right" autoClose={2000} />
 
