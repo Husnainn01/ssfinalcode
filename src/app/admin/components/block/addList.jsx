@@ -26,7 +26,6 @@ const PostList = () => {
     image: "",
     price: "",
     priceCurrency: "USD",
-    description: "",
     make: "",
     model: "",
     year: "",
@@ -249,7 +248,6 @@ const PostList = () => {
       image: "",
       price: "",
       priceCurrency: "USD",
-      description: "",
       make: "",
       model: "",
       year: "",
@@ -306,7 +304,6 @@ const PostList = () => {
     if (!formData.cylinders) errors.cylinders = "Cylinders is required";
     if (!formData.vehicleSeatingCapacity) errors.vehicleSeatingCapacity = "Seating Capacity is required";
     if (!formData.vehicleTransmission) errors.vehicleTransmission = "Transmission is required";
-    if (!formData.description) errors.description = "Description is required";
     if (!formData.date) errors.date = "Date is required";
     if (!formData.visibility) errors.visibility = "Visibility is required";
     if (!formData.offerType) errors.offerType = "Offer Type is required";
@@ -636,29 +633,6 @@ const PostList = () => {
                 <p>No safety features available</p>
               )}
             </CheckboxGroup>
-          </div>
-        </div>
-
-        {/* Description Section */}
-        <div className="space-y-2">
-          <label className="text-sm font-medium">Description</label>
-          <div className="w-full">
-            {typeof window !== 'undefined' && (
-              <CKEditor
-                editor={ClassicEditor}
-                config={editorConfig}
-                data={formData.description || ''}
-                onChange={(event, editor) => {
-                  if (editor) {
-                    const data = editor.getData();
-                    setFormData(prev => ({
-                      ...prev,
-                      description: data
-                    }));
-                  }
-                }}
-              />
-            )}
           </div>
         </div>
 
