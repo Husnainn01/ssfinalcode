@@ -6,6 +6,7 @@ import { Skeleton } from "@nextui-org/react";
 import Link from 'next/link';
 import RecentSearches from './RecentSearches';
 import { FavoriteButton } from '@/components/ui/FavoriteButton';
+import { motion, AnimatePresence } from 'framer-motion';
 
 function Listing() {
     const [listing, setListing] = useState([]);
@@ -18,10 +19,12 @@ function Listing() {
     const [loadingPopular, setLoadingPopular] = useState(true);
     const [recentPage, setRecentPage] = useState(1);
     const [popularPage, setPopularPage] = useState(1);
-    const carsPerPage = 30;
-    const carsPerRow = 5; // 5 cars per row
-    const rowsToShow = 6; // 6 rows to make 30 cars
+    const carsPerPage = 10;
+    const carsPerRow = 5;
+    const rowsToShow = 2;
     const baseUrl = process.env.NEXT_PUBLIC_BASE_URL
+    const [allListings, setAllListings] = useState([]);
+    const [allPopularCars, setAllPopularCars] = useState([]);
 
     useEffect(() => {
         // Load recent views from localStorage on component mount
@@ -44,7 +47,8 @@ function Listing() {
                 );
 
                 setTotalPopularCars(japanesePopularCars.length);
-                setPopularCars(japanesePopularCars.slice(0, carsPerPage)); // Show first 30 cars
+                setAllPopularCars(japanesePopularCars);
+                setPopularCars(japanesePopularCars.slice(0, 10));
             } catch (error) {
                 console.error("Error fetching popular cars:", error);
             } finally {
@@ -88,8 +92,9 @@ function Listing() {
                     .sort((a, b) => new Date(b.date) - new Date(a.date));
                 
                 setTotalItems(data.length);
-                // Show first 30 items in the listing
-                setListing(data.slice(0, carsPerPage));
+                setAllListings(data);
+                // Show first 10 items in the listing
+                setListing(data.slice(0, 10));
             } catch (error) {
                 console.error("Error fetching listing:", error);
             } finally {
@@ -104,34 +109,78 @@ function Listing() {
     const handleRecentPageChange = (newPage) => {
         setRecentPage(newPage);
         const startIndex = (newPage - 1) * carsPerPage;
-        setListing(listing.slice(startIndex, startIndex + carsPerPage));
+        setListing(allListings.slice(startIndex, startIndex + carsPerPage));
     };
 
     const handlePopularPageChange = (newPage) => {
         setPopularPage(newPage);
         const startIndex = (newPage - 1) * carsPerPage;
-        setPopularCars(popularCars.slice(startIndex, startIndex + carsPerPage));
+        setPopularCars(allPopularCars.slice(startIndex, startIndex + carsPerPage));
     };
 
     // Pagination component
     const Pagination = ({ currentPage, totalItems, onPageChange }) => {
         const totalPages = Math.ceil(totalItems / carsPerPage);
         
+        const handlePrevPage = () => {
+            if (currentPage > 1) {
+                onPageChange(currentPage - 1);
+            }
+        };
+
+        const handleNextPage = () => {
+            if (currentPage < totalPages) {
+                onPageChange(currentPage + 1);
+            }
+        };
+
         return (
-            <div className="flex justify-center items-center gap-3 mt-8">
-                {Array.from({ length: totalPages }, (_, i) => i + 1).map((page) => (
-                    <button
-                        key={page}
-                        onClick={() => onPageChange(page)}
-                        className={`px-4 py-2 rounded-md transition-all duration-200 ${
-                            currentPage === page
-                                ? 'bg-blue-950 text-white shadow-md'
-                                : 'bg-white hover:bg-gray-50 text-gray-700 shadow-sm'
-                        }`}
-                    >
-                        {page}
-                    </button>
-                ))}
+            <div className="flex justify-center items-center gap-2 mt-8">
+                {/* Previous Button */}
+                <button
+                    onClick={handlePrevPage}
+                    disabled={currentPage === 1}
+                    className={`w-8 h-8 rounded-full flex items-center justify-center transition-all duration-200
+                        ${currentPage === 1 
+                            ? 'text-gray-400 cursor-not-allowed' 
+                            : 'text-blue-950 hover:bg-blue-950 hover:text-white'}`}
+                >
+                    <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" viewBox="0 0 20 20" fill="currentColor">
+                        <path fillRule="evenodd" d="M12.707 5.293a1 1 0 010 1.414L9.414 10l3.293 3.293a1 1 0 01-1.414 1.414l-4-4a1 1 0 010-1.414l4-4a1 1 0 011.414 0z" clipRule="evenodd" />
+                    </svg>
+                </button>
+
+                {/* Page Numbers */}
+                <div className="flex items-center gap-1">
+                    {Array.from({ length: totalPages }, (_, i) => i + 1).map((page) => (
+                        <motion.button
+                            key={page}
+                            onClick={() => onPageChange(page)}
+                            whileHover={{ scale: 1.1 }}
+                            whileTap={{ scale: 0.95 }}
+                            className={`w-8 h-8 rounded-full flex items-center justify-center text-sm font-medium transition-all duration-200
+                                ${currentPage === page
+                                    ? 'bg-blue-950 text-white shadow-md scale-110'
+                                    : 'bg-white hover:bg-gray-50 text-gray-700 hover:text-blue-950'}`}
+                        >
+                            {page}
+                        </motion.button>
+                    ))}
+                </div>
+
+                {/* Next Button */}
+                <button
+                    onClick={handleNextPage}
+                    disabled={currentPage === totalPages}
+                    className={`w-8 h-8 rounded-full flex items-center justify-center transition-all duration-200
+                        ${currentPage === totalPages 
+                            ? 'text-gray-400 cursor-not-allowed' 
+                            : 'text-blue-950 hover:bg-blue-950 hover:text-white'}`}
+                >
+                    <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" viewBox="0 0 20 20" fill="currentColor">
+                        <path fillRule="evenodd" d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z" clipRule="evenodd" />
+                    </svg>
+                </button>
             </div>
         );
     };
@@ -171,92 +220,109 @@ function Listing() {
                     </div>
 
                     <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-4">
-                        {loading ? (
-                            <>
-                                {Array(30).fill(null).map((_, index) => (
-                                    <div key={index}>{renderSkeleton()}</div>
-                                ))}
-                            </>
-                        ) : (
-                            listing.map((item) => (
-                                <Link 
-                                    key={item._id} 
-                                    href={`/cars/${item._id}`}
-                                    className="group"
-                                >
-                                    <div className="bg-white rounded-xl overflow-hidden shadow-sm 
-                                        hover:shadow-xl transition-all duration-300">
-                                        {/* Image Container with Stock Number and Favorite Button */}
-                                        <div className="relative">
-                                            <img
-                                                src={item.images?.[0] || item.image || '/placeholder-car.png'}
-                                                alt={`${item.make} ${item.model}`}
-                                                className="w-full h-28 object-cover"
-                                                onError={(e) => {
-                                                    console.error('Image load error:', item.image);
-                                                    e.target.onerror = null; // Prevent infinite loop
-                                                    e.target.src = '/placeholder-car.png';
-                                                }}
-                                            />
-                                            <div className="absolute top-2 right-2 bg-black/70 px-2 py-1 
-                                                rounded text-xs text-white backdrop-blur-sm font-medium">
-                                                Stock: #{item.stockNumber}
-                                            </div>
-                                            {/* Add Favorite Button */}
-                                            <div className="absolute top-2 left-2 bg-black/90 rounded">
-                                                <FavoriteButton carId={item._id} />
-                                            </div>
-                                            {/* Add SOLD badge */}
-                                            {item.offerType === "Sold" && (
-                                                <div className="absolute bottom-2 left-2 bg-red-600/90 text-white px-2 py-0.5 rounded-sm">
-                                                    <span className="text-[10px] font-bold tracking-wide">SOLD</span>
+                        <AnimatePresence mode="wait">
+                            {loading ? (
+                                <>
+                                    {Array(10).fill(null).map((_, index) => (
+                                        <motion.div 
+                                            key={`skeleton-${index}`}
+                                            initial={{ opacity: 0, y: 20 }}
+                                            animate={{ opacity: 1, y: 0 }}
+                                            exit={{ opacity: 0, y: -20 }}
+                                            transition={{ duration: 0.3, delay: index * 0.05 }}
+                                        >
+                                            {renderSkeleton()}
+                                        </motion.div>
+                                    ))}
+                                </>
+                            ) : (
+                                listing.map((item, index) => (
+                                    <motion.div
+                                        key={item._id}
+                                        initial={{ opacity: 0, y: 20 }}
+                                        animate={{ opacity: 1, y: 0 }}
+                                        exit={{ opacity: 0, y: -20 }}
+                                        transition={{ duration: 0.3, delay: index * 0.05 }}
+                                    >
+                                        <Link 
+                                            href={`/cars/${item._id}`}
+                                            className="group"
+                                        >
+                                            <div className="bg-white rounded-xl overflow-hidden shadow-sm 
+                                                hover:shadow-xl transition-all duration-300">
+                                                {/* Image Container with Stock Number and Favorite Button */}
+                                                <div className="relative">
+                                                    <img
+                                                        src={item.images?.[0] || item.image || '/placeholder-car.png'}
+                                                        alt={`${item.make} ${item.model}`}
+                                                        className="w-full h-28 object-cover"
+                                                        onError={(e) => {
+                                                            console.error('Image load error:', item.image);
+                                                            e.target.onerror = null; // Prevent infinite loop
+                                                            e.target.src = '/placeholder-car.png';
+                                                        }}
+                                                    />
+                                                    <div className="absolute top-2 right-2 bg-black/70 px-2 py-1 
+                                                        rounded text-xs text-white backdrop-blur-sm font-medium">
+                                                        Stock: #{item.stockNumber}
+                                                    </div>
+                                                    {/* Add Favorite Button */}
+                                                    <div className="absolute top-2 left-2 bg-black/90 rounded">
+                                                        <FavoriteButton carId={item._id} />
+                                                    </div>
+                                                    {/* Add SOLD badge */}
+                                                    {item.offerType === "Sold" && (
+                                                        <div className="absolute bottom-2 left-2 bg-red-600/90 text-white px-2 py-0.5 rounded-sm">
+                                                            <span className="text-[10px] font-bold tracking-wide">SOLD</span>
+                                                        </div>
+                                                    )}
                                                 </div>
-                                            )}
-                                        </div>
 
-                                        {/* Content Section */}
-                                        <div className="p-3 space-y-2">
-                                            {/* Title and Price */}
-                                            <div className="space-y-1">
-                                                <div className="flex justify-between items-center">
-                                                    <h1 className="text-sm font-medium text-gray-800">
-                                                        {item.make} {item.model}
-                                                    </h1>
-                                                    <p className="text-sm font-bold text-blue-950">
-                                                        ${item.price}
-                                                    </p>
+                                                {/* Content Section */}
+                                                <div className="p-3 space-y-2">
+                                                    {/* Title and Price */}
+                                                    <div className="space-y-1">
+                                                        <div className="flex justify-between items-center">
+                                                            <h1 className="text-sm font-medium text-gray-800">
+                                                                {item.make} {item.model}
+                                                            </h1>
+                                                            <p className="text-sm font-bold text-blue-950">
+                                                                ${item.price}
+                                                            </p>
+                                                        </div>
+                                                        {item.itemCondition && (
+                                                            <p className="text-xs text-gray-500">
+                                                                {item.itemCondition}
+                                                            </p>
+                                                        )}
+                                                    </div>
+
+                                                    {/* Car Details Grid */}
+                                                    <div className='grid grid-cols-2 gap-1 text-xs text-gray-600'>
+                                                        <p className="flex items-center">
+                                                            <FaIndustry className="mr-1 h-3 w-3 text-blue-950" />
+                                                            {item.make}
+                                                        </p>
+                                                        <p className="flex items-center">
+                                                            <FaCarSide className="mr-1 h-3 w-3 text-blue-950" />
+                                                            {item.model}
+                                                        </p>
+                                                        <p className="flex items-center">
+                                                            <FaCalendarAlt className="mr-1 h-3 w-3 text-blue-950" />
+                                                            {item.year}
+                                                        </p>
+                                                        <p className="flex items-center">
+                                                            <FaRoad className="mr-1 h-3 w-3 text-blue-950" />
+                                                            {item.mileage}
+                                                        </p>
+                                                    </div>
                                                 </div>
-                                                {item.itemCondition && (
-                                                    <p className="text-xs text-gray-500">
-                                                        {item.itemCondition}
-                                                    </p>
-                                                )}
                                             </div>
-
-                                            {/* Car Details Grid */}
-                                            <div className='grid grid-cols-2 gap-1 text-xs text-gray-600'>
-                                                <p className="flex items-center">
-                                                    <FaIndustry className="mr-1 h-3 w-3 text-blue-950" />
-                                                    {item.make}
-                                                </p>
-                                                <p className="flex items-center">
-                                                    <FaCarSide className="mr-1 h-3 w-3 text-blue-950" />
-                                                    {item.model}
-                                                </p>
-                                                <p className="flex items-center">
-                                                    <FaCalendarAlt className="mr-1 h-3 w-3 text-blue-950" />
-                                                    {item.year}
-                                                </p>
-                                                <p className="flex items-center">
-                                                    <FaRoad className="mr-1 h-3 w-3 text-blue-950" />
-                                                    {item.mileage}
-                                                </p>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </Link>
-                            ))
-                        )}
+                                        </Link>
+                                    </motion.div>
+                                ))
+                            )}
+                        </AnimatePresence>
                     </div>
 
                     {totalItems > carsPerPage && (
@@ -287,92 +353,109 @@ function Listing() {
                     </div>
                     
                     <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-4">
-                        {loadingPopular ? (
-                            <>
-                                {Array(30).fill(null).map((_, index) => (
-                                    <div key={index}>{renderSkeleton()}</div>
-                                ))}
-                            </>
-                        ) : (
-                            popularCars.map((item) => (
-                                <Link 
-                                    key={item._id} 
-                                    href={`/cars/${item._id}`}
-                                    className="group"
-                                >
-                                    <div className="bg-white rounded-xl overflow-hidden shadow-sm 
-                                        hover:shadow-xl transition-all duration-300">
-                                        {/* Image Container with Stock Number and Favorite Button */}
-                                        <div className="relative">
-                                            <img
-                                                src={item.images?.[0] || item.image || '/placeholder-car.png'}
-                                                alt={`${item.make} ${item.model}`}
-                                                className="w-full h-28 object-cover"
-                                                onError={(e) => {
-                                                    console.error('Image load error:', item.image);
-                                                    e.target.onerror = null;
-                                                    e.target.src = '/placeholder-car.png';
-                                                }}
-                                            />
-                                            <div className="absolute top-2 right-2 bg-black/70 px-2 py-1 
-                                                rounded text-xs text-white backdrop-blur-sm font-medium">
-                                                Stock: #{item.stockNumber}
-                                            </div>
-                                            {/* Add Favorite Button */}
-                                            <div className="absolute top-2 left-2 bg-black/90 rounded">
-                                                <FavoriteButton carId={item._id} />
-                                            </div>
-                                            {/* Add SOLD badge */}
-                                            {item.offerType === "Sold" && (
-                                                <div className="absolute bottom-2 left-2 bg-red-600/90 text-white px-2 py-0.5 rounded-sm">
-                                                    <span className="text-[10px] font-bold tracking-wide">SOLD</span>
+                        <AnimatePresence mode="wait">
+                            {loadingPopular ? (
+                                <>
+                                    {Array(10).fill(null).map((_, index) => (
+                                        <motion.div 
+                                            key={`skeleton-${index}`}
+                                            initial={{ opacity: 0, y: 20 }}
+                                            animate={{ opacity: 1, y: 0 }}
+                                            exit={{ opacity: 0, y: -20 }}
+                                            transition={{ duration: 0.3, delay: index * 0.05 }}
+                                        >
+                                            {renderSkeleton()}
+                                        </motion.div>
+                                    ))}
+                                </>
+                            ) : (
+                                popularCars.map((item, index) => (
+                                    <motion.div
+                                        key={item._id}
+                                        initial={{ opacity: 0, y: 20 }}
+                                        animate={{ opacity: 1, y: 0 }}
+                                        exit={{ opacity: 0, y: -20 }}
+                                        transition={{ duration: 0.3, delay: index * 0.05 }}
+                                    >
+                                        <Link 
+                                            href={`/cars/${item._id}`}
+                                            className="group"
+                                        >
+                                            <div className="bg-white rounded-xl overflow-hidden shadow-sm 
+                                                hover:shadow-xl transition-all duration-300">
+                                                {/* Image Container with Stock Number and Favorite Button */}
+                                                <div className="relative">
+                                                    <img
+                                                        src={item.images?.[0] || item.image || '/placeholder-car.png'}
+                                                        alt={`${item.make} ${item.model}`}
+                                                        className="w-full h-28 object-cover"
+                                                        onError={(e) => {
+                                                            console.error('Image load error:', item.image);
+                                                            e.target.onerror = null;
+                                                            e.target.src = '/placeholder-car.png';
+                                                        }}
+                                                    />
+                                                    <div className="absolute top-2 right-2 bg-black/70 px-2 py-1 
+                                                        rounded text-xs text-white backdrop-blur-sm font-medium">
+                                                        Stock: #{item.stockNumber}
+                                                    </div>
+                                                    {/* Add Favorite Button */}
+                                                    <div className="absolute top-2 left-2 bg-black/90 rounded">
+                                                        <FavoriteButton carId={item._id} />
+                                                    </div>
+                                                    {/* Add SOLD badge */}
+                                                    {item.offerType === "Sold" && (
+                                                        <div className="absolute bottom-2 left-2 bg-red-600/90 text-white px-2 py-0.5 rounded-sm">
+                                                            <span className="text-[10px] font-bold tracking-wide">SOLD</span>
+                                                        </div>
+                                                    )}
                                                 </div>
-                                            )}
-                                        </div>
 
-                                        {/* Content Section - Kept compact size */}
-                                        <div className="p-3 space-y-2">
-                                            {/* Title and Price */}
-                                            <div className="space-y-1">
-                                                <div className="flex justify-between items-center">
-                                                    <h1 className="text-sm font-medium text-gray-800">
-                                                        {item.make} {item.model}
-                                                    </h1>
-                                                    <p className="text-sm font-bold text-blue-950">
-                                                        ${item.price}
-                                                    </p>
+                                                {/* Content Section - Kept compact size */}
+                                                <div className="p-3 space-y-2">
+                                                    {/* Title and Price */}
+                                                    <div className="space-y-1">
+                                                        <div className="flex justify-between items-center">
+                                                            <h1 className="text-sm font-medium text-gray-800">
+                                                                {item.make} {item.model}
+                                                            </h1>
+                                                            <p className="text-sm font-bold text-blue-950">
+                                                                ${item.price}
+                                                            </p>
+                                                        </div>
+                                                        {item.itemCondition && (
+                                                            <p className="text-xs text-gray-500">
+                                                                {item.itemCondition}
+                                                            </p>
+                                                        )}
+                                                    </div>
+
+                                                    {/* Car Details Grid */}
+                                                    <div className='grid grid-cols-2 gap-1 text-xs text-gray-600'>
+                                                        <p className="flex items-center">
+                                                            <FaIndustry className="mr-1 h-3 w-3 text-blue-950" />
+                                                            {item.make}
+                                                        </p>
+                                                        <p className="flex items-center">
+                                                            <FaCarSide className="mr-1 h-3 w-3 text-blue-950" />
+                                                            {item.model}
+                                                        </p>
+                                                        <p className="flex items-center">
+                                                            <FaCalendarAlt className="mr-1 h-3 w-3 text-blue-950" />
+                                                            {item.year}
+                                                        </p>
+                                                        <p className="flex items-center">
+                                                            <FaRoad className="mr-1 h-3 w-3 text-blue-950" />
+                                                            {item.mileage}
+                                                        </p>
+                                                    </div>
                                                 </div>
-                                                {item.itemCondition && (
-                                                    <p className="text-xs text-gray-500">
-                                                        {item.itemCondition}
-                                                    </p>
-                                                )}
                                             </div>
-
-                                            {/* Car Details Grid */}
-                                            <div className='grid grid-cols-2 gap-1 text-xs text-gray-600'>
-                                                <p className="flex items-center">
-                                                    <FaIndustry className="mr-1 h-3 w-3 text-blue-950" />
-                                                    {item.make}
-                                                </p>
-                                                <p className="flex items-center">
-                                                    <FaCarSide className="mr-1 h-3 w-3 text-blue-950" />
-                                                    {item.model}
-                                                </p>
-                                                <p className="flex items-center">
-                                                    <FaCalendarAlt className="mr-1 h-3 w-3 text-blue-950" />
-                                                    {item.year}
-                                                </p>
-                                                <p className="flex items-center">
-                                                    <FaRoad className="mr-1 h-3 w-3 text-blue-950" />
-                                                    {item.mileage}
-                                                </p>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </Link>
-                            ))
-                        )}
+                                        </Link>
+                                    </motion.div>
+                                ))
+                            )}
+                        </AnimatePresence>
                     </div>
 
                     {totalPopularCars > carsPerPage && (
