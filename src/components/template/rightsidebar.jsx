@@ -6,23 +6,26 @@ import { FaShip, FaGlobeAmericas, FaWarehouse, FaChevronRight } from 'react-icon
 
 const staticCountries = [
   { name: 'Australia', flag: '🇦🇺', slug: 'australia' },
-  { name: 'USA', flag: '🇺🇸', slug: 'usa' },
-  { name: 'Ireland', flag: '🇮🇪', slug: 'ireland' },
-  { name: 'Kenya', flag: '🇰🇳', slug: 'kenya' },
-  { name: 'Uganda', flag: '🇺🇬', slug: 'uganda' },
+  { name: 'Bahamas', flag: '🇧🇸', slug: 'bahamas' },
+  { name: 'Canada', flag: '🇨🇦', slug: 'canada' },
+  { name: 'Chile', flag: '🇨🇱', slug: 'chile' },
+  { name: 'Cyprus', flag: '🇨🇾', slug: 'cyprus' },
   { name: 'DR Congo', flag: '🇨🇩', slug: 'dr-congo' },
-  { name: 'Pakistan', flag: '🇵🇰', slug: 'pakistan' },
-  { name: 'South Africa', flag: '🇿🇦', slug: 'south-africa' },
-  { name: 'Thailand', flag: '🇹🇭', slug: 'thailand' },
-  { name: 'Georgia', flag: '🇬🇪', slug: 'georgia' },
-  { name: 'UK', flag: '🇬🇧', slug: 'uk' },
-  { name: 'Rwanda', flag: '🇰🇼', slug: 'rwanda' },
   { name: 'Fiji', flag: '🇫🇯', slug: 'fiji' },
-  { name: 'Sri Lanka', flag: '🇱🇰', slug: 'sri-lanka' },
+  { name: 'Guyana', flag: '🇬🇾', slug: 'guyana' },
+  { name: 'Ireland', flag: '🇮🇪', slug: 'ireland' },
+  { name: 'Jamaica', flag: '🇯🇲', slug: 'jamaica' },
+  { name: 'Kenya', flag: '🇰🇪', slug: 'kenya' },
+  { name: 'Mauritius', flag: '🇲🇺', slug: 'mauritius' },
+  { name: 'Pakistan', flag: '🇵🇰', slug: 'pakistan' },
   { name: 'Russia', flag: '🇷🇺', slug: 'russia' },
-  { name: 'Mongolia', flag: '🇲🇳', slug: 'mongolia' },
-  { name: 'Philippines', flag: '🇵🇭', slug: 'philippines' },
-  { name: 'Japan', flag: '🇯🇵', slug: 'japan' }
+  { name: 'Rwanda', flag: '🇷🇼', slug: 'rwanda' },
+  { name: 'South Africa', flag: '🇿🇦', slug: 'south-africa' },
+  { name: 'Sri Lanka', flag: '🇱🇰', slug: 'sri-lanka' },
+  { name: 'Tanzania', flag: '🇹🇿', slug: 'tanzania' },
+  { name: 'Uganda', flag: '🇺🇬', slug: 'uganda' },
+  { name: 'UK', flag: '🇬🇧', slug: 'uk' },
+  { name: 'USA', flag: '🇺🇸', slug: 'usa' }
 ]
 
 const RightSidebar = () => {

@@ -189,31 +189,84 @@ export default function Footer() {
               <h6 className="mb-6 text-lg font-semibold text-[#629584]">Popular Markets</h6>
               <ul className="space-y-3 text-sm">
                 <li>
-                  <a href="#" className="group inline-flex items-center text-[#E2F1E7] transition-all hover:text-[#629584]">
+                  <a href="/cars?country=Cyprus" className="group inline-flex items-center text-[#E2F1E7] transition-all hover:text-[#629584]">
+                    <span className="translate-x-0 transition-transform group-hover:translate-x-1">Cyprus</span>
+                  </a>
+                </li>
+                <li>
+                  <a href="/cars?country=Uganda" className="group inline-flex items-center text-[#E2F1E7] transition-all hover:text-[#629584]">
+                    <span className="translate-x-0 transition-transform group-hover:translate-x-1">Uganda</span>
+                  </a>
+                </li>
+                <li>
+                  <a href="/cars?country=Australia" className="group inline-flex items-center text-[#E2F1E7] transition-all hover:text-[#629584]">
+                    <span className="translate-x-0 transition-transform group-hover:translate-x-1">Australia</span>
+                  </a>
+                </li>
+                <li>
+                  <a href="/cars?country=Kenya" className="group inline-flex items-center text-[#E2F1E7] transition-all hover:text-[#629584]">
+                    <span className="translate-x-0 transition-transform group-hover:translate-x-1">Kenya</span>
+                  </a>
+                </li>
+                <li>
+                  <a href="/cars?country=Jamaica" className="group inline-flex items-center text-[#E2F1E7] transition-all hover:text-[#629584]">
+                    <span className="translate-x-0 transition-transform group-hover:translate-x-1">Jamaica</span>
+                  </a>
+                </li>
+                <li>
+                  <a href="/cars?country=South Africa" className="group inline-flex items-center text-[#E2F1E7] transition-all hover:text-[#629584]">
+                    <span className="translate-x-0 transition-transform group-hover:translate-x-1">South Africa</span>
+                  </a>
+                </li>
+                <li>
+                  <a href="/cars?country=United Kingdom" className="group inline-flex items-center text-[#E2F1E7] transition-all hover:text-[#629584]">
                     <span className="translate-x-0 transition-transform group-hover:translate-x-1">United Kingdom</span>
                   </a>
                 </li>
                 <li>
-                  <a href="#" className="group inline-flex items-center text-[#E2F1E7] transition-all hover:text-[#629584]">
-                    <span className="translate-x-0 transition-transform group-hover:translate-x-1">European Union</span>
+                  <a href="/cars?country=Russia" className="group inline-flex items-center text-[#E2F1E7] transition-all hover:text-[#629584]">
+                    <span className="translate-x-0 transition-transform group-hover:translate-x-1">Russia</span>
                   </a>
                 </li>
                 <li>
-                  <a href="#" className="group inline-flex items-center text-[#E2F1E7] transition-all hover:text-[#629584]">
-                    <span className="translate-x-0 transition-transform group-hover:translate-x-1">United States</span>
+                  <a href="/cars?country=Bahamas" className="group inline-flex items-center text-[#E2F1E7] transition-all hover:text-[#629584]">
+                    <span className="translate-x-0 transition-transform group-hover:translate-x-1">Bahamas</span>
                   </a>
                 </li>
                 <li>
-                  <a href="#" className="group inline-flex items-center text-[#E2F1E7] transition-all hover:text-[#629584]">
-                    <span className="translate-x-0 transition-transform group-hover:translate-x-1">Asia Pacific</span>
+                  <a href="/cars?country=Guyana" className="group inline-flex items-center text-[#E2F1E7] transition-all hover:text-[#629584]">
+                    <span className="translate-x-0 transition-transform group-hover:translate-x-1">Guyana</span>
                   </a>
                 </li>
                 <li>
-                  <a href="#" className="group inline-flex items-center text-[#E2F1E7] transition-all hover:text-[#629584]">
-                    <span className="translate-x-0 transition-transform group-hover:translate-x-1">Middle East</span>
+                  <a href="/cars?country=Fiji" className="group inline-flex items-center text-[#E2F1E7] transition-all hover:text-[#629584]">
+                    <span className="translate-x-0 transition-transform group-hover:translate-x-1">Fiji</span>
+                  </a>
+                </li>
+                <li>
+                  <a href="/cars?country=Tanzania" className="group inline-flex items-center text-[#E2F1E7] transition-all hover:text-[#629584]">
+                    <span className="translate-x-0 transition-transform group-hover:translate-x-1">Tanzania</span>
                   </a>
                 </li>
               </ul>
+              <a 
+                href="/countries" 
+                className="mt-4 inline-flex items-center text-[#629584] hover:text-[#4a7164] transition-colors"
+              >
+                <span className="mr-2">View more</span>
+                <svg 
+                  width="16" 
+                  height="16" 
+                  viewBox="0 0 24 24" 
+                  fill="none" 
+                  stroke="currentColor" 
+                  strokeWidth="2" 
+                  strokeLinecap="round" 
+                  strokeLinejoin="round"
+                >
+                  <path d="M5 12h14M12 5l7 7-7 7"/>
+                </svg>
+              </a>
             </div>
 
             {/* Quick Links Column */}
@@ -221,8 +274,13 @@ export default function Footer() {
               <h6 className="mb-6 text-lg font-semibold text-[#629584]">Quick Links</h6>
               <ul className="space-y-3 text-sm">
                 <li>
-                  <a href="/about" className="group inline-flex items-center text-[#E2F1E7] transition-all hover:text-[#629584]">
-                    <span className="translate-x-0 transition-transform group-hover:translate-x-1">About Us</span>
+                  <a href="/auction" className="group inline-flex items-center text-[#E2F1E7] transition-all hover:text-[#629584]">
+                    <span className="translate-x-0 transition-transform group-hover:translate-x-1">Auction</span>
+                  </a>
+                </li>
+                <li>
+                  <a href="/banking-information" className="group inline-flex items-center text-[#E2F1E7] transition-all hover:text-[#629584]">
+                    <span className="translate-x-0 transition-transform group-hover:translate-x-1">Banking Information</span>
                   </a>
                 </li>
                 <li>
@@ -230,6 +288,12 @@ export default function Footer() {
                     <span className="translate-x-0 transition-transform group-hover:translate-x-1">How to Buy</span>
                   </a>
                 </li>
+                <li>
+                  <a href="/about" className="group inline-flex items-center text-[#E2F1E7] transition-all hover:text-[#629584]">
+                    <span className="translate-x-0 transition-transform group-hover:translate-x-1">About Us</span>
+                  </a>
+                </li>
+                
                 <li>
                   <a href="/contact-us" className="group inline-flex items-center text-[#E2F1E7] transition-all hover:text-[#629584]">
                     <span className="translate-x-0 transition-transform group-hover:translate-x-1">Contact Us</span>
@@ -241,7 +305,7 @@ export default function Footer() {
                   </a>
                 </li>
                 <li>
-                  <a href="/blogPost" className="group inline-flex items-center text-[#E2F1E7] transition-all hover:text-[#629584]">
+                  <a href="/posts" className="group inline-flex items-center text-[#E2F1E7] transition-all hover:text-[#629584]">
                     <span className="translate-x-0 transition-transform group-hover:translate-x-1">Blog</span>
                   </a>
                 </li>
@@ -268,11 +332,6 @@ export default function Footer() {
                   </a>
                 </li>
                 <li>
-                  <a href="/returns-refunds" className="group inline-flex items-center text-[#E2F1E7] transition-all hover:text-[#629584]">
-                    <span className="translate-x-0 transition-transform group-hover:translate-x-1">Returns & Refunds</span>
-                  </a>
-                </li>
-                <li>
                   <a href="/contact-us" className="group inline-flex items-center text-[#E2F1E7] transition-all hover:text-[#629584]">
                     <span className="translate-x-0 transition-transform group-hover:translate-x-1">24/7 Support</span>
                   </a>
@@ -284,15 +343,51 @@ export default function Footer() {
             <div>
               <h6 className="mb-6 text-lg font-semibold text-[#629584]">Stock by Country</h6>
               <ul className="space-y-3 text-sm">
-                {countries.slice(0, 5).map((country) => (
-                  <li key={country.code}>
-                    <a href="#" className="group inline-flex items-center text-[#E2F1E7] transition-all hover:text-[#629584]">
+                {[
+                  { name: 'Australia', flag: '🇦🇺', slug: 'australia' },
+                  { name: 'Bahamas', flag: '🇧🇸', slug: 'bahamas' },
+                  { name: 'Canada', flag: '🇨🇦', slug: 'canada' },
+                  { name: 'Chile', flag: '🇨🇱', slug: 'chile' },
+                  { name: 'Cyprus', flag: '🇨🇾', slug: 'cyprus' },
+                  { name: 'DR Congo', flag: '🇨🇩', slug: 'dr-congo' },
+                  { name: 'Fiji', flag: '🇫🇯', slug: 'fiji' },
+                  { name: 'Guyana', flag: '🇬🇾', slug: 'guyana' },
+                  { name: 'Ireland', flag: '🇮🇪', slug: 'ireland' },
+                  { name: 'Jamaica', flag: '🇯🇲', slug: 'jamaica' },
+                  { name: 'Kenya', flag: '🇰🇪', slug: 'kenya' },
+                  { name: 'Mauritius', flag: '🇲🇺', slug: 'mauritius' }
+                ].map((country) => (
+                  <li key={country.slug}>
+                    <a 
+                      href={`/cars?country=${country.slug}`} 
+                      className="group inline-flex items-center text-[#E2F1E7] transition-all hover:text-[#629584]"
+                    >
                       <span className="mr-2">{country.flag}</span>
-                      <span className="translate-x-0 transition-transform group-hover:translate-x-1">{country.name}</span>
+                      <span className="translate-x-0 transition-transform group-hover:translate-x-1">
+                        {country.name}
+                      </span>
                     </a>
                   </li>
                 ))}
               </ul>
+              <a 
+                href="/countries" 
+                className="mt-4 inline-flex items-center text-[#629584] hover:text-[#4a7164] transition-colors"
+              >
+                <span className="mr-2">View more</span>
+                <svg 
+                  width="16" 
+                  height="16" 
+                  viewBox="0 0 24 24" 
+                  fill="none" 
+                  stroke="currentColor" 
+                  strokeWidth="2" 
+                  strokeLinecap="round" 
+                  strokeLinejoin="round"
+                >
+                  <path d="M5 12h14M12 5l7 7-7 7"/>
+                </svg>
+              </a>
             </div>
           </div>
         </div>

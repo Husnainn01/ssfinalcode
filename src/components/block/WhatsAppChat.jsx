@@ -30,7 +30,7 @@ const WhatsAppChat = () => {
     const [isSubmitting, setIsSubmitting] = useState(false);
     const [showThankYou, setShowThankYou] = useState(false);
     const pathname = usePathname();
-    const phoneNumber = "YOUR_PHONE_NUMBER";
+    const phoneNumber = "09000000000";
     const [userChatURL, setUserChatURL] = useState('');
     const [showGreeting, setShowGreeting] = useState(false);
     const audioRef = useRef(null);
@@ -257,7 +257,7 @@ const WhatsAppChat = () => {
     );
 
     const handleWhatsAppClick = (message = '') => {
-        const whatsappURL = `https://wa.me/${+818015787658}?text=${encodeURIComponent(message)}`;
+        const whatsappURL = `https://wa.me/${phoneNumber}?text=${encodeURIComponent(message)}`;
         window.open(whatsappURL, '_blank');
         setIsChatOpen(false);
         setCurrentQuestion(0);
