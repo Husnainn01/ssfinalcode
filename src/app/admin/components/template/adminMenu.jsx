@@ -1,5 +1,5 @@
 "use client";
-import { FaHome, FaCar, FaPlus, FaList, FaBlogger, FaTags, FaUserShield, FaGlobe } from 'react-icons/fa';
+import { FaHome, FaCar, FaPlus, FaList, FaBlogger, FaTags, FaUserShield, FaGlobe, FaImages } from 'react-icons/fa';
 import { IoIosColorPalette } from "react-icons/io";
 import { SiRollsroyce } from "react-icons/si";
 import { GiCarDoor } from "react-icons/gi";
@@ -44,18 +44,31 @@ const AdminMenu = ({ children }) => {
 
   return (
     <div className="flex min-h-screen">
-      <aside className="fixed left-0 top-10 z-40 h-screen w-64 bg-gray-900">
+      <aside className="fixed left-0 top-10 z-40 h-[calc(100vh-2.5rem)] w-64 bg-gray-900">
         <div className="flex h-full flex-col overflow-y-auto border-r border-gray-800 px-3 py-4">
           <div className="mb-6 flex items-center justify-center">
             <span className="text-xl font-bold text-white">Admin Panel</span>
           </div>
           
-          <div className="space-y-6 flex-1">
+          <div className="space-y-4 flex-1 overflow-y-auto pb-20">
             <MenuSection title="Main">
               <MenuItem 
                 href="/admin/dashboard" 
                 icon={FaHome} 
                 label="Dashboard" 
+              />
+            </MenuSection>
+
+            <MenuSection title="Slider Management">
+              <MenuItem 
+                href="/admin/dashboard/slider" 
+                icon={FaImages} 
+                label="Manage Sliders" 
+              />
+              <MenuItem 
+                href="/admin/dashboard/slider/new" 
+                icon={FaPlus} 
+                label="Add Slider" 
               />
             </MenuSection>
 

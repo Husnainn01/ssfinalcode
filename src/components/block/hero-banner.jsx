@@ -1,207 +1,231 @@
 'use client'
 
 import { useState, useEffect, useRef } from 'react'
-import { motion, useAnimation, useMotionValue, useTransform } from 'framer-motion'
+import Image from 'next/image'
+import Link from 'next/link'
+import { FaChevronLeft, FaChevronRight, FaArrowRight } from 'react-icons/fa'
+import { motion, AnimatePresence } from 'framer-motion'
 
-const banners = [
-  { 
-    id: 1, 
-    imageUrl: '/hero1.jpg',
-    title: "Discover Your Perfect Ride",
-    subtitle: "Elevating Your Driving Experience",
-    highlight: "2024 Collection",
-    position: "bottom-4"
-  },
-  { 
-    id: 2, 
-    imageUrl: '/hero2.jpg',
-    title: "Luxury Meets Performance",
-    subtitle: "Where Excellence Drives Innovation",
-    highlight: "Premium Selection",
-    position: "bottom-4"
-  },
-  { 
-    id: 3, 
-    imageUrl: '/hero3.jpg',
-    title: "Drive Your Dreams",
-    subtitle: "Crafting Memories on Every Road",
-    highlight: "Exclusive Models",
-    position: "bottom-4"
-  },
-  { 
-    id: 4, 
-    imageUrl: '/hero4.jpg',
-    title: "Premium Selection",
-    subtitle: "Redefining Automotive Luxury",
-    highlight: "Limited Edition",
-    position: "bottom-4"
-  },
-]
-
-export default function Component() {
-  const [currentBanner, setCurrentBanner] = useState(0)
-  const constraintsRef = useRef(null)
-  const x = useMotionValue(0)
-  const background = useTransform(
-    x,
-    [-300, 0, 300],
-    [
-      "linear-gradient(135deg, rgba(0, 0, 0, 0.7), rgba(0, 0, 0, 0.3))",
-      "linear-gradient(135deg, rgba(0, 0, 0, 0.6), rgba(0, 0, 0, 0.2))",
-      "linear-gradient(135deg, rgba(0, 0, 0, 0.7), rgba(0, 0, 0, 0.3))"
-    ]
-  )
-
-  const controls = useAnimation()
-
-  const nextBanner = () => {
-    setCurrentBanner((prev) => (prev + 1) % banners.length)
-  }
-
-  const prevBanner = () => {
-    setCurrentBanner((prev) => (prev - 1 + banners.length) % banners.length)
-  }
+export default function HeroBanner() {
+  const [currentSlide, setCurrentSlide] = useState(0)
+  const [sliders, setSliders] = useState([])
+  const [loading, setLoading] = useState(true)
+  const [direction, setDirection] = useState(0)
+  const timerRef = useRef(null)
 
   useEffect(() => {
-    const interval = setInterval(nextBanner, 6000)
-    return () => clearInterval(interval)
+    fetchSliders()
   }, [])
 
-  const handleDragEnd = (event, info) => {
-    if (info.offset.x > 100) {
-      prevBanner()
-    } else if (info.offset.x < -100) {
-      nextBanner()
+  useEffect(() => {
+    if (sliders.length > 1) {
+      startTimer()
     }
-    controls.start({ x: 0 })
+    return () => clearInterval(timerRef.current)
+  }, [sliders.length])
+
+  const startTimer = () => {
+    timerRef.current = setInterval(() => {
+      setDirection(1)
+      setCurrentSlide(prev => (prev + 1) % sliders.length)
+    }, 5000)
   }
 
+  const fetchSliders = async () => {
+    try {
+      const response = await fetch('/api/slider')
+      const data = await response.json()
+      const activeSliders = data
+        .filter(slider => slider.isActive)
+        .sort((a, b) => a.order - b.order)
+      setSliders(activeSliders)
+      setLoading(false)
+    } catch (error) {
+      console.error('Error fetching sliders:', error)
+      setLoading(false)
+    }
+  }
+
+  const nextSlide = () => {
+    clearInterval(timerRef.current)
+    setDirection(1)
+    setCurrentSlide(prev => (prev + 1) % sliders.length)
+    startTimer()
+  }
+
+  const prevSlide = () => {
+    clearInterval(timerRef.current)
+    setDirection(-1)
+    setCurrentSlide(prev => (prev - 1 + sliders.length) % sliders.length)
+    startTimer()
+  }
+
+  const slideVariants = {
+    enter: (direction) => ({
+      x: direction > 0 ? 1000 : -1000,
+      opacity: 0
+    }),
+    center: {
+      zIndex: 1,
+      x: 0,
+      opacity: 1
+    },
+    exit: (direction) => ({
+      zIndex: 0,
+      x: direction < 0 ? 1000 : -1000,
+      opacity: 0
+    })
+  }
+
+  if (loading) {
+    return <div className="h-[500px] bg-gray-200 animate-pulse" />
+  }
+
+  if (sliders.length === 0) {
+    return <div className="h-[500px] bg-gray-100" />
+  }
+
+  const currentSlider = sliders[currentSlide]
+
   return (
-    <div className="relative w-full h-[40vh] overflow-hidden z-0">
-      <button 
-        onClick={prevBanner}
-        className="absolute left-4 top-1/2 -translate-y-1/2 z-10 
-          bg-black/30 hover:bg-black/50 text-white p-2 rounded-full
-          backdrop-blur-sm transition-all duration-200 group"
-        aria-label="Previous banner"
-      >
-        <svg 
-          className="w-6 h-6 transform group-hover:-translate-x-0.5 transition-transform" 
-          fill="none" 
-          stroke="currentColor" 
-          viewBox="0 0 24 24"
-        >
-          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M15 19l-7-7 7-7" />
-        </svg>
-      </button>
-      
-      <button 
-        onClick={nextBanner}
-        className="absolute right-4 top-1/2 -translate-y-1/2 z-10 
-          bg-black/30 hover:bg-black/50 text-white p-2 rounded-full
-          backdrop-blur-sm transition-all duration-200 group"
-        aria-label="Next banner"
-      >
-        <svg 
-          className="w-6 h-6 transform group-hover:translate-x-0.5 transition-transform" 
-          fill="none" 
-          stroke="currentColor" 
-          viewBox="0 0 24 24"
-        >
-          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 5l7 7-7 7" />
-        </svg>
-      </button>
-
-      <motion.div 
-        className="relative w-full h-full cursor-grab active:cursor-grabbing"
-        style={{ background }}
-        ref={constraintsRef}
-      >
-        <motion.div
-          drag="x"
-          dragConstraints={constraintsRef}
-          dragElastic={0.1}
-          onDragEnd={handleDragEnd}
-          animate={controls}
-          style={{ x }}
-          className="w-full h-full"
-        >
-          {banners.map((banner, index) => (
-            <motion.div
-              key={banner.id}
-              className="absolute top-0 left-0 w-full h-full"
-              initial={{ opacity: 0, scale: 1.1 }}
-              animate={{ 
-                opacity: index === currentBanner ? 1 : 0,
-                scale: index === currentBanner ? 1 : 1.1
-              }}
-              transition={{ duration: 0.7, ease: "easeOut" }}
+    <div className="relative overflow-hidden group">
+      <div className="h-[500px] relative">
+        <AnimatePresence initial={false} custom={direction}>
+          <motion.div
+            key={currentSlide}
+            custom={direction}
+            variants={slideVariants}
+            initial="enter"
+            animate="center"
+            exit="exit"
+            transition={{
+              x: { type: "spring", stiffness: 300, damping: 30 },
+              opacity: { duration: 0.2 }
+            }}
+            className="absolute w-full h-full"
+          >
+            <Image
+              src={currentSlider.imageUrl}
+              alt={currentSlider.title}
+              fill
+              priority
+              className="object-cover"
+            />
+            <div className="absolute inset-0 bg-gradient-to-r from-black/60 via-black/40 to-transparent" />
+            
+            <motion.div 
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.2 }}
+              className="absolute inset-0 flex items-center"
             >
-              <img
-                src={banner.imageUrl}
-                alt={`Banner ${banner.id}`}
-                className="w-full h-full object-cover"
-              />
-              <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/40 to-transparent" />
-              
-              <motion.div 
-                className={`absolute ${banner.position} left-8 right-8 text-white z-[5]`}
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ 
-                  opacity: index === currentBanner ? 1 : 0,
-                  y: index === currentBanner ? 0 : 20
-                }}
-                transition={{ duration: 0.7, delay: 0.2 }}
-              >
-                <motion.span 
-                  className="inline-block text-sm font-medium tracking-wider mb-2 
-                    bg-white/20 backdrop-blur-sm px-3 py-1 rounded-full"
-                  initial={{ opacity: 0, x: -20 }}
-                  animate={{ 
-                    opacity: index === currentBanner ? 1 : 0,
-                    x: index === currentBanner ? 0 : -20
-                  }}
-                  transition={{ duration: 0.7, delay: 0.4 }}
-                >
-                  {banner.highlight}
-                </motion.span>
-
-                <h2 className="font-['GoldenWings'] text-5xl mb-3 
-                  tracking-wide leading-tight gradient-text"
-                  style={{
-                    letterSpacing: '0.05em',
-                  }}
-                >
-                  {banner.title}
-                </h2>
-
-                <p className="text-lg text-white/90 font-light tracking-wide
-                  max-w-xl leading-relaxed"
-                  style={{
-                    textShadow: '1px 1px 2px rgba(0,0,0,0.2)'
-                  }}
-                >
-                  {banner.subtitle}
-                </p>
-              </motion.div>
+              <div className="container mx-auto px-4">
+                <div className="max-w-[550px] text-white space-y-4">
+                  {currentSlider.highlight && (
+                    <motion.div
+                      initial={{ opacity: 0, y: 10 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      transition={{ delay: 0.3 }}
+                    >
+                      <span className="bg-blue-600/90 text-sm font-medium px-3 py-1 rounded-full">
+                        {currentSlider.highlight}
+                      </span>
+                    </motion.div>
+                  )}
+                  
+                  <motion.h1
+                    initial={{ opacity: 0, y: 10 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ delay: 0.4 }}
+                    className="text-4xl font-bold"
+                  >
+                    {currentSlider.title}
+                  </motion.h1>
+                  
+                  {currentSlider.description && (
+                    <motion.p
+                      initial={{ opacity: 0, y: 10 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      transition={{ delay: 0.5 }}
+                      className="text-base text-gray-200"
+                    >
+                      {currentSlider.description}
+                    </motion.p>
+                  )}
+                  
+                  {currentSlider.link && (
+                    <motion.div
+                      initial={{ opacity: 0, y: 10 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      transition={{ delay: 0.6 }}
+                    >
+                      <Link
+                        href={currentSlider.link}
+                        className="group inline-flex items-center gap-2 bg-blue-600 text-white 
+                          px-6 py-2 rounded-lg hover:bg-blue-700 transition-all duration-300"
+                      >
+                        Learn More
+                        <FaArrowRight className="transition-transform duration-300 
+                          group-hover:translate-x-1" />
+                      </Link>
+                    </motion.div>
+                  )}
+                </div>
+              </div>
             </motion.div>
-          ))}
-        </motion.div>
-      </motion.div>
-      
-      <div className="absolute bottom-4 left-1/2 transform -translate-x-1/2 flex space-x-3 z-[5]">
-        {banners.map((_, index) => (
-          <button
-            key={index}
-            className={`h-1 transition-all duration-500 rounded-full ${
-              index === currentBanner 
-                ? 'w-8 bg-white' 
-                : 'w-4 bg-white/40 hover:bg-white/60'
-            }`}
-            onClick={() => setCurrentBanner(index)}
-            aria-label={`Go to banner ${index + 1}`}
-          />
-        ))}
+          </motion.div>
+        </AnimatePresence>
+
+        {/* Navigation Arrows */}
+        {sliders.length > 1 && (
+          <>
+            <div className="absolute inset-x-0 top-1/2 -translate-y-1/2 flex justify-between 
+              items-center px-4 opacity-0 group-hover:opacity-100 transition-opacity duration-300">
+              <motion.button
+                whileHover={{ scale: 1.1 }}
+                whileTap={{ scale: 0.9 }}
+                onClick={prevSlide}
+                className="w-10 h-10 flex items-center justify-center rounded-full 
+                  bg-black/30 text-white hover:bg-black/50 transition-all duration-300"
+                aria-label="Previous slide"
+              >
+                <FaChevronLeft className="w-5 h-5" />
+              </motion.button>
+              
+              <motion.button
+                whileHover={{ scale: 1.1 }}
+                whileTap={{ scale: 0.9 }}
+                onClick={nextSlide}
+                className="w-10 h-10 flex items-center justify-center rounded-full 
+                  bg-black/30 text-white hover:bg-black/50 transition-all duration-300"
+                aria-label="Next slide"
+              >
+                <FaChevronRight className="w-5 h-5" />
+              </motion.button>
+            </div>
+
+            {/* Progress Indicators */}
+            <div className="absolute bottom-4 left-1/2 -translate-x-1/2 flex gap-2 z-10">
+              {sliders.map((_, index) => (
+                <motion.button
+                  key={index}
+                  whileHover={{ scale: 1.2 }}
+                  onClick={() => {
+                    clearInterval(timerRef.current)
+                    setDirection(index > currentSlide ? 1 : -1)
+                    setCurrentSlide(index)
+                    startTimer()
+                  }}
+                  className={`h-1.5 rounded-full transition-all duration-300 
+                    ${index === currentSlide 
+                      ? 'w-8 bg-white' 
+                      : 'w-1.5 bg-white/50 hover:bg-white/75'}`}
+                  aria-label={`Go to slide ${index + 1}`}
+                />
+              ))}
+            </div>
+          </>
+        )}
       </div>
     </div>
   )
