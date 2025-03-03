@@ -59,8 +59,8 @@ export default function InteractiveAboutUs() {
       <div className="min-h-screen bg-gradient-to-br from-[#E2F1E7] to-white w-full">
         <header className="relative h-[50vh] md:h-[80vh] overflow-hidden">
           <Image
-            src="/about-hero.jpg"
-            alt="HSW Global Headquarters"
+            src="/our-legacy.jpg"
+            alt="Our Legacy"
             layout="fill"
             objectFit="cover"
             priority

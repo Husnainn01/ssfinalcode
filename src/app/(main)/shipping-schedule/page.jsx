@@ -28,6 +28,8 @@ import { ScrollArea, ScrollBar } from "@/components/ui/scroll-area"
 import { Badge } from "@/components/ui/badge"
 
 import Breadcrumbs from '@/components/ui/breadcrumbs'
+import { format } from 'date-fns'
+import { toast } from 'react-hot-toast'
 
 // Mobile version of the entire page
 function MobileShippingSchedule({ 
@@ -253,162 +255,61 @@ function MobileShippingSchedule({
 
 // Main ShippingSchedule Component (existing code remains exactly the same)
 export default function ShippingSchedule() {
-  // State for regions
-  const [regions, setRegions] = useState([])
-  const [selectedRegion, setSelectedRegion] = useState('')
-  const [loading, setLoading] = useState(false)
-  const [error, setError] = useState(null)
+  const [schedules, setSchedules] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
+  const [regions, setRegions] = useState([]);
+  const [ports, setPorts] = useState({ departure: [], arrival: [] });
+  const [loadingPorts, setLoadingPorts] = useState(false);
+  const [portsError, setPortsError] = useState(null);
 
-  // State for filters
   const [filters, setFilters] = useState({
     region: '',
     voyageNo: '',
     shipName: '',
     departurePort: '',
     arrivalPort: '',
-    departureDateFrom: null,
-    departureDateTo: null,
-    arrivalDateFrom: null,
-    arrivalDateTo: null
-  })
+    dateRange: null
+  });
 
-  // Add ports state
-  const [ports, setPorts] = useState({
-    departure: [],
-    arrival: []
-  })
-  const [loadingPorts, setLoadingPorts] = useState(false)
-  const [portsError, setPortsError] = useState(null)
-
-  // Add schedules state
-  const [schedules, setSchedules] = useState([])
-  const [searchLoading, setSearchLoading] = useState(false)
-  const [searchError, setSearchError] = useState(null)
-
-  // Fetch regions on component mount
-  useEffect(() => {
-    const fetchRegions = async () => {
-      setLoading(true)
-      setError(null)
-      try {
-        const response = await fetch('/api/shipping-schedule?action=getRegions')
-        if (!response.ok) throw new Error('Failed to fetch regions')
-        const data = await response.json()
-        if (data.error) throw new Error(data.error)
-        setRegions(data.regions)
-      } catch (error) {
-        console.error('Error fetching regions:', error)
-        setError('Failed to load regions')
-      } finally {
-        setLoading(false)
-      }
-    }
-
-    fetchRegions()
-  }, [])
-
-  // Fetch ports when region changes
-  useEffect(() => {
-    const fetchPorts = async () => {
-      setLoadingPorts(true)
-      setPortsError(null)
-
-      try {
-        // Fetch departure ports (Japan ports) - these remain constant
-        const departurePorts = await fetch('/api/shipping-schedule?action=getPorts&portType=departure')
-        const departureData = await departurePorts.json()
-        
-        // Fetch arrival ports based on selected region
-        const arrivalPorts = await fetch(`/api/shipping-schedule?action=getPorts&portType=arrival&region=${filters.region}`)
-        const arrivalData = await arrivalPorts.json()
-        
-        setPorts({
-          departure: departureData.ports,
-          arrival: arrivalData.ports
-        })
-      } catch (error) {
-        console.error('Error fetching ports:', error)
-        setPortsError('Failed to load ports')
-      } finally {
-        setLoadingPorts(false)
-      }
-    }
-
-    fetchPorts()
-  }, [filters.region]) // Add region dependency
-
-  // Handle filter changes
-  const handleFilterChange = (field, value) => {
-    if (field === 'region') {
-      // Reset arrival port when region changes
-      setFilters(prev => ({
-        ...prev,
-        region: value,
-        arrivalPort: '' // Reset arrival port
-      }))
-    } else {
-      setFilters(prev => ({
-        ...prev,
-        [field]: value
-      }))
-    }
-  }
-
-  // Handle search
-  const handleSearch = async (e) => {
-    e.preventDefault()
-    setSearchLoading(true)
-    setSearchError(null)
-
+  // Fetch shipping data
+  const fetchShippingData = async () => {
     try {
-      // Build query string from filters
-      const queryParams = new URLSearchParams({
-        action: 'search',
-        ...filters,
-        departureDateFrom: filters.departureDateFrom?.toISOString() || '',
-        departureDateTo: filters.departureDateTo?.toISOString() || '',
-        arrivalDateFrom: filters.arrivalDateFrom?.toISOString() || '',
-        arrivalDateTo: filters.arrivalDateTo?.toISOString() || ''
-      })
+      setLoading(true);
+      const queryParams = new URLSearchParams();
+      
+      // Add filters to query params
+      Object.entries(filters).forEach(([key, value]) => {
+        if (value) queryParams.append(key, value);
+      });
 
-      const response = await fetch(`/api/shipping-schedule?${queryParams}`)
-      if (!response.ok) throw new Error('Failed to fetch schedules')
+      const response = await fetch(`/api/public/shipping?${queryParams}`);
+      const data = await response.json();
       
-      const data = await response.json()
-      console.log('Search response:', data)
+      if (!response.ok) throw new Error(data.error);
       
-      if (data.error) throw new Error(data.error)
-      if (!data.schedules) throw new Error('No schedules data received')
-      
-      setSchedules(data.schedules)
-    } catch (error) {
-      console.error('Error searching schedules:', error)
-      setSearchError('Failed to search schedules')
-      setSchedules([])
+      setSchedules(data.schedules);
+      setRegions(data.regions);
+      setPorts(data.ports);
+      setError(null);
+    } catch (err) {
+      setError(err.message);
+      toast.error('Failed to load shipping schedules');
     } finally {
-      setSearchLoading(false)
+      setLoading(false);
     }
-  }
+  };
 
-  // Add reset function
-  const handleReset = () => {
-    // Reset all filters to initial state
-    setFilters({
-      region: '',
-      voyageNo: '',
-      shipName: '',
-      departurePort: '',
-      arrivalPort: '',
-      departureDateFrom: null,
-      departureDateTo: null,
-      arrivalDateFrom: null,
-      arrivalDateTo: null
-    })
-    // Clear search results
-    setSchedules([])
-    // Clear any errors
-    setSearchError(null)
-  }
+  useEffect(() => {
+    fetchShippingData();
+  }, [filters]);
+
+  const handleFilterChange = (key, value) => {
+    setFilters(prev => ({
+      ...prev,
+      [key]: value
+    }));
+  };
 
   const breadcrumbItems = [
     { label: 'Shipping Schedule', href: '/shipping-schedule' }
@@ -615,32 +516,15 @@ export default function ShippingSchedule() {
                         <p className="text-sm text-gray-500">Departure</p>
                         <div className="grid grid-cols-2 gap-2">
                           <DatePickerDemo
-                            date={filters.departureDateFrom}
-                            setDate={(date) => handleFilterChange('departureDateFrom', date)}
+                            date={filters.dateRange?.start}
+                            setDate={(date) => handleFilterChange('dateRange.start', date)}
                             placeholder="From"
                           />
                           <DatePickerDemo
-                            date={filters.departureDateTo}
-                            setDate={(date) => handleFilterChange('departureDateTo', date)}
+                            date={filters.dateRange?.end}
+                            setDate={(date) => handleFilterChange('dateRange.end', date)}
                             placeholder="To"
-                            fromDate={filters.departureDateFrom}
-                          />
-                        </div>
-                      </div>
-                      {/* Arrival Date Range */}
-                      <div className="space-y-2">
-                        <p className="text-sm text-gray-500">Arrival</p>
-                        <div className="grid grid-cols-2 gap-2">
-                          <DatePickerDemo
-                            date={filters.arrivalDateFrom}
-                            setDate={(date) => handleFilterChange('arrivalDateFrom', date)}
-                            placeholder="From"
-                          />
-                          <DatePickerDemo
-                            date={filters.arrivalDateTo}
-                            setDate={(date) => handleFilterChange('arrivalDateTo', date)}
-                            placeholder="To"
-                            fromDate={filters.arrivalDateFrom}
+                            fromDate={filters.dateRange?.start}
                           />
                         </div>
                       </div>
@@ -652,7 +536,7 @@ export default function ShippingSchedule() {
                     <Button 
                       type="button"
                       variant="outline"
-                      onClick={handleReset}
+                      onClick={() => handleFilterChange('dateRange', null)}
                       className="border-gray-200 hover:bg-gray-50"
                     >
                       <RotateCcw className="w-4 h-4 mr-2" />
@@ -661,10 +545,13 @@ export default function ShippingSchedule() {
                     <Button 
                       type="submit"
                       className="bg-theme-primary hover:bg-theme-primary/90"
-                      onClick={handleSearch}
-                      disabled={searchLoading}
+                      onClick={(e) => {
+                        e.preventDefault();
+                        fetchShippingData();
+                      }}
+                      disabled={loading}
                     >
-                      {searchLoading ? (
+                      {loading ? (
                         <>
                           <Loader2 className="w-4 h-4 mr-2 animate-spin" />
                           Searching...
@@ -693,9 +580,9 @@ export default function ShippingSchedule() {
                   )}
                 </div>
                 
-                {searchError ? (
-                  <div className="text-red-500 text-center py-4">{searchError}</div>
-                ) : searchLoading ? (
+                {error ? (
+                  <div className="text-red-500 text-center py-4">{error}</div>
+                ) : loading ? (
                   <div className="text-center py-8">
                     <Loader2 className="w-8 h-8 animate-spin mx-auto text-gray-600" />
                     <p className="mt-2 text-gray-600">Searching schedules...</p>
@@ -839,11 +726,14 @@ export default function ShippingSchedule() {
           regions={regions}
           filters={filters}
           handleFilterChange={handleFilterChange}
-          handleSearch={handleSearch}
-          handleReset={handleReset}
+          handleSearch={(e) => {
+            e.preventDefault();
+            fetchShippingData();
+          }}
+          handleReset={() => handleFilterChange('dateRange', null)}
           schedules={schedules}
-          searchError={searchError}
-          searchLoading={searchLoading}
+          searchError={error}
+          searchLoading={loading}
         />
       </div>
     </>

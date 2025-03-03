@@ -30,8 +30,8 @@ const config: Config = {
   				ring: 'hsl(var(--sidebar-ring))'
   			},
   			theme: {
-  				primary: '#243642',
-  				secondary: '#629584',
+  				primary: '#28464B',
+  				secondary: '#2C8C99',
   				accent: '#FFFFFF',
   				background: '#F8F9FA',
   				'primary-hover': '#000000',

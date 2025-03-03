@@ -16,7 +16,7 @@ export default function Footer() {
   return (
     <footer className="bg-[#243642] text-white">
       {/* Newsletter Bar with Enhanced UI */}
-      <div className="border-b border-gray-700 bg-[#2d4050] py-6">
+      <div className="border-b border-gray-700 bg-[#326771] py-6">
         <div className="mx-auto flex max-w-7xl flex-col items-center justify-between gap-4 px-4 text-center sm:flex-row sm:text-left">
           <div className="flex flex-col">
             <span className="text-lg font-semibold tracking-wide">Subscribe to our newsletter</span>
