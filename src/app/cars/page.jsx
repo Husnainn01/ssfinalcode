@@ -19,7 +19,7 @@ import {
     AU, US, NZ, IE, KE, UG, ZM, MW, GN, PG, CD, 
     PK, ZA, TH, GE, GB, RW, FJ, LK, RU, MN, PH, JP 
 } from 'country-flag-icons/react/3x2'
-import { JsonLd, generateVehicleListingJsonLd } from '@/components/json-ld'
+import { JsonLd, generateVehicleListingJsonLd } from '../components/json-ld'
 
 function Listing() {
     const [listing, setListing] = useState([]);
