@@ -1,0 +1,14 @@
+# Allow all crawlers
+User-agent: *
+Allow: /
+
+# Disallow admin and auth pages
+Disallow: /admin/*
+Disallow: /auth/*
+Disallow: /customer-dashboard/*
+
+# Sitemap location
+Sitemap: https://globaldrivemotors.com/sitemap.xml
+
+# Crawl-delay
+Crawl-delay: 10 
