@@ -32,20 +32,20 @@ export default function Sitemap() {
       links: [
         { label: "Home", href: "/" },
         { label: "About Us", href: "/about" },
-        { label: "Our Services", href: "/services" },
-        { label: "Contact Us", href: "/contact" },
-        { label: "Blog", href: "/blog" }
+        { label: "Banking Information", href: "/banking" },
+        { label: "How to Buy", href: "/how-to-buy" },
+        { label: "FAQ", href: "/FAQ" },
+        { label: "Contact Us", href: "/contact" }
       ]
     },
     {
       title: "Vehicle Inventory",
       icon: Car,
       links: [
-        { label: "Browse All Cars", href: "/browse" },
-        { label: "New Arrivals", href: "/browse/new-arrivals" },
-        { label: "Featured Vehicles", href: "/browse/featured" },
-        { label: "Special Offers", href: "/browse/special-offers" },
-        { label: "Compare Vehicles", href: "/browse/compare" }
+        { label: "Browse All Cars", href: "/cars" },
+        { label: "New Arrivals", href: "/cars" },
+        { label: "Featured Vehicles", href: "/cars" },
+        { label: "Special Offers", href: "/cars" }
       ]
     },
     {
@@ -55,41 +55,42 @@ export default function Sitemap() {
         { label: "Terms & Conditions", href: "/legal/terms" },
         { label: "Privacy Policy", href: "/legal/privacy" },
         { label: "Disclaimer", href: "/legal/disclaimer" },
-        { label: "Cookie Policy", href: "/legal/cookies" },
-        { label: "Shipping Policy", href: "/legal/shipping" }
       ]
     },
     {
       title: "Customer Support",
       icon: HeadphonesIcon,
       links: [
-        { label: "Help Center", href: "/support" },
-        { label: "FAQ", href: "/support/faq" },
-        { label: "Track Order", href: "/support/track-order" },
-        { label: "Returns & Refunds", href: "/support/returns" },
-        { label: "Contact Support", href: "/support/contact" }
+        { label: "Help Center", href: "/FAQ" },
+        { label: "FAQ", href: "/FAQ" },
+        { label: "Contact Support", href: "/contact" }
       ]
     },
     {
       title: "Regional Sites",
       icon: Globe,
       links: [
-        { label: "United Kingdom", href: "/uk" },
-        { label: "United States", href: "/us" },
-        { label: "European Union", href: "/eu" },
-        { label: "Asia Pacific", href: "/ap" },
-        { label: "Middle East", href: "/me" }
+        { label: "Australia", href: "/cars/au" },
+        { label: "United States", href: "/cars/us" },
+        { label: "Bahamas", href: "/cars/bs" },
+        { label: "Canda", href: "/cars/ca" },
+        { label: "Chile", href: "/cars/cl" },
+        { label: "Cyprus", href: "/cars/cy" },
+        { label: "DR Congo", href: "/cars/cd" },
+        { label: "Fiji", href: "/cars/fj" },
+        { label: "Guyana", href: "/cars/gy" },
+        { label: "ireland", href: "/cars/ie" },
+        { label: "Jamica", href: "/cars/jm" },
+        { label: "Kenya", href: "/cars/ke" },
+        { label: "Mauritius", href: "/cars/mu" }
+        
       ]
     },
     {
       title: "Company Info",
       icon: Users,
       links: [
-        { label: "About SS Holdings", href: "/about" },
-        { label: "Our Team", href: "/about/team" },
-        { label: "Careers", href: "/careers" },
-        { label: "Press Kit", href: "/press" },
-        { label: "Partner With Us", href: "/partners" }
+        { label: "About Global Drive Motors", href: "/about" },
       ]
     }
   ]
@@ -150,7 +151,7 @@ export default function Sitemap() {
             Our customer support team is here to help you navigate our website and find exactly what you need.
           </p>
           <a
-            href="/contact"
+            href="/contact-us"
             className="inline-flex items-center justify-center rounded-lg bg-[#629584] px-6 py-3 text-sm font-medium text-white transition-all hover:bg-[#4a7164] focus:outline-none focus:ring-2 focus:ring-[#629584] focus:ring-offset-2"
           >
             Contact Support
