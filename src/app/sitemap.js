@@ -42,15 +42,5 @@ export default async function sitemap() {
     priority: route === '' ? 1 : 0.8,
   }))
 
-  // You can also add dynamic routes here
-  // For example, if you want to add all blog posts:
-  const posts = await fetchAllBlogPosts()
-  const blogRoutes = posts.map((post) => ({
-    url: `${baseUrl}/blog/${post.slug}`,
-    lastModified: post.updatedAt,
-    changeFrequency: 'weekly',
-    priority: 0.6,
-  }))
-
-  return [...routes, ...blogRoutes]
+  return routes
 } 
