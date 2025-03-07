@@ -19,6 +19,16 @@ import {
     AU, US, NZ, IE, KE, UG, ZM, MW, GN, PG, CD, 
     PK, ZA, TH, GE, GB, RW, FJ, LK, RU, MN, PH, JP 
 } from 'country-flag-icons/react/3x2'
+import { JsonLd, generateVehicleListingJsonLd } from '@/components/json-ld'
+
+export const metadata = {
+  title: 'Cars For Sale | Japanese Cars & Kei Trucks Export',
+  description: 'Browse our extensive collection of Japanese vehicles including Kei trucks, premium cars, and commercial vehicles available for worldwide export. Specialized in USA imports.',
+  openGraph: {
+    title: 'Cars For Sale | Japanese Cars & Kei Trucks Export',
+    description: 'Find your perfect vehicle from our curated collection. Featuring Kei trucks, premium cars, and commercial vehicles with full export documentation.',
+  }
+}
 
 function Listing() {
     const [listing, setListing] = useState([]);
@@ -315,8 +325,12 @@ function Listing() {
         return window.location.pathname.includes('/admin');
     };
 
+    // Generate structured data for the vehicles
+    const structuredData = generateVehicleListingJsonLd(listing, listing.length)
+
     return (
         <div className="flex flex-col md:flex-row bg-[#E2F1E7] min-h-screen pt-0">
+            <JsonLd data={structuredData} />
             {/* Left Sidebar */}
             <div className="hidden md:block md:w-1/5 lg:w-1/6 bg-white">
                 <div className="sticky top-0">

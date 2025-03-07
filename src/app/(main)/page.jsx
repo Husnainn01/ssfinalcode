@@ -9,10 +9,13 @@ import RightSidebar from "@/components/template/rightsidebar";
 import PurchaseFlow from "@/components/block/purchaseflow";
 import FAQ from '@/components/block/faq'
 import HeroBanner from "@/components/block/hero-banner";
+import { OrganizationJsonLd, FaqJsonLd } from '../components/json-ld'
 
 export default function App() {
   return (
     <div>
+      <OrganizationJsonLd />
+      <FaqJsonLd />
       <HeroBanner />
       <div className="flex flex-col md:flex-row">
         <div className="hidden md:block md:w-1/5 lg:w-1/6 bg-white">
