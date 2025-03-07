@@ -21,15 +21,6 @@ import {
 } from 'country-flag-icons/react/3x2'
 import { JsonLd, generateVehicleListingJsonLd } from '@/components/json-ld'
 
-export const metadata = {
-  title: 'Cars For Sale | Japanese Cars & Kei Trucks Export',
-  description: 'Browse our extensive collection of Japanese vehicles including Kei trucks, premium cars, and commercial vehicles available for worldwide export. Specialized in USA imports.',
-  openGraph: {
-    title: 'Cars For Sale | Japanese Cars & Kei Trucks Export',
-    description: 'Find your perfect vehicle from our curated collection. Featuring Kei trucks, premium cars, and commercial vehicles with full export documentation.',
-  }
-}
-
 function Listing() {
     const [listing, setListing] = useState([]);
     const [loading, setLoading] = useState(true);
