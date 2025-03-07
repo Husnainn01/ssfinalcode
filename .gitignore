@@ -36,3 +36,20 @@ yarn-error.log*
 # typescript
 *.tsbuildinfo
 next-env.d.ts
+
+# jest
+validateAndLog
+
+# Jest and testing related files
+jest.config.js
+jest.config.cjs
+jest.setup.js
+jest.setup.cjs
+babel.config.cjs
+**/__tests__/**
+**/*.test.js
+**/*.test.jsx
+**/*.test.ts
+**/*.test.tsx
+**/*.test.cjs
+coverage/
