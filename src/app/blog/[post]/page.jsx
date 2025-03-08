@@ -1,7 +1,7 @@
 import Blog from './blog'
 import Header from '@/components/template/header'
 import Footer from '@/components/template/footer'
-import { JsonLd } from '@/app/components/json-ld'
+import { BlogPostJsonLd } from '@/app/components/json-ld'
 
 // Generate metadata for the blog post
 export async function generateMetadata({ params }) {
@@ -48,37 +48,33 @@ export async function generateMetadata({ params }) {
 
 export default async function BlogPost({ params }) {
   try {
-    // Fetch post data for JSON-LD
     const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || 'https://www.globaldrivemotors.com'
     const response = await fetch(`${baseUrl}/api/posts/${params.post}`, { next: { revalidate: 3600 } })
     const post = await response.json()
 
-    // Generate structured data for the blog post
     const blogJsonLd = {
-      '@context': 'https://schema.org',
-      '@type': 'BlogPosting',
-      'headline': post.title,
-      'image': post.image,
-      'datePublished': post.date,
-      'dateModified': post.updatedAt || post.date,
-      'author': {
+      headline: post.title,
+      image: post.image,
+      datePublished: post.date,
+      dateModified: post.updatedAt || post.date,
+      author: {
         '@type': 'Organization',
-        'name': 'Global Drive Motors'
+        name: 'Global Drive Motors'
       },
-      'publisher': {
+      publisher: {
         '@type': 'Organization',
-        'name': 'Global Drive Motors',
-        'logo': {
+        name: 'Global Drive Motors',
+        logo: {
           '@type': 'ImageObject',
-          'url': 'https://res.cloudinary.com/dkbgkjqvs/image/upload/v1704267000/gdm-og-image_ixvvzm.jpg'
+          url: 'https://res.cloudinary.com/dkbgkjqvs/image/upload/v1704267000/gdm-og-image_ixvvzm.jpg'
         }
       },
-      'description': post.excerpt || `Read about ${post.title} on the Global Drive Motors blog.`
+      description: post.excerpt || `Read about ${post.title} on the Global Drive Motors blog.`
     }
 
     return (
       <>
-        <JsonLd data={blogJsonLd} />
+        <BlogPostJsonLd data={blogJsonLd} />
         <Header />
         <main className="bg-[#E2F1E7] py-10">
           <Blog id={params.post} />

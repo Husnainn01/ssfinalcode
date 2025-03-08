@@ -1,10 +1,62 @@
+"use client"
+
+import JsonLdWrapper from './JsonLdWrapper'
+
+export function JsonLd({ data }) {
+  return <JsonLdWrapper data={data} />
+}
+
+export function BlogPostJsonLd({ data }) {
+  return (
+    <JsonLdWrapper
+      data={{
+        '@context': 'https://schema.org',
+        '@type': 'BlogPosting',
+        ...data,
+      }}
+    />
+  )
+}
+
+export function OrganizationJsonLd({ data }) {
+  return (
+    <JsonLdWrapper
+      data={{
+        '@context': 'https://schema.org',
+        '@type': 'Organization',
+        ...data,
+      }}
+    />
+  )
+}
+
+export function FaqJsonLd({ data }) {
+  return (
+    <JsonLdWrapper
+      data={{
+        '@context': 'https://schema.org',
+        '@type': 'FAQPage',
+        ...data,
+      }}
+    />
+  )
+}
+
+export function ContactJsonLd({ data }) {
+  return (
+    <JsonLdWrapper
+      data={{
+        '@context': 'https://schema.org',
+        '@type': 'ContactPage',
+        ...data,
+      }}
+    />
+  )
+}
+
 // Base JSON-LD components
 export { default as JsonLd } from './JsonLd'
-export { default as JsonLdWrapper } from './JsonLdWrapper'
 export { generateVehicleJsonLd, generateVehicleListingJsonLd } from './JsonLd'
-
-// Organization JSON-LD
-export { default as OrganizationJsonLd } from './OrganizationJsonLd'
 
 // FAQ JSON-LD
 export { default as FaqJsonLd } from './FaqJsonLd'

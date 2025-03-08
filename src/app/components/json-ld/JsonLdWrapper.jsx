@@ -1,86 +1,71 @@
+"use client"
+
 import { useState, useEffect } from 'react'
 import {
   validateVehicleJsonLd,
   validateOrganizationJsonLd,
   validateFaqJsonLd,
-  validateContactJsonLd
+  validateContactJsonLd,
+  validateBasicJsonLd
 } from './utils/validateJsonLd'
 
 const validators = {
   Vehicle: validateVehicleJsonLd,
-  AutoDealer: validateOrganizationJsonLd,
+  Organization: validateOrganizationJsonLd,
   FAQPage: validateFaqJsonLd,
-  ContactPage: validateContactJsonLd
+  ContactPage: validateContactJsonLd,
+  BlogPosting: validateBasicJsonLd
 }
 
-export default function JsonLdWrapper({ data, type }) {
+export default function JsonLdWrapper({ data }) {
   const [validatedData, setValidatedData] = useState(null)
   const [error, setError] = useState(null)
   const [isLoading, setIsLoading] = useState(true)
 
   useEffect(() => {
-    const validateData = async () => {
-      try {
-        setIsLoading(true)
-        setError(null)
-
-        // Get the appropriate validator
-        const validator = validators[data['@type']]
-        if (!validator) {
-          throw new Error(`No validator found for type: ${data['@type']}`)
-        }
-
-        // Validate the data
-        await validator(data)
-        setValidatedData(data)
-      } catch (err) {
-        console.error('JSON-LD Validation Error:', err)
-        setError(err.message)
-        
-        // In development, throw the error
-        if (process.env.NODE_ENV === 'development') {
-          console.warn('JSON-LD Validation Failed:', {
-            type: data['@type'],
-            error: err.message,
-            data
-          })
-        }
-      } finally {
-        setIsLoading(false)
-      }
+    if (!data) {
+      setError('No JSON-LD data provided')
+      setIsLoading(false)
+      return
     }
 
-    validateData()
+    try {
+      // Basic validation for all JSON-LD
+      validateBasicJsonLd(data)
+
+      // Type-specific validation
+      const validator = validators[data['@type']]
+      if (validator) {
+        validator(data)
+      }
+
+      setValidatedData(data)
+      setError(null)
+    } catch (err) {
+      console.error('JSON-LD Validation Error:', err)
+      setError(err.message)
+      setValidatedData(null)
+    } finally {
+      setIsLoading(false)
+    }
   }, [data])
 
-  // Don't render anything if there's an error in production
-  if (error && process.env.NODE_ENV === 'production') {
+  if (isLoading) return null
+
+  if (error) {
+    // In development, show the error
+    if (process.env.NODE_ENV === 'development') {
+      console.warn('JSON-LD Error:', error)
+    }
     return null
   }
 
-  // Show error in development
-  if (error && process.env.NODE_ENV === 'development') {
-    return (
-      <script
-        type="application/json"
-        data-testid="json-ld-error"
-        dangerouslySetInnerHTML={{
-          __html: JSON.stringify({ error, data }, null, 2)
-        }}
-      />
-    )
-  }
+  if (!validatedData) return null
 
-  // Don't render anything while loading
-  if (isLoading) {
-    return null
-  }
-
-  // Render the validated JSON-LD
-  return validatedData ? (
+  return (
     <script
       type="application/ld+json"
       dangerouslySetInnerHTML={{ __html: JSON.stringify(validatedData) }}
     />
-  ) : null
+  )
 } 
