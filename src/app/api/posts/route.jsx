@@ -22,20 +22,44 @@ export async function POST(req) {
         
         const mainPostCollection = mongoose.connection.collection('BlogPost');
 
-        const postData = await req.json(); // Assuming POST data is JSON
+        const postData = await req.json();
+        
+        // Validate required fields
+        if (!postData.title || !postData.content || !postData.thumbnail) {
+            return NextResponse.json(
+                { error: "Missing required fields" },
+                { status: 400 }
+            );
+        }
 
-        // Generate a random 6-digit number
+        // Ensure both image and thumbnail are set
+        const dataToInsert = {
+            ...postData,
+            image: postData.thumbnail || postData.image, // Use thumbnail if image not provided
+            thumbnail: postData.thumbnail,
+            createdAt: new Date(),
+            updatedAt: new Date()
+        };
+
+        // Generate a random 6-digit number for ID
         const randomSixDigitNumber = Math.floor(100000 + Math.random() * 900000);
+        dataToInsert.id = randomSixDigitNumber;
 
-        // Add the custom key-value pair
-        postData['id'] = randomSixDigitNumber;
+        console.log('Inserting post data:', dataToInsert); // Debug log
 
-        const insertResult = await mainPostCollection.insertOne(postData); // Insert data
+        const insertResult = await mainPostCollection.insertOne(dataToInsert);
 
-        return NextResponse.json({ message: "Post added successfully", postId: insertResult.insertedId, postData });
+        return NextResponse.json({
+            message: "Post added successfully",
+            postId: insertResult.insertedId,
+            postData: dataToInsert
+        });
     } catch (error) {
         console.error("Error adding post to MongoDB:", error);
-        return NextResponse.json({ error: "Failed to add post to MongoDB" }, { status: 500 });
+        return NextResponse.json(
+            { error: "Failed to add post to MongoDB" },
+            { status: 500 }
+        );
     }
 }
 

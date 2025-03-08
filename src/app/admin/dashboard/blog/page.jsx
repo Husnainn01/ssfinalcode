@@ -144,10 +144,8 @@ export default function BlogPostListing() {
                 <div className="flex gap-2 absolute bottom-4 right-2 z-50">
                   <i className="w-min h-min p-2 rounded-lg bg-primary-50 cursor-pointer text-lg text-black shadow-inner">
                     <Link
-                      href={{
-                        pathname: "/dashboard/blog/new/update",
-                        query: { id: post._id },
-                      }}
+                      href={`/admin/dashboard/blog/new/${post._id}`}
+                      className="block"
                     >
                       <MdModeEdit />
                     </Link>

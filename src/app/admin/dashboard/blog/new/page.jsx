@@ -1,5 +1,6 @@
 "use client"
 import dynamic from 'next/dynamic';
+import { Card, CardBody } from "@nextui-org/react";
 
 const AddBlog = dynamic(() => import('@/app/admin/components/block/addBlog'), {
   ssr: false 
@@ -7,8 +8,12 @@ const AddBlog = dynamic(() => import('@/app/admin/components/block/addBlog'), {
 
 export default function App() {
   return (
-    <div className="">
-      <AddBlog></AddBlog>
+    <div className="p-4">
+      <Card>
+        <CardBody>
+          <AddBlog />
+        </CardBody>
+      </Card>
     </div>
   );
 }
