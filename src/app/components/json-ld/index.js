@@ -1,6 +1,14 @@
 "use client"
 
 import JsonLdWrapper from './JsonLdWrapper'
+import { generateVehicleJsonLd, generateVehicleListingJsonLd } from './JsonLd'
+import { 
+  validateVehicleJsonLd,
+  validateOrganizationJsonLd,
+  validateFaqJsonLd,
+  validateContactJsonLd,
+  validateBasicJsonLd 
+} from './utils/validateJsonLd'
 
 export function JsonLd({ data }) {
   return <JsonLdWrapper data={data} />
@@ -54,15 +62,13 @@ export function ContactJsonLd({ data }) {
   )
 }
 
-// Base JSON-LD components
-export { default as JsonLd } from './JsonLd'
-export { generateVehicleJsonLd, generateVehicleListingJsonLd } from './JsonLd'
-
-// FAQ JSON-LD
-export { default as FaqJsonLd } from './FaqJsonLd'
-
-// Contact JSON-LD
-export { default as ContactJsonLd } from './ContactJsonLd'
-
-// Validation utilities
-export * from './utils/validateJsonLd' 
+// Export utility functions
+export {
+  generateVehicleJsonLd,
+  generateVehicleListingJsonLd,
+  validateVehicleJsonLd,
+  validateOrganizationJsonLd,
+  validateFaqJsonLd,
+  validateContactJsonLd,
+  validateBasicJsonLd
+} 
