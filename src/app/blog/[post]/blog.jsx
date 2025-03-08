@@ -10,6 +10,7 @@ import Link from 'next/link'
 const Blog = ({ id }) => {
     const [blogPost, setBlogPost] = useState([])
     const [loading, setLoading] = useState(true)
+    const [isAdmin, setIsAdmin] = useState(false)
     const [isEditing, setIsEditing] = useState(false)
     const [editedPost, setEditedPost] = useState(null)
     const [uploadedImage, setUploadedImage] = useState(null)
@@ -17,7 +18,14 @@ const Blog = ({ id }) => {
 
     useEffect(() => {
         fetchPost()
+        checkAdminStatus()
     }, [])
+
+    const checkAdminStatus = () => {
+        // Check if user is admin based on localStorage or session
+        const userRole = localStorage.getItem('userRole')
+        setIsAdmin(userRole === 'admin')
+    }
 
     const fetchPost = async () => {
         try {
@@ -162,15 +170,17 @@ const Blog = ({ id }) => {
                         <h1>{item.title}</h1>
                         <p>Date: {item.date} | Category: {item.category}</p>
                         
-                        {/* Edit button using Next.js Link */}
-                        <Link href={`/admin/dashboard/blog/new/${item._id}`}>
-                            <Button 
-                                className="mt-4"
-                                color="primary"
-                            >
-                                Edit Post
-                            </Button>
-                        </Link>
+                        {/* Only show edit button if user is admin */}
+                        {isAdmin && (
+                            <Link href={`/admin/dashboard/blog/new/${item._id}`}>
+                                <Button 
+                                    className="mt-4"
+                                    color="primary"
+                                >
+                                    Edit Post
+                                </Button>
+                            </Link>
+                        )}
                     </div>
                     
                     <div>
