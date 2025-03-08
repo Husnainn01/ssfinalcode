@@ -1,6 +1,6 @@
 import { NextResponse } from 'next/server';
-import { connectToDatabase } from '@/lib/mongodb';
-import { ObjectId } from 'mongodb';
+import dbConnect from '@/lib/dbConnect';
+import mongoose from 'mongoose';
 
 // PUT handler to update a blog post
 export async function PUT(request, { params }) {
@@ -9,7 +9,7 @@ export async function PUT(request, { params }) {
     const body = await request.json();
     
     // Validate the ObjectId
-    if (!ObjectId.isValid(id)) {
+    if (!mongoose.Types.ObjectId.isValid(id)) {
       return NextResponse.json(
         { message: 'Invalid post ID format' },
         { status: 400 }
@@ -17,7 +17,8 @@ export async function PUT(request, { params }) {
     }
     
     // Connect to the database
-    const { db } = await connectToDatabase();
+    await dbConnect();
+    const db = mongoose.connection;
     
     // Prepare the update data
     const updateData = {
@@ -36,8 +37,8 @@ export async function PUT(request, { params }) {
     });
     
     // Update the post in the database
-    const result = await db.collection('posts').updateOne(
-      { _id: new ObjectId(id) },
+    const result = await db.collection('BlogPost').updateOne(
+      { _id: new mongoose.Types.ObjectId(id) },
       { $set: updateData }
     );
     
@@ -67,7 +68,7 @@ export async function GET(request, { params }) {
     const { id } = params;
     
     // Validate the ObjectId
-    if (!ObjectId.isValid(id)) {
+    if (!mongoose.Types.ObjectId.isValid(id)) {
       return NextResponse.json(
         { message: 'Invalid post ID format' },
         { status: 400 }
@@ -75,10 +76,13 @@ export async function GET(request, { params }) {
     }
     
     // Connect to the database
-    const { db } = await connectToDatabase();
+    await dbConnect();
+    const db = mongoose.connection;
     
     // Fetch the post from the database
-    const post = await db.collection('posts').findOne({ _id: new ObjectId(id) });
+    const post = await db.collection('BlogPost').findOne({ 
+      _id: new mongoose.Types.ObjectId(id) 
+    });
     
     if (!post) {
       return NextResponse.json(

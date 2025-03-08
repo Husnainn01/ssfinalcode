@@ -1,7 +1,7 @@
 import Blog from './blog'
 import Header from '@/components/template/header'
 import Footer from '@/components/template/footer'
-import { JsonLd } from '@/components/json-ld'
+import { JsonLd } from '@/app/components/json-ld'
 
 // Generate metadata for the blog post
 export async function generateMetadata({ params }) {
@@ -46,10 +46,15 @@ export async function generateMetadata({ params }) {
   }
 }
 
-export default function BlogPost({ params }) {
-  // Generate structured data for the blog post
-  const generateBlogJsonLd = (post) => {
-    return {
+export default async function BlogPost({ params }) {
+  try {
+    // Fetch post data for JSON-LD
+    const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || 'https://www.globaldrivemotors.com'
+    const response = await fetch(`${baseUrl}/api/posts/${params.post}`, { next: { revalidate: 3600 } })
+    const post = await response.json()
+
+    // Generate structured data for the blog post
+    const blogJsonLd = {
       '@context': 'https://schema.org',
       '@type': 'BlogPosting',
       'headline': post.title,
@@ -70,15 +75,27 @@ export default function BlogPost({ params }) {
       },
       'description': post.excerpt || `Read about ${post.title} on the Global Drive Motors blog.`
     }
-  }
 
-  return (
-    <>
-      <Header />
-      <main className="bg-[#E2F1E7] py-10">
-        <Blog id={params.post} />
-      </main>
-      <Footer />
-    </>
-  )
+    return (
+      <>
+        <JsonLd data={blogJsonLd} />
+        <Header />
+        <main className="bg-[#E2F1E7] py-10">
+          <Blog id={params.post} />
+        </main>
+        <Footer />
+      </>
+    )
+  } catch (error) {
+    console.error('Error in BlogPost:', error)
+    return (
+      <>
+        <Header />
+        <main className="bg-[#E2F1E7] py-10">
+          <Blog id={params.post} />
+        </main>
+        <Footer />
+      </>
+    )
+  }
 }
