@@ -77,7 +77,7 @@ export default async function BlogPost({ params }) {
         <BlogPostJsonLd data={blogJsonLd} />
         <Header />
         <main className="bg-[#E2F1E7] py-10">
-          <Blog id={params.post} />
+          <Blog slug={params.post} />
         </main>
         <Footer />
       </>
@@ -88,7 +88,7 @@ export default async function BlogPost({ params }) {
       <>
         <Header />
         <main className="bg-[#E2F1E7] py-10">
-          <Blog id={params.post} />
+          <Blog slug={params.post} />
         </main>
         <Footer />
       </>

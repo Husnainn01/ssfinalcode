@@ -7,7 +7,7 @@ import Image from 'next/image'
 import Link from 'next/link'
 // import Listing from "@/components/block/listing"
 
-const Blog = ({ id }) => {
+const Blog = ({ slug }) => {
     const [blogPost, setBlogPost] = useState([])
     const [loading, setLoading] = useState(true)
     const [isAdmin, setIsAdmin] = useState(false)
@@ -32,7 +32,7 @@ const Blog = ({ id }) => {
             const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || 'https://www.globaldrivemotors.com'
             const response = await fetch(`${baseUrl}/api/posts`)
             let data = await response.json()
-            data = data.filter(listing => listing._id === id)
+            data = data.filter(listing => listing.slug === slug)
             setBlogPost(data)
             
             // Initialize edited post with the current post data
@@ -165,14 +165,14 @@ const Blog = ({ id }) => {
     return (
         <div>
             {blogPost.map((item) => (
-                <div className='w-full m-auto md:w-3/4 px-4 md:mpx-0' key={item._id}>
+                <div className='w-full m-auto md:w-3/4 px-4 md:mpx-0' key={item.slug}>
                     <div className='my-10 text-center'>
                         <h1>{item.title}</h1>
                         <p>Date: {item.date} | Category: {item.category}</p>
                         
                         {/* Only show edit button if user is admin */}
                         {isAdmin && (
-                            <Link href={`/admin/dashboard/blog/new/${item._id}`}>
+                            <Link href={`/admin/dashboard/blog/edit/${item.slug}`}>
                                 <Button 
                                     className="mt-4"
                                     color="primary"

@@ -7,16 +7,16 @@ export async function GET() {
   const feed = new Feed({
     title: 'Global Drive Motors',
     description: 'Latest vehicles and blog posts from Global Drive Motors',
-    id: baseUrl,
-    link: baseUrl,
+    id: 'https://www.globaldrivemotors.com/',
+    link: 'https://www.globaldrivemotors.com/',
     language: 'en',
-    image: `${baseUrl}/logo.png`,
-    favicon: `${baseUrl}/favicon.ico`,
+    image: 'https://www.globaldrivemotors.com/logo.png',
+    favicon: 'https://www.globaldrivemotors.com/favicon.ico',
     copyright: `All rights reserved ${new Date().getFullYear()}, Global Drive Motors`,
     updated: new Date(),
     generator: 'Global Drive Motors RSS Feed',
     feedLinks: {
-      rss2: `${baseUrl}/api/rss`
+      rss2: 'https://www.globaldrivemotors.com/api/rss'
     },
   });
 
@@ -26,7 +26,7 @@ export async function GET() {
       orderBy: { createdAt: 'desc' },
       take: 20,
       select: {
-        id: true,
+        slug: true,
         title: true,
         description: true,
         price: true,
@@ -43,7 +43,7 @@ export async function GET() {
       orderBy: { createdAt: 'desc' },
       take: 20,
       select: {
-        id: true,
+        slug: true,
         title: true,
         content: true,
         image: true,
@@ -56,8 +56,8 @@ export async function GET() {
     listings.forEach(listing => {
       feed.addItem({
         title: listing.title,
-        id: listing.id,
-        link: `${baseUrl}/listings/${listing.id}`,
+        id: listing.slug,
+        link: `${baseUrl}/listings/${listing.slug}`,
         description: listing.description,
         content: `
           <h2>${listing.year} ${listing.make} ${listing.model}</h2>
@@ -74,8 +74,8 @@ export async function GET() {
     blogPosts.forEach(post => {
       feed.addItem({
         title: post.title,
-        id: post.id,
-        link: `${baseUrl}/blog/${post.id}`,
+        id: post.slug,
+        link: `${baseUrl}/blog/${post.slug}`,
         description: post.content.substring(0, 200) + '...',
         content: post.content,
         date: new Date(post.createdAt),
