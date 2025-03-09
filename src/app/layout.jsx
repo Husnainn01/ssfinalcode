@@ -16,6 +16,12 @@ export default function RootLayout({ children }) {
     <html lang="en" suppressHydrationWarning>
       <head>
         <GoogleAnalytics />
+        <link 
+          rel="alternate" 
+          type="application/rss+xml" 
+          title="Global Drive Motors Feed" 
+          href="/api/rss" 
+        />
       </head>
       <body className={inter.className}>
         <FavoritesProvider>
