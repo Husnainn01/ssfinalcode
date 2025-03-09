@@ -1,5 +1,6 @@
 import { Feed } from 'feed';
-import prisma from '@/lib/prisma';
+import mongoose from 'mongoose';
+import dbConnect from '@/lib/dbConnect';
 
 export async function GET() {
   const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || 'https://www.globaldrivemotors.com';
@@ -21,51 +22,35 @@ export async function GET() {
   });
 
   try {
+    await dbConnect();
+    const db = mongoose.connection;
+
     // Fetch latest listings
-    const listings = await prisma.listing.findMany({
-      orderBy: { createdAt: 'desc' },
-      take: 20,
-      select: {
-        id: true,
-        title: true,
-        description: true,
-        price: true,
-        make: true,
-        model: true,
-        year: true,
-        image: true,
-        createdAt: true
-      }
-    });
+    const listings = await db.collection('Listing').find({})
+      .sort({ createdAt: -1 })
+      .limit(20)
+      .toArray();
 
     // Fetch latest blog posts
-    const blogPosts = await prisma.post.findMany({
-      orderBy: { createdAt: 'desc' },
-      take: 20,
-      select: {
-        id: true,
-        title: true,
-        content: true,
-        image: true,
-        createdAt: true,
-        category: true
-      }
-    });
+    const blogPosts = await db.collection('BlogPost').find({})
+      .sort({ createdAt: -1 })
+      .limit(20)
+      .toArray();
 
     // Add listings to feed
     listings.forEach(listing => {
       feed.addItem({
         title: listing.title,
-        id: listing.id.toString(),
-        link: `${baseUrl}/listings/${listing.id}`,
-        description: listing.description,
+        id: listing._id.toString(),
+        link: `${baseUrl}/cars/${listing._id}`,
+        description: listing.description || `${listing.year} ${listing.make} ${listing.model}`,
         content: `
           <h2>${listing.year} ${listing.make} ${listing.model}</h2>
-          <p>Price: $${listing.price.toLocaleString()}</p>
+          <p>Price: $${listing.price?.toLocaleString()}</p>
           <img src="${listing.image}" alt="${listing.title}" />
-          <p>${listing.description}</p>
+          <p>${listing.description || ''}</p>
         `,
-        date: new Date(listing.createdAt),
+        date: new Date(listing.createdAt || new Date()),
         image: listing.image
       });
     });
@@ -74,11 +59,11 @@ export async function GET() {
     blogPosts.forEach(post => {
       feed.addItem({
         title: post.title,
-        id: post.id.toString(),
-        link: `${baseUrl}/blog/${post.id}`,
-        description: post.content.substring(0, 200) + '...',
+        id: post._id.toString(),
+        link: `${baseUrl}/blog/${post._id}`,
+        description: post.excerpt || post.content?.substring(0, 200) + '...',
         content: post.content,
-        date: new Date(post.createdAt),
+        date: new Date(post.createdAt || post.date || new Date()),
         image: post.image,
         category: [{ name: post.category }]
       });

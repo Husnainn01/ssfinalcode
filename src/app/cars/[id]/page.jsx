@@ -1,8 +1,6 @@
-"use client"
-
 import { notFound } from 'next/navigation';
 import { FavoriteButton } from '@/components/ui/FavoriteButton';
-import { JsonLd, generateVehicleJsonLd } from '@/components/json-ld';
+import { BlogPostJsonLd } from '@/app/components/json-ld';
 
 // Import components from local folder
 import ListingPage from "./carPost";
@@ -76,30 +74,36 @@ export default async function CarDetailsPage({ params }) {
     }
 
     // Generate structured data for SEO
-    const structuredData = generateVehicleJsonLd({
-      name: `${car.year} ${car.make} ${car.model}`,
-      description: car.description || `${car.year} ${car.make} ${car.model}`,
-      vehicleIdentificationNumber: car.vin,
-      modelDate: car.year,
-      manufacturer: car.make,
-      model: car.model,
-      bodyType: car.bodyType,
-      fuelType: car.fuelType,
-      transmission: car.vehicleTransmission,
-      driveWheelConfiguration: car.driveWheelConfiguration,
-      mileageFromOdometer: {
-        value: car.mileage,
-        unitCode: car.mileageUnit === 'km' ? 'KMT' : 'SMI'
+    const vehicleJsonLd = {
+      "@context": "https://schema.org",
+      "@type": "Vehicle",
+      "name": `${car.year} ${car.make} ${car.model}`,
+      "description": car.description || `${car.year} ${car.make} ${car.model}`,
+      "vehicleIdentificationNumber": car.vin,
+      "modelDate": car.year,
+      "manufacturer": {
+        "@type": "Organization",
+        "name": car.make
       },
-      vehicleEngine: car.vehicleEngine,
-      color: car.color,
-      numberOfDoors: car.numberOfDoors,
-      images: car.images || [car.image]
-    });
+      "model": car.model,
+      "bodyType": car.bodyType,
+      "fuelType": car.fuelType,
+      "transmission": car.vehicleTransmission,
+      "driveWheelConfiguration": car.driveWheelConfiguration,
+      "mileageFromOdometer": {
+        "@type": "QuantitativeValue",
+        "value": car.mileage,
+        "unitCode": car.mileageUnit === 'km' ? 'KMT' : 'SMI'
+      },
+      "vehicleEngine": car.vehicleEngine,
+      "color": car.color,
+      "numberOfDoors": car.numberOfDoors,
+      "image": car.images || [car.image]
+    };
 
     return (
       <div className="bg-[#E2F1E7]">
-        <JsonLd data={structuredData} />
+        <BlogPostJsonLd data={vehicleJsonLd} />
         <ListingPage 
           car={car} 
           id={params.id}
