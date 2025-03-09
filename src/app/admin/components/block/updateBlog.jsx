@@ -9,7 +9,8 @@ import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import { useDropzone } from "react-dropzone";
 
-const CKEditorComponent = dynamic(() => import("@/components/block/editor"), { ssr: false });
+// Remove the dynamic import for the editor component since it's causing issues
+// const CKEditorComponent = dynamic(() => import("@/components/block/editor"), { ssr: false });
 
 const UpdateBlog = ({ BlogId }) => {
   const router = useRouter();
