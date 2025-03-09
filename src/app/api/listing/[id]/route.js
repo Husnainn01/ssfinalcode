@@ -7,12 +7,12 @@ import slugify from 'slugify';
 export async function GET(request, { params }) {
   try {
     await dbConnect();
-    const { slug } = params;
+    const { id } = params;
     const { searchParams } = new URL(request.url);
     const section = searchParams.get('section');
 
     // Build query based on section if provided
-    const query = section ? { slug, section } : { slug };
+    const query = section ? { id, section } : { id };
     const car = await Car.findOne(query);
     
     if (!car) {
@@ -94,7 +94,7 @@ export async function POST(request) {
 export async function PUT(request, { params }) {
   try {
     await dbConnect();
-    const { slug } = params;
+    const { id } = params;
     const data = await request.json();
 
     // Validate section if it's being updated
@@ -106,7 +106,7 @@ export async function PUT(request, { params }) {
     }
 
     const updatedCar = await Car.findOneAndUpdate(
-      { slug },
+      { id },
       { 
         $set: {
           ...data,
@@ -132,7 +132,7 @@ export async function PUT(request, { params }) {
       const baseUrl = process.env.NEXT_PUBLIC_API_URL;
       const timestamp = Date.now();
       await Promise.all([
-        fetch(`${baseUrl}/api/revalidate?path=/cars/${slug}&t=${timestamp}`),
+        fetch(`${baseUrl}/api/revalidate?path=/cars/${id}&t=${timestamp}`),
         fetch(`${baseUrl}/api/revalidate?path=/admin/dashboard/listing&t=${timestamp}`),
         fetch(`${baseUrl}/api/revalidate?path=/cars&t=${timestamp}`),
         // Add section-specific revalidation

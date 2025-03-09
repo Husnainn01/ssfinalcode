@@ -1,61 +1,66 @@
 "use client";
 import { useState, useEffect } from "react";
+import { useRouter } from "next/navigation";
+import dynamic from "next/dynamic";
 import { Input, Button, Select, SelectItem } from "@nextui-org/react";
 import { CKEditor } from "@ckeditor/ckeditor5-react";
 import { ClassicEditor, editorConfig } from "@/lib/editorConfig";
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
+import { useDropzone } from "react-dropzone";
 
-// const BlogId = "66afcce7dad4f0262ab86d5c"
+const CKEditorComponent = dynamic(() => import("@/components/block/editor"), { ssr: false });
 
-const Page = ({BlogId}) => {
-
-
+const UpdateBlog = ({ BlogId }) => {
+  const router = useRouter();
+  const [loading, setLoading] = useState(true);
+  const [categories, setCategories] = useState([]);
   const [formData, setFormData] = useState({
     title: "",
     content: "",
-    thumbnail: "",
     category: "",
-    tag: "",
     date: "",
-    visibility: "active",
+    visibility: "",
+    image: "",
+    thumbnail: "",
   });
-  const [categories, setCategories] = useState([]);
 
   const [visibilityOptions] = useState(["Active", "Inactive"]);
 
-
   useEffect(() => {
-    const fetchCategories = async () => {
-      try {
-        const response = await fetch("/api/posts/cat");
-        if (!response.ok) {
-          throw new Error("Network response was not ok");
-        }
-        const data = await response.json();
-        setCategories(data);
-      } catch (error) {
-        console.error("Error fetching categories:", error);
-      }
-    };
-
     fetchCategories();
-    fetchListingData();
-  }, []);
+    fetchBlogPost();
+  }, [BlogId]);
 
-  const fetchListingData = async () => {
+  const fetchCategories = async () => {
     try {
-      const response = await fetch("/api/posts/");
+      const response = await fetch("/api/posts/cat");
       const data = await response.json();
-      const filteredData = data.find((item) => item._id === BlogId);
-      if (filteredData) {
-        setFormData(filteredData);
-        console.log(filteredData);
-      } else {
-        console.error("No data found with the specified _id");
-      }
+      setCategories(data);
     } catch (error) {
-      console.error("Error fetching listing data:", error);
+      console.error("Error fetching categories:", error);
+      toast.error("Failed to load categories");
+    }
+  };
+
+  const fetchBlogPost = async () => {
+    try {
+      const response = await fetch(`/api/posts/${BlogId}`);
+      const data = await response.json();
+      setFormData({
+        title: data.title || "",
+        content: data.content || "",
+        category: data.category || "",
+        date: data.date || "",
+        visibility: data.visibility || "",
+        image: data.image || "",
+        thumbnail: data.thumbnail || "",
+      });
+    } catch (error) {
+      console.error("Error fetching blog post:", error);
+      toast.error("Failed to load blog post");
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -76,32 +81,28 @@ const Page = ({BlogId}) => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    try {
-      const { _id, ...updateData } = formData;
+    setLoading(true);
 
-      const response = await fetch("/api/posts", {
+    try {
+      const response = await fetch(`/api/posts/${BlogId}`, {
         method: "PUT",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          id: BlogId,
-          updateData,
-        }),
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(formData),
       });
 
-      const contentType = response.headers.get("content-type");
-      if (!response.ok) {
-        if (contentType && contentType.includes("application/json")) {
-          const errorData = await response.json();
-          toast.error(errorData.message);
-        } else {
-          toast.error(`Error: ${response.status} - ${response.statusText}`);
-        }
+      if (response.ok) {
+        toast.success("Blog post updated successfully");
+        router.push("/admin/dashboard/blog");
       } else {
-        const data = await response.json();
-        toast.success(data.message);
+        throw new Error("Failed to update blog post");
       }
     } catch (error) {
-      toast.error(error.message);
+      console.error("Error updating blog post:", error);
+      toast.error("Failed to update blog post");
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -109,18 +110,17 @@ const Page = ({BlogId}) => {
     <div>
       <h3 className="ml-2 font-bold mb-4">Add New Post</h3>
 
-
       <div className="ml-2 mb-4 flex gap-4 md:flex-row flex-col">
-      <Input
-            clearable
-            underlined
-            placeholder="Enter Title"
-            label="Post Main Title"
-            labelPlacement="outside"
-            name="title"
-            value={formData.title}
-            onChange={handleInputChange}
-          />
+        <Input
+          clearable
+          underlined
+          placeholder="Enter Title"
+          label="Post Main Title"
+          labelPlacement="outside"
+          name="title"
+          value={formData.title}
+          onChange={handleInputChange}
+        />
         <Input
           clearable
           underlined
@@ -141,7 +141,6 @@ const Page = ({BlogId}) => {
           value={formData.tag}
           onChange={handleInputChange}
         />
-
       </div>
       <div className="ml-2 mb-4 flex gap-4 md:flex-row flex-col">
         <Select
@@ -204,4 +203,4 @@ const Page = ({BlogId}) => {
   );
 };
 
-export default Page;
+export default UpdateBlog;

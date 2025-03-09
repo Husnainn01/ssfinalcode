@@ -6,11 +6,11 @@ import { Divider } from "@nextui-org/divider";
 import Link from 'next/link';
 import { Skeleton } from "@nextui-org/react"; // Import Skeleton from nextui
 
-function Listing({ slug }) {
+function Listing({ id }) {
     const [listing, setListing] = useState([]);
     const [loading, setLoading] = useState(true); // State to track loading status
 
-    const [make, setMake] = useState(slug);
+    const [make, setMake] = useState(id);
 
     const baseUrl = process.env.NEXT_PUBLIC_BASE_URL
 
@@ -26,8 +26,8 @@ function Listing({ slug }) {
                 data = data.filter(listing => listing.visibility === "Active");
 
 
-                if (slug) {
-                    data = data.filter(listing => listing.bodyType === slug);
+                if (id) {
+                    data = data.filter(listing => listing.bodyType === id);
                 }
 
                 setListing(data);
@@ -39,7 +39,7 @@ function Listing({ slug }) {
         };
 
         fetchListing();
-    }, []);
+    }, [id]);
 
     const renderSkeleton = () => (
         <div className="relative shadow-md rounded-lg overflow-hidden p-4">

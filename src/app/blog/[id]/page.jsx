@@ -7,7 +7,7 @@ import { BlogPostJsonLd } from '@/app/components/json-ld'
 export async function generateMetadata({ params }) {
   try {
     const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || 'https://www.globaldrivemotors.com'
-    const response = await fetch(`${baseUrl}/api/posts/${params.post}`, { next: { revalidate: 3600 } })
+    const response = await fetch(`${baseUrl}/api/posts/${params.id}`, { next: { revalidate: 3600 } })
     const post = await response.json()
     
     if (!post) {
@@ -23,7 +23,7 @@ export async function generateMetadata({ params }) {
       openGraph: {
         title: post.title,
         description: post.excerpt || `Read about ${post.title} on the Global Drive Motors blog.`,
-        url: `${baseUrl}/blog/${params.post}`,
+        url: `${baseUrl}/blog/${params.id}`,
         siteName: 'Global Drive Motors',
         images: [
           {
@@ -49,7 +49,7 @@ export async function generateMetadata({ params }) {
 export default async function BlogPost({ params }) {
   try {
     const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || 'https://www.globaldrivemotors.com'
-    const response = await fetch(`${baseUrl}/api/posts/${params.post}`, { next: { revalidate: 3600 } })
+    const response = await fetch(`${baseUrl}/api/posts/${params.id}`, { next: { revalidate: 3600 } })
     const post = await response.json()
 
     const blogJsonLd = {
@@ -77,7 +77,7 @@ export default async function BlogPost({ params }) {
         <BlogPostJsonLd data={blogJsonLd} />
         <Header />
         <main className="bg-[#E2F1E7] py-10">
-          <Blog slug={params.post} />
+          <Blog id={params.id} />
         </main>
         <Footer />
       </>
@@ -88,7 +88,7 @@ export default async function BlogPost({ params }) {
       <>
         <Header />
         <main className="bg-[#E2F1E7] py-10">
-          <Blog slug={params.post} />
+          <Blog id={params.id} />
         </main>
         <Footer />
       </>

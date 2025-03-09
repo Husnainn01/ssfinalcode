@@ -1,51 +1,114 @@
 "use client"
 
-import { JsonLd, generateVehicleJsonLd } from '@/components/json-ld'
-import { useEffect, useState } from 'react'
+import { notFound } from 'next/navigation';
+import { FavoriteButton } from '@/components/ui/FavoriteButton';
+import { JsonLd, generateVehicleJsonLd } from '@/components/json-ld';
 
-export async function generateMetadata({ params }) {
-  const vehicle = await fetchVehicleById(params.slug)
-  
-  return {
-    title: `${vehicle.year} ${vehicle.manufacturer} ${vehicle.model} | Global Drive Motors`,
-    description: `${vehicle.year} ${vehicle.manufacturer} ${vehicle.model} for sale. ${vehicle.mileage}km, ${vehicle.transmission}, ${vehicle.fuelType}. Ready for export with complete documentation.`,
-    openGraph: {
-      title: `${vehicle.year} ${vehicle.manufacturer} ${vehicle.model}`,
-      description: vehicle.description,
-      images: vehicle.images?.map(img => ({
-        url: img.url,
-        width: 1200,
-        height: 630,
-        alt: `${vehicle.year} ${vehicle.manufacturer} ${vehicle.model}`,
-      })),
+// Import components from local folder
+import ListingPage from "./carPost";
+
+export const dynamic = 'force-dynamic';
+export const runtime = 'edge';
+
+async function fetchCar(id) {
+  try {
+    console.log('Fetching car with id:', id);
+    
+    const timestamp = Date.now();
+    const res = await fetch(`${process.env.NEXT_PUBLIC_BASE_URL}/api/cars/${id}?t=${timestamp}`, {
+      cache: 'no-store',
+      headers: {
+        'Cache-Control': 'no-cache, no-store, must-revalidate',
+        'Pragma': 'no-cache'
+      }
+    });
+    
+    if (!res.ok) {
+      console.error('Failed to fetch car:', res.status);
+      throw new Error('Failed to fetch car');
     }
+    
+    const data = await res.json();
+    console.log('Fetched car data:', data);
+    return data;
+  } catch (error) {
+    console.error('Error fetching car:', error);
+    throw error;
   }
 }
 
-export default function VehicleDetailPage({ params }) {
-  const [vehicle, setVehicle] = useState(null)
-  const [loading, setLoading] = useState(true)
+export async function generateMetadata({ params }) {
+  try {
+    const vehicle = await fetchCar(params.id);
+    
+    return {
+      title: `${vehicle.year} ${vehicle.make} ${vehicle.model} | Global Drive Motors`,
+      description: `${vehicle.year} ${vehicle.make} ${vehicle.model} for sale. ${vehicle.mileage}${vehicle.mileageUnit}, ${vehicle.vehicleTransmission}, ${vehicle.fuelType}. Ready for export with complete documentation.`,
+      openGraph: {
+        title: `${vehicle.year} ${vehicle.make} ${vehicle.model}`,
+        description: vehicle.description || `${vehicle.year} ${vehicle.make} ${vehicle.model} for sale`,
+        images: vehicle.images?.map(img => ({
+          url: img,
+          width: 1200,
+          height: 630,
+          alt: `${vehicle.year} ${vehicle.make} ${vehicle.model}`,
+        })) || [],
+      }
+    };
+  } catch (error) {
+    console.error('Error generating metadata:', error);
+    return {
+      title: 'Car Details | Global Drive Motors',
+      description: 'View car details and specifications'
+    };
+  }
+}
 
-  useEffect(() => {
-    fetchVehicleById(params.slug)
-      .then(data => {
-        setVehicle(data)
-        setLoading(false)
-      })
-  }, [params.slug])
+export default async function CarDetailsPage({ params }) {
+  console.log('CarDetailsPage params:', params); // Debug log
+  
+  try {
+    const car = await fetchCar(params.id);
+    
+    if (!car) {
+      console.log('Car not found'); // Debug log
+      notFound();
+    }
 
-  if (loading) return <div>Loading...</div>
-  if (!vehicle) return <div>Vehicle not found</div>
+    // Generate structured data for SEO
+    const structuredData = generateVehicleJsonLd({
+      name: `${car.year} ${car.make} ${car.model}`,
+      description: car.description || `${car.year} ${car.make} ${car.model}`,
+      vehicleIdentificationNumber: car.vin,
+      modelDate: car.year,
+      manufacturer: car.make,
+      model: car.model,
+      bodyType: car.bodyType,
+      fuelType: car.fuelType,
+      transmission: car.vehicleTransmission,
+      driveWheelConfiguration: car.driveWheelConfiguration,
+      mileageFromOdometer: {
+        value: car.mileage,
+        unitCode: car.mileageUnit === 'km' ? 'KMT' : 'SMI'
+      },
+      vehicleEngine: car.vehicleEngine,
+      color: car.color,
+      numberOfDoors: car.numberOfDoors,
+      images: car.images || [car.image]
+    });
 
-  const structuredData = generateVehicleJsonLd(vehicle)
-
-  return (
-    <div className="min-h-screen bg-gradient-to-b from-gray-50 to-white py-12">
-      <JsonLd data={structuredData} />
-      
-      <div className="mx-auto max-w-7xl px-4">
-        {/* Your existing vehicle detail components */}
+    return (
+      <div className="bg-[#E2F1E7]">
+        <JsonLd data={structuredData} />
+        <ListingPage 
+          car={car} 
+          id={params.id}
+          favoriteButton={<FavoriteButton carId={car._id} />} 
+        />
       </div>
-    </div>
-  )
+    );
+  } catch (error) {
+    console.error('Error in CarDetailsPage:', error);
+    notFound();
+  }
 } 

@@ -26,7 +26,7 @@ export async function GET() {
       orderBy: { createdAt: 'desc' },
       take: 20,
       select: {
-        slug: true,
+        id: true,
         title: true,
         description: true,
         price: true,
@@ -43,7 +43,7 @@ export async function GET() {
       orderBy: { createdAt: 'desc' },
       take: 20,
       select: {
-        slug: true,
+        id: true,
         title: true,
         content: true,
         image: true,
@@ -56,8 +56,8 @@ export async function GET() {
     listings.forEach(listing => {
       feed.addItem({
         title: listing.title,
-        id: listing.slug,
-        link: `${baseUrl}/listings/${listing.slug}`,
+        id: listing.id.toString(),
+        link: `${baseUrl}/listings/${listing.id}`,
         description: listing.description,
         content: `
           <h2>${listing.year} ${listing.make} ${listing.model}</h2>
@@ -74,8 +74,8 @@ export async function GET() {
     blogPosts.forEach(post => {
       feed.addItem({
         title: post.title,
-        id: post.slug,
-        link: `${baseUrl}/blog/${post.slug}`,
+        id: post.id.toString(),
+        link: `${baseUrl}/blog/${post.id}`,
         description: post.content.substring(0, 200) + '...',
         content: post.content,
         date: new Date(post.createdAt),
