@@ -63,17 +63,34 @@ export async function GET() {
       const imageUrl = listing.image || `${baseUrl}/default-car.jpg`;
       const itemDate = listing.createdAt ? new Date(listing.createdAt) : new Date();
       
+      // Create a detailed description with all car specifications
+      const detailedDescription = `
+🚗 ${listing.year} ${listing.make} ${listing.model}
+
+💰 Price: ${price}
+${listing.mileage ? `📊 Mileage: ${listing.mileage.toLocaleString()} miles` : ''}
+${listing.engineSize ? `🔧 Engine: ${listing.engineSize}` : ''}
+${listing.transmission ? `⚙️ Transmission: ${listing.transmission}` : ''}
+${listing.fuelType ? `⛽ Fuel Type: ${listing.fuelType}` : ''}
+${listing.bodyType ? `🚘 Body Type: ${listing.bodyType}` : ''}
+${listing.color ? `🎨 Color: ${listing.color}` : ''}
+${listing.seats ? `💺 Seats: ${listing.seats}` : ''}
+${listing.doors ? `🚪 Doors: ${listing.doors}` : ''}
+${listing.steering ? `🎯 Steering: ${listing.steering}` : ''}
+${listing.drive ? `⚡ Drive: ${listing.drive}` : ''}
+
+${listing.description || ''}
+
+🌐 View more details and photos: ${baseUrl}/cars/${listing._id}
+
+#${listing.make.toLowerCase().replace(/\s+/g, '')} #${listing.model.toLowerCase().replace(/\s+/g, '')} #globaldrivemotors #newlisting
+      `.trim();
+
       feed.addItem({
         title: `🚗 NEW LISTING: ${listing.year} ${listing.make} ${listing.model}`,
         id: `vehicle-${listing._id.toString()}-${Date.now()}`,
         link: `${baseUrl}/cars/${listing._id}`,
-        description: `
-          🚘 ${listing.year} ${listing.make} ${listing.model}
-          💰 Price: ${price}
-          ${listing.mileage ? `📊 Mileage: ${listing.mileage.toLocaleString()} miles\n` : ''}
-          
-          Click to view full details and more photos!
-        `.trim(),
+        description: detailedDescription,
         content: `
           <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
             <img src="${imageUrl}" alt="${listing.year} ${listing.make} ${listing.model}" style="width: 100%; height: auto; border-radius: 8px;"/>
@@ -83,6 +100,13 @@ export async function GET() {
               ${listing.mileage ? `<p style="margin: 5px 0;"><strong>📊 Mileage:</strong> ${listing.mileage.toLocaleString()} miles</p>` : ''}
               ${listing.engineSize ? `<p style="margin: 5px 0;"><strong>🔧 Engine:</strong> ${listing.engineSize}</p>` : ''}
               ${listing.transmission ? `<p style="margin: 5px 0;"><strong>⚙️ Transmission:</strong> ${listing.transmission}</p>` : ''}
+              ${listing.fuelType ? `<p style="margin: 5px 0;"><strong>⛽ Fuel Type:</strong> ${listing.fuelType}</p>` : ''}
+              ${listing.bodyType ? `<p style="margin: 5px 0;"><strong>🚘 Body Type:</strong> ${listing.bodyType}</p>` : ''}
+              ${listing.color ? `<p style="margin: 5px 0;"><strong>🎨 Color:</strong> ${listing.color}</p>` : ''}
+              ${listing.seats ? `<p style="margin: 5px 0;"><strong>💺 Seats:</strong> ${listing.seats}</p>` : ''}
+              ${listing.doors ? `<p style="margin: 5px 0;"><strong>🚪 Doors:</strong> ${listing.doors}</p>` : ''}
+              ${listing.steering ? `<p style="margin: 5px 0;"><strong>🎯 Steering:</strong> ${listing.steering}</p>` : ''}
+              ${listing.drive ? `<p style="margin: 5px 0;"><strong>⚡ Drive:</strong> ${listing.drive}</p>` : ''}
             </div>
             ${listing.description ? `<p style="color: #666;">${listing.description}</p>` : ''}
             <a href="${baseUrl}/cars/${listing._id}" style="display: inline-block; background: #007bff; color: white; padding: 10px 20px; text-decoration: none; border-radius: 5px; margin-top: 15px;">View Full Details</a>
@@ -93,7 +117,8 @@ export async function GET() {
         category: [
           { name: 'Cars' },
           { name: listing.make },
-          { name: 'New Listing' }
+          { name: listing.model },
+          { name: listing.bodyType || 'Vehicle' }
         ],
         custom_elements: [
           {'vehicle:make': listing.make || ''},
@@ -103,6 +128,13 @@ export async function GET() {
           {'vehicle:mileage': listing.mileage ? `${listing.mileage.toLocaleString()} miles` : ''},
           {'vehicle:engine': listing.engineSize || ''},
           {'vehicle:transmission': listing.transmission || ''},
+          {'vehicle:fuelType': listing.fuelType || ''},
+          {'vehicle:bodyType': listing.bodyType || ''},
+          {'vehicle:color': listing.color || ''},
+          {'vehicle:seats': listing.seats || ''},
+          {'vehicle:doors': listing.doors || ''},
+          {'vehicle:steering': listing.steering || ''},
+          {'vehicle:drive': listing.drive || ''},
           {'listing:type': 'vehicle'},
           {'listing:status': 'active'},
           {'listing:timestamp': Date.now()},
