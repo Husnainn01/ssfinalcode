@@ -30,28 +30,34 @@ export async function GET() {
     await dbConnect();
     const db = mongoose.connection;
 
-    // Fetch latest car listings with proper date handling
+    // Calculate the time threshold (1 hour ago)
+    const timeThreshold = new Date();
+    timeThreshold.setHours(timeThreshold.getHours() - 1);
+
+    // Fetch only recent car listings
     const listings = await db.collection('Listing')
       .find({ 
-        status: 'active'
+        status: 'active',
+        createdAt: { $gte: timeThreshold } // Only items created in the last hour
       })
       .sort({ 
         createdAt: -1,
         _id: -1
       })
-      .limit(50)
+      .limit(10) // Limit to fewer items since we're only getting recent ones
       .toArray();
 
-    // Fetch latest blog posts with proper date handling
+    // Fetch only recent blog posts
     const blogPosts = await db.collection('BlogPost')
       .find({ 
-        status: 'published'
+        status: 'published',
+        createdAt: { $gte: timeThreshold } // Only items created in the last hour
       })
       .sort({ 
         createdAt: -1,
-        _id: -1  // Secondary sort by _id if createdAt is same
+        _id: -1
       })
-      .limit(20)
+      .limit(5) // Limit to fewer items since we're only getting recent ones
       .toArray();
 
     // Add car listings to feed with proper date handling
@@ -61,16 +67,21 @@ export async function GET() {
       hasContent = true;
       const price = listing.price ? `$${listing.price.toLocaleString()}` : 'Contact for Price';
       
-      // Handle Cloudinary image URL
+      // Handle Cloudinary image URL - ensure it's a full URL
       let imageUrl = listing.image || `${baseUrl}/default-car.jpg`;
       if (imageUrl && !imageUrl.startsWith('http')) {
-        imageUrl = `https://res.cloudinary.com/globaldrivemotors/image/upload/f_auto,q_auto/${imageUrl}`;
+        // Remove any leading slashes
+        imageUrl = imageUrl.replace(/^\/+/, '');
+        imageUrl = `https://res.cloudinary.com/globaldrivemotors/image/upload/${imageUrl}`;
       }
 
       const itemDate = listing.createdAt ? new Date(listing.createdAt) : new Date();
       
+      // Create a unique ID that Zapier can use to detect new items
+      const uniqueId = `vehicle-${listing._id.toString()}-${itemDate.getTime()}`;
+
       // Create a detailed description with all car specifications
-      const detailedDescription = `
+      const detailedDescription = `<p><img src="${imageUrl}" alt="${listing.year} ${listing.make} ${listing.model}" /></p>
 🚗 ${listing.year} ${listing.make} ${listing.model}
 
 💰 Price: ${price}
@@ -89,20 +100,37 @@ ${listing.description || ''}
 
 🌐 View more details and photos: ${baseUrl}/cars/${listing._id}
 
-#${listing.make.toLowerCase().replace(/\s+/g, '')} #${listing.model.toLowerCase().replace(/\s+/g, '')} #globaldrivemotors #newlisting
-      `.trim();
+#${listing.make.toLowerCase().replace(/\s+/g, '')} #${listing.model.toLowerCase().replace(/\s+/g, '')} #globaldrivemotors #newlisting`;
 
       feed.addItem({
         title: `🚗 NEW LISTING: ${listing.year} ${listing.make} ${listing.model}`,
-        id: `vehicle-${listing._id.toString()}-${Date.now()}`,
+        id: uniqueId,
         link: `${baseUrl}/cars/${listing._id}`,
         description: detailedDescription,
+        content: detailedDescription,
         date: itemDate,
+        image: {
+          url: imageUrl,
+          title: `${listing.year} ${listing.make} ${listing.model}`
+        },
         enclosure: {
           url: imageUrl,
-          type: 'image/jpeg'
+          type: 'image/jpeg',
+          length: '0'
         },
         custom_elements: [
+          {'media:content': {
+            _attr: {
+              url: imageUrl,
+              medium: 'image',
+              type: 'image/jpeg'
+            }
+          }},
+          {'media:thumbnail': {
+            _attr: {
+              url: imageUrl
+            }
+          }},
           {'vehicle:make': listing.make || ''},
           {'vehicle:model': listing.model || ''},
           {'vehicle:year': listing.year || ''},
@@ -133,22 +161,47 @@ ${listing.description || ''}
       // Handle Cloudinary image URL for blog posts
       let imageUrl = post.image || `${baseUrl}/default-blog.jpg`;
       if (imageUrl && !imageUrl.startsWith('http')) {
-        imageUrl = `https://res.cloudinary.com/globaldrivemotors/image/upload/f_auto,q_auto/${imageUrl}`;
+        // Remove any leading slashes
+        imageUrl = imageUrl.replace(/^\/+/, '');
+        imageUrl = `https://res.cloudinary.com/globaldrivemotors/image/upload/${imageUrl}`;
       }
 
       const itemDate = post.createdAt ? new Date(post.createdAt) : new Date();
       
+      // Create a unique ID that Zapier can use to detect new items
+      const uniqueId = `blog-${post._id.toString()}-${itemDate.getTime()}`;
+
+      const postDescription = `<p><img src="${imageUrl}" alt="${post.title}" /></p>${post.excerpt || (post.content ? post.content.substring(0, 200) + '...' : '')}`;
+      
       feed.addItem({
         title: `📝 NEW BLOG: ${post.title}`,
-        id: `blog-${post._id.toString()}-${Date.now()}`,
+        id: uniqueId,
         link: `${baseUrl}/blog/${post._id}`,
-        description: post.excerpt || (post.content ? post.content.substring(0, 200) + '...' : ''),
+        description: postDescription,
+        content: postDescription,
         date: itemDate,
+        image: {
+          url: imageUrl,
+          title: post.title
+        },
         enclosure: {
           url: imageUrl,
-          type: 'image/jpeg'
+          type: 'image/jpeg',
+          length: '0'
         },
         custom_elements: [
+          {'media:content': {
+            _attr: {
+              url: imageUrl,
+              medium: 'image',
+              type: 'image/jpeg'
+            }
+          }},
+          {'media:thumbnail': {
+            _attr: {
+              url: imageUrl
+            }
+          }},
           {'blog:category': post.category || 'General'},
           {'blog:type': 'post'},
           {'blog:status': 'published'},
