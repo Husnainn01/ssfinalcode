@@ -1,7 +1,8 @@
 import { motion, AnimatePresence } from 'framer-motion';
-import { FaTimes } from 'react-icons/fa';
+import { FaTimes, FaUpload } from 'react-icons/fa';
 import { useEffect, useState } from 'react';
 import { toast } from 'react-hot-toast';
+import PortFileUploadModal from './PortFileUploadModal';
 
 export default function PortModal({ 
   isOpen, 
@@ -32,6 +33,7 @@ export default function PortModal({
 
   const [destinationPorts, setDestinationPorts] = useState({});
   const [loading, setLoading] = useState(true);
+  const [isFileModalOpen, setIsFileModalOpen] = useState(false);
 
   // Fetch only destination ports from the database
   const fetchDestinationPorts = async () => {
@@ -61,6 +63,10 @@ export default function PortModal({
     }
   };
 
+  const handleFileUploadSuccess = () => {
+    fetchDestinationPorts();
+  };
+
   useEffect(() => {
     if (isOpen) {
       fetchDestinationPorts();
@@ -87,12 +93,23 @@ export default function PortModal({
             <h2 className="text-2xl font-semibold text-gray-800">
               {isEditing ? 'Edit Schedule' : 'Add New Schedule'}
             </h2>
-            <button
-              onClick={onClose}
-              className="text-gray-500 hover:text-gray-700 transition-colors"
-            >
-              <FaTimes className="w-5 h-5" />
-            </button>
+            <div className="flex items-center space-x-4">
+              <button
+                type="button"
+                onClick={() => setIsFileModalOpen(true)}
+                className="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 
+                  transition-colors flex items-center space-x-2"
+              >
+                <FaUpload className="w-4 h-4" />
+                <span>Upload Ports</span>
+              </button>
+              <button
+                onClick={onClose}
+                className="text-gray-500 hover:text-gray-700 transition-colors"
+              >
+                <FaTimes className="w-5 h-5" />
+              </button>
+            </div>
           </div>
 
           <form onSubmit={onSubmit} className="p-6 space-y-6">
@@ -295,6 +312,12 @@ export default function PortModal({
               </button>
             </div>
           </form>
+
+          <PortFileUploadModal
+            isOpen={isFileModalOpen}
+            onClose={() => setIsFileModalOpen(false)}
+            onUploadSuccess={handleFileUploadSuccess}
+          />
         </motion.div>
       </motion.div>
     </AnimatePresence>

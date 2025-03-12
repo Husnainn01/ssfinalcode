@@ -1,9 +1,10 @@
 'use client';
 import { useState, useEffect } from 'react';
-import { FaPlus, FaEdit, FaTrash } from 'react-icons/fa';
+import { FaPlus, FaEdit, FaTrash, FaUpload } from 'react-icons/fa';
 import { toast } from 'react-hot-toast';
 import { motion, AnimatePresence } from 'framer-motion';
 import PortModal from './components/PortModal';
+import FileUploadModal from './components/FileUploadModal';
 
 const regions = [
   { id: 'japan', name: 'Japan' },
@@ -30,6 +31,7 @@ export default function ShippingSchedule() {
     departureDate: '',
     isActive: true
   });
+  const [isFileModalOpen, setIsFileModalOpen] = useState(false);
 
   // Fetch all schedules
   const fetchSchedules = async () => {
@@ -151,20 +153,33 @@ export default function ShippingSchedule() {
         </div>
       </div>
 
-      {/* Add Schedule Button */}
-      <motion.button
-        whileHover={{ scale: 1.02 }}
-        whileTap={{ scale: 0.98 }}
-        onClick={() => {
-          resetForm();
-          setIsModalOpen(true);
-        }}
-        className="mb-6 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 
-          transition-colors flex items-center gap-2"
-      >
-        <FaPlus className="w-4 h-4" />
-        Add New Schedule
-      </motion.button>
+      {/* Action Buttons */}
+      <div className="flex gap-4 mb-6">
+        <motion.button
+          whileHover={{ scale: 1.02 }}
+          whileTap={{ scale: 0.98 }}
+          onClick={() => {
+            resetForm();
+            setIsModalOpen(true);
+          }}
+          className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 
+            transition-colors flex items-center gap-2"
+        >
+          <FaPlus className="w-4 h-4" />
+          Add New Schedule
+        </motion.button>
+
+        <motion.button
+          whileHover={{ scale: 1.02 }}
+          whileTap={{ scale: 0.98 }}
+          onClick={() => setIsFileModalOpen(true)}
+          className="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 
+            transition-colors flex items-center gap-2"
+        >
+          <FaUpload className="w-4 h-4" />
+          Upload Schedule File
+        </motion.button>
+      </div>
 
       {/* Schedules Table */}
       <div className="bg-white rounded-lg shadow overflow-x-auto">
@@ -291,6 +306,13 @@ export default function ShippingSchedule() {
         portData={portData}
         setPortData={setPortData}
         isEditing={!!editingSchedule}
+      />
+
+      {/* File Upload Modal */}
+      <FileUploadModal
+        isOpen={isFileModalOpen}
+        onClose={() => setIsFileModalOpen(false)}
+        onUploadSuccess={fetchSchedules}
       />
     </motion.div>
   );

@@ -4,6 +4,7 @@ import { FaPlus, FaEdit, FaTrash, FaGlobe } from 'react-icons/fa';
 import { toast } from 'react-hot-toast';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Search, Loader2 } from 'lucide-react';
+import DeleteConfirmDialog from './components/DeleteConfirmDialog';
 
 const regions = [
   { id: 'Africa', name: 'Africa' },
@@ -25,6 +26,10 @@ export default function PortsManagement() {
     country: '',
     region: '',
     isActive: true
+  });
+  const [deleteDialog, setDeleteDialog] = useState({
+    isOpen: false,
+    port: null
   });
 
   // Fetch ports
@@ -85,19 +90,19 @@ export default function PortsManagement() {
   };
 
   // Handle delete
-  const handleDelete = async (id) => {
-    if (!confirm('Are you sure you want to delete this port?')) return;
+  const handleDelete = async () => {
+    if (!deleteDialog.port) return;
 
     try {
-      const response = await fetch(`/api/ports/${id}`, {
+      const response = await fetch(`/api/ports/${deleteDialog.port._id}`, {
         method: 'DELETE',
       });
 
-      const data = await response.json();
-      if (!response.ok) throw new Error(data.error);
+      if (!response.ok) throw new Error('Failed to delete port');
 
       toast.success('Port deleted successfully');
-      fetchPorts();
+      fetchPorts(); // Refresh the list
+      setDeleteDialog({ isOpen: false, port: null }); // Close dialog
     } catch (error) {
       toast.error('Failed to delete port');
       console.error('Error:', error);
@@ -242,7 +247,7 @@ export default function PortsManagement() {
                                 <FaEdit className="w-4 h-4" />
                               </button>
                               <button
-                                onClick={() => handleDelete(port._id)}
+                                onClick={() => setDeleteDialog({ isOpen: true, port })}
                                 className="text-red-600 hover:text-red-900"
                               >
                                 <FaTrash className="w-4 h-4" />
@@ -385,6 +390,14 @@ export default function PortsManagement() {
           </motion.div>
         )}
       </AnimatePresence>
+
+      {/* Add the delete confirmation dialog */}
+      <DeleteConfirmDialog
+        isOpen={deleteDialog.isOpen}
+        onClose={() => setDeleteDialog({ isOpen: false, port: null })}
+        onConfirm={handleDelete}
+        portName={deleteDialog.port?.name}
+      />
     </motion.div>
   );
 } 
