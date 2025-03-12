@@ -30,37 +30,28 @@ export async function GET() {
     await dbConnect();
     const db = mongoose.connection;
 
-    // Calculate a more generous time threshold (24 hours ago instead of 1 hour)
-    // This helps during testing to make sure content is visible
-    const timeThreshold = new Date();
-    timeThreshold.setHours(timeThreshold.getHours() - 24); // Extended to 24 hours for testing
-
-    // For debugging, get at least one item, even if it's older
+    // IMPORTANT CHANGE: Always include the most recent listings and blog posts
+    // without time filtering to ensure Zapier has something to process
     const listings = await db.collection('Listing')
       .find({ 
         status: 'active',
-        // Temporarily comment out the time filter for testing
-        // createdAt: { $gte: timeThreshold }
       })
       .sort({ 
         createdAt: -1,
         _id: -1
       })
-      .limit(5)
+      .limit(3) // Limit to fewer items to avoid overwhelming Zapier
       .toArray();
 
-    // For debugging, get at least one item, even if it's older
     const blogPosts = await db.collection('BlogPost')
       .find({ 
         status: 'published',
-        // Temporarily comment out the time filter for testing
-        // createdAt: { $gte: timeThreshold }
       })
       .sort({ 
         createdAt: -1,
         _id: -1
       })
-      .limit(5)
+      .limit(2) // Limit to fewer items to avoid overwhelming Zapier
       .toArray();
 
     console.log(`Found ${listings.length} listings and ${blogPosts.length} blog posts for the feed`);
@@ -70,14 +61,26 @@ export async function GET() {
     
     listings.forEach(listing => {
       hasContent = true;
-      const price = listing.price ? `$${listing.price.toLocaleString()}` : 'Contact for Price';
       
-      // Handle main image
+      // IMPORTANT: Create a timestamp-based ID that changes with each request
+      // This forces Zapier to see each item as "new" every time it checks
+      const currentTimestamp = Date.now();
+      const uniqueId = `vehicle-${listing._id.toString()}-${currentTimestamp}`;
+      
+      // Handle main image - ensure it's a publicly accessible URL
       let imageUrl = listing.image || `${baseUrl}/default-car.jpg`;
       if (imageUrl && !imageUrl.startsWith('http')) {
         imageUrl = imageUrl.replace(/^\/+/, '');
         imageUrl = `https://res.cloudinary.com/globaldrivemotors/image/upload/${imageUrl}`;
       }
+      
+      // Force the date to be current to ensure "newness"
+      const itemDate = new Date();
+      
+      // Format price with currency
+      const formattedPrice = listing.price ? 
+        `${listing.priceCurrency || '$'}${listing.price.toLocaleString()}` : 
+        'Contact for Price';
       
       // Get additional images if available
       const additionalImages = [];
@@ -107,11 +110,6 @@ export async function GET() {
           carSafetyFeatures.push(`🛡️ ${feature}`);
         });
       }
-      
-      // Format price with currency
-      const formattedPrice = listing.price ? 
-        `${listing.priceCurrency || '$'}${listing.price.toLocaleString()}` : 
-        'Contact for Price';
       
       // Format mileage with unit
       const formattedMileage = listing.mileage ? 
@@ -217,17 +215,15 @@ ${carSafetyFeatures.length > 0 ? '🛡️ SAFETY FEATURES:\n' + carSafetyFeature
         </div>
       `;
 
-      // Make the item date always current for testing
-      const itemDate = new Date();
-      const uniqueId = `vehicle-${listing._id.toString()}-${Date.now()}`;
-
+      // Feed item with simplified content
       feed.addItem({
-        title: `🚗 ${listing.year} ${listing.make} ${listing.model} - ${formattedPrice}`,
+        title: `🚗 NEW: ${listing.year} ${listing.make} ${listing.model} - ${formattedPrice} - ${currentTimestamp}`,
         id: uniqueId,
-        link: `${baseUrl}/cars/${listing._id}`,
+        link: `${baseUrl}/cars/${listing._id}?utm_source=facebook&utm_medium=post&utm_campaign=listing&t=${currentTimestamp}`, // Add tracking param
         description: detailedDescription,
         content: htmlDescription,
         date: itemDate,
+        // Simplified image inclusion to ensure it works with Facebook
         image: {
           url: imageUrl,
           title: `${listing.year} ${listing.make} ${listing.model}`
@@ -250,73 +246,46 @@ ${carSafetyFeatures.length > 0 ? '🛡️ SAFETY FEATURES:\n' + carSafetyFeature
               url: imageUrl
             }
           }},
-          // Include up to 3 additional images for platforms that support it
-          ...additionalImages.map(imgUrl => ({
-            'media:content': {
-              _attr: {
-                url: imgUrl,
-                medium: 'image',
-                type: 'image/jpeg'
-              }
-            }
-          })),
-          {'vehicle:title': listing.title || ''},
-          {'vehicle:make': listing.make || ''},
-          {'vehicle:model': listing.model || ''},
-          {'vehicle:year': listing.year || ''},
-          {'vehicle:price': formattedPrice},
-          {'vehicle:mileage': formattedMileage},
-          {'vehicle:engine': listing.vehicleEngine || ''},
-          {'vehicle:transmission': listing.vehicleTransmission || ''},
-          {'vehicle:fuelType': listing.fuelType || ''},
-          {'vehicle:bodyType': listing.bodyType || ''},
-          {'vehicle:color': listing.color || ''},
-          {'vehicle:seats': listing.vehicleSeatingCapacity || ''},
-          {'vehicle:doors': listing.numberOfDoors || ''},
-          {'vehicle:vin': listing.vin || ''},
-          {'vehicle:stockNumber': listing.stockNumber || ''},
-          {'vehicle:condition': listing.itemCondition || 'Used'},
-          {'vehicle:cylinders': listing.cylinders || ''},
-          {'vehicle:driveWheel': listing.driveWheelConfiguration || ''},
-          {'vehicle:country': listing.country || ''},
-          {'vehicle:category': category},
-          {'vehicle:availability': listing.availability || 'In Stock'},
-          {'vehicle:offerType': listing.offerType || ''},
-          {'listing:type': 'vehicle'},
-          {'listing:status': 'active'},
-          {'listing:timestamp': Date.now()},
+          {'timestamp': currentTimestamp}, // Add explicit timestamp
           {'pubDate': itemDate.toUTCString()},
           {'lastBuildDate': new Date().toUTCString()}
         ]
       });
     });
 
-    // Add blog posts to feed with similar handling for testing
+    // Similarly simplify the blog posts to ensure they trigger properly
     blogPosts.forEach(post => {
       hasContent = true;
+      
+      // Create a unique timestamp for this request
+      const currentTimestamp = Date.now() + 1; // Add 1 to ensure uniqueness from car listings
+      const uniqueId = `blog-${post._id.toString()}-${currentTimestamp}`;
       
       // Handle Cloudinary image URL for blog posts
       let imageUrl = post.image || `${baseUrl}/default-blog.jpg`;
       if (imageUrl && !imageUrl.startsWith('http')) {
-        // Remove any leading slashes
         imageUrl = imageUrl.replace(/^\/+/, '');
         imageUrl = `https://res.cloudinary.com/globaldrivemotors/image/upload/${imageUrl}`;
       }
 
-      // Force a current date for testing purposes
-      const itemDate = new Date(); // Always use current date during testing
+      const itemDate = new Date(); // Always use current date
       
-      // Create a unique ID that always changes for testing
-      const uniqueId = `blog-${post._id.toString()}-${Date.now()}`;
+      const simplifiedBlogDescription = `
+📝 NEW BLOG POST: ${post.title}
 
-      const postDescription = `<p><img src="${imageUrl}" alt="${post.title}" /></p>${post.excerpt || (post.content ? post.content.substring(0, 200) + '...' : '')}`;
+${post.excerpt || (post.content ? post.content.substring(0, 200) + '...' : '')}
+
+🌐 Read the full article: ${baseUrl}/blog/${post._id}?utm_source=facebook&utm_medium=post&utm_campaign=blog&t=${currentTimestamp}
+
+#globaldrivemotors #autoblog #carnews
+      `.trim();
       
       feed.addItem({
-        title: `📝 BLOG UPDATE: ${post.title} - ${new Date().toLocaleTimeString()}`,
+        title: `📝 NEW BLOG: ${post.title} - ${currentTimestamp}`,
         id: uniqueId,
-        link: `${baseUrl}/blog/${post._id}`,
-        description: postDescription,
-        content: postDescription,
+        link: `${baseUrl}/blog/${post._id}?utm_source=facebook&utm_medium=post&utm_campaign=blog&t=${currentTimestamp}`,
+        description: simplifiedBlogDescription,
+        content: simplifiedBlogDescription,
         date: itemDate,
         image: {
           url: imageUrl,
@@ -340,43 +309,41 @@ ${carSafetyFeatures.length > 0 ? '🛡️ SAFETY FEATURES:\n' + carSafetyFeature
               url: imageUrl
             }
           }},
-          {'blog:category': post.category || 'General'},
-          {'blog:type': 'post'},
-          {'blog:status': 'published'},
-          {'blog:timestamp': Date.now()},
+          {'timestamp': currentTimestamp}, // Add explicit timestamp
           {'pubDate': itemDate.toUTCString()},
           {'lastBuildDate': new Date().toUTCString()}
         ]
       });
     });
 
-    // Only add default item if no real content exists
+    // Default item with timestamp to ensure it's always seen as "new"
     if (!hasContent) {
       const defaultDate = new Date();
+      const currentTimestamp = Date.now() + 2; // Add 2 to ensure uniqueness
       let defaultImageUrl = `${baseUrl}/logo.png`;
       if (!defaultImageUrl.startsWith('http')) {
         defaultImageUrl = `https://res.cloudinary.com/globaldrivemotors/image/upload/f_auto,q_auto/${defaultImageUrl.replace(`${baseUrl}/`, '')}`;
       }
 
       feed.addItem({
-        title: '🚗 Welcome to Global Drive Motors Feed',
-        id: `default-${Date.now()}`,
-        link: baseUrl,
-        description: 'New vehicles and blog posts will appear here automatically.',
+        title: `🚗 Global Drive Motors Updates - ${currentTimestamp}`,
+        id: `default-${currentTimestamp}`,
+        link: `${baseUrl}?t=${currentTimestamp}`,
+        description: 'New vehicles and blog posts will appear here soon. Check back later!',
         date: defaultDate,
         enclosure: {
           url: defaultImageUrl,
           type: 'image/png'
         },
         custom_elements: [
-          {'feed:type': 'default'},
+          {'timestamp': currentTimestamp},
           {'pubDate': defaultDate.toUTCString()},
           {'lastBuildDate': defaultDate.toUTCString()}
         ]
       });
     }
 
-    // Return the feed with proper headers
+    // Ensure clean caching headers to prevent stale data
     return new Response(feed.rss2(), {
       headers: {
         'Content-Type': 'application/xml',
@@ -390,7 +357,7 @@ ${carSafetyFeatures.length > 0 ? '🛡️ SAFETY FEATURES:\n' + carSafetyFeature
   } catch (error) {
     console.error('RSS Feed Error:', error);
     return new Response(
-      `<?xml version="1.0" encoding="UTF-8"?><rss version="2.0"><channel><title>Error</title><description>Error generating RSS feed</description></channel></rss>`, 
+      `<?xml version="1.0" encoding="UTF-8"?><rss version="2.0"><channel><title>Error</title><description>Error generating RSS feed: ${error.message}</description></channel></rss>`, 
       { 
         status: 500,
         headers: {

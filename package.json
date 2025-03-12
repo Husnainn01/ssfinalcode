@@ -68,7 +68,7 @@
     "react-beautiful-dnd": "^13.1.1",
     "react-color": "^2.19.3",
     "react-day-picker": "^8.10.1",
-    "react-dom": "^18",
+    "react-dom": "^18.3.1",
     "react-dropzone": "^14.3.5",
     "react-hook-form": "^7.53.2",
     "react-hot-toast": "^2.5.2",
