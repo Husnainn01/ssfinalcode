@@ -37,44 +37,64 @@ export async function GET() {
       })
       .sort({ 
         createdAt: -1,
-        _id: -1  // Secondary sort by _id if createdAt is same
+        _id: -1
       })
-      .limit(50)  // Increased limit to ensure we have items
+      .limit(50)
       .toArray();
 
     // Add car listings to feed with proper date handling
     listings.forEach(listing => {
       const price = listing.price ? `$${listing.price.toLocaleString()}` : 'Contact for Price';
       const imageUrl = listing.image || `${baseUrl}/default-car.jpg`;
-      
-      // Ensure we have a valid date
       const itemDate = listing.createdAt ? new Date(listing.createdAt) : new Date();
       
+      // Create a more structured title and description for better Zapier detection
+      const title = `🚗 NEW LISTING: ${listing.year} ${listing.make} ${listing.model}`;
+      const description = `
+        🚘 Vehicle: ${listing.year} ${listing.make} ${listing.model}
+        💰 Price: ${price}
+        ${listing.mileage ? `📊 Mileage: ${listing.mileage.toLocaleString()} miles` : ''}
+        ${listing.engineSize ? `🔧 Engine: ${listing.engineSize}` : ''}
+        ${listing.transmission ? `⚙️ Transmission: ${listing.transmission}` : ''}
+      `.trim();
+
       feed.addItem({
-        title: `[NEW VEHICLE] ${listing.year} ${listing.make} ${listing.model} - ${price}`,
-        id: listing._id.toString(),
+        title: title,
+        id: `vehicle-${listing._id.toString()}-${Date.now()}`, // Add timestamp for uniqueness
         link: `${baseUrl}/cars/${listing._id}`,
-        description: `${listing.year} ${listing.make} ${listing.model} - ${price}${listing.mileage ? ` - ${listing.mileage.toLocaleString()} miles` : ''}`,
+        description: description,
         content: `
-          <div>
-            <img src="${imageUrl}" alt="${listing.year} ${listing.make} ${listing.model}" style="max-width: 100%; height: auto;"/>
-            <h2>${listing.year} ${listing.make} ${listing.model}</h2>
-            <p><strong>Price:</strong> ${price}</p>
-            ${listing.mileage ? `<p><strong>Mileage:</strong> ${listing.mileage.toLocaleString()} miles</p>` : ''}
-            ${listing.engineSize ? `<p><strong>Engine:</strong> ${listing.engineSize}</p>` : ''}
-            ${listing.transmission ? `<p><strong>Transmission:</strong> ${listing.transmission}</p>` : ''}
-            ${listing.description ? `<p>${listing.description}</p>` : ''}
-            <p><a href="${baseUrl}/cars/${listing._id}">View Full Details</a></p>
+          <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
+            <img src="${imageUrl}" alt="${listing.year} ${listing.make} ${listing.model}" style="width: 100%; height: auto; border-radius: 8px;"/>
+            <h2 style="color: #333; margin-top: 15px;">${listing.year} ${listing.make} ${listing.model}</h2>
+            <div style="background: #f5f5f5; padding: 15px; border-radius: 8px; margin: 10px 0;">
+              <p style="margin: 5px 0;"><strong>💰 Price:</strong> ${price}</p>
+              ${listing.mileage ? `<p style="margin: 5px 0;"><strong>📊 Mileage:</strong> ${listing.mileage.toLocaleString()} miles</p>` : ''}
+              ${listing.engineSize ? `<p style="margin: 5px 0;"><strong>🔧 Engine:</strong> ${listing.engineSize}</p>` : ''}
+              ${listing.transmission ? `<p style="margin: 5px 0;"><strong>⚙️ Transmission:</strong> ${listing.transmission}</p>` : ''}
+            </div>
+            ${listing.description ? `<p style="color: #666;">${listing.description}</p>` : ''}
+            <a href="${baseUrl}/cars/${listing._id}" style="display: inline-block; background: #007bff; color: white; padding: 10px 20px; text-decoration: none; border-radius: 5px; margin-top: 15px;">View Full Details</a>
           </div>
         `,
         date: itemDate,
         image: imageUrl,
-        category: [{ name: 'Cars' }],
+        category: [
+          { name: 'Cars' },
+          { name: listing.make },
+          { name: 'New Listing' }
+        ],
         custom_elements: [
           {'vehicle:make': listing.make || ''},
           {'vehicle:model': listing.model || ''},
           {'vehicle:year': listing.year || ''},
           {'vehicle:price': price},
+          {'vehicle:mileage': listing.mileage ? `${listing.mileage.toLocaleString()} miles` : ''},
+          {'vehicle:engine': listing.engineSize || ''},
+          {'vehicle:transmission': listing.transmission || ''},
+          {'listing:type': 'vehicle'},
+          {'listing:status': 'active'},
+          {'listing:timestamp': Date.now()},
           {'pubDate': itemDate.toUTCString()},
           {'lastBuildDate': new Date().toUTCString()}
         ]
