@@ -135,14 +135,23 @@ function RelatedCars() {
                             {/* Features */}
                             <div className="flex flex-wrap gap-1.5 mb-2">
                                 {item.carFeature && item.carFeature.length > 0 ? (
-                                    item.carFeature.map((feature, index) => (
-                                        <span 
-                                            key={index} 
-                                            className="text-[10px] bg-gray-100 text-gray-600 px-1.5 py-0.5 rounded"
-                                        >
-                                            {feature.trim()}
-                                        </span>
-                                    ))
+                                    <>
+                                        {item.carFeature.slice(0, 8).map((feature, index) => (
+                                            <span 
+                                                key={index} 
+                                                className="text-[10px] bg-gray-100 text-gray-600 px-1.5 py-0.5 rounded"
+                                            >
+                                                {feature.trim()}
+                                            </span>
+                                        ))}
+                                        {item.carFeature.length > 8 && (
+                                            <span 
+                                                className="text-[10px] bg-blue-100 text-blue-600 px-1.5 py-0.5 rounded font-medium"
+                                            >
+                                                +{item.carFeature.length - 8} more
+                                            </span>
+                                        )}
+                                    </>
                                 ) : (
                                     <span className="text-[10px] text-gray-400">
                                         No features available
