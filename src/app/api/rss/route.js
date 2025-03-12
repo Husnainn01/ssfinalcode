@@ -63,15 +63,16 @@ export async function GET() {
       hasContent = true;
       
       // IMPORTANT: Create a timestamp-based ID that changes with each request
-      // This forces Zapier to see each item as "new" every time it checks
       const currentTimestamp = Date.now();
       const uniqueId = `vehicle-${listing._id.toString()}-${currentTimestamp}`;
       
-      // Handle main image - ensure it's a publicly accessible URL
+      // IMPROVED IMAGE HANDLING FOR FACEBOOK
+      // Format Cloudinary URL with transformation parameters that Facebook likes
       let imageUrl = listing.image || `${baseUrl}/default-car.jpg`;
       if (imageUrl && !imageUrl.startsWith('http')) {
         imageUrl = imageUrl.replace(/^\/+/, '');
-        imageUrl = `https://res.cloudinary.com/globaldrivemotors/image/upload/${imageUrl}`;
+        // Use these transformation parameters for better Facebook compatibility
+        imageUrl = `https://res.cloudinary.com/globaldrivemotors/image/upload/c_fill,f_auto,q_auto,w_1200,h_630/${imageUrl}`;
       }
       
       // Force the date to be current to ensure "newness"
@@ -119,121 +120,64 @@ export async function GET() {
       // Get category
       const category = listing.category || '';
       
-      // Prepare the full description including all details
+      // MODIFIED: Start with an image tag for better Facebook scraping
       const detailedDescription = `
+<img src="${imageUrl}" alt="${listing.year} ${listing.make} ${listing.model}" />
+
 🚗 ${listing.year} ${listing.make} ${listing.model} - ${listing.color || ''} ${listing.itemCondition || ''}
 
 ${listing.title ? listing.title.toUpperCase() : ''}
 
-${listing.description ? listing.description : ''}
+💰 Price: ${formattedPrice}
+📊 Mileage: ${formattedMileage}
+⚙️ Transmission: ${listing.vehicleTransmission || ''}
+⛽ Fuel Type: ${listing.fuelType || ''}
+🔧 Engine: ${listing.vehicleEngine || ''}
 
-📋 CAR OVERVIEW:
-• Stock Number: ${listing.stockNumber || ''}
-• VIN: ${listing.vin || ''}
-• Mileage: ${formattedMileage}
-• Condition: ${listing.itemCondition || ''}
-• Availability: ${listing.availability || 'In Stock'}
-• Body Type: ${listing.bodyType || ''}
-• Color: ${listing.color || ''}
-• Drive Wheel: ${listing.driveWheelConfiguration || ''}
-• Doors: ${listing.numberOfDoors || ''}
-• Fuel Type: ${listing.fuelType || ''}
-• Engine: ${listing.vehicleEngine || ''}
-• Seating: ${listing.vehicleSeatingCapacity || ''}
-• Transmission: ${listing.vehicleTransmission || ''}
-• Cylinders: ${listing.cylinders || ''}
-• Country: ${listing.country || ''}
-${category ? `• Category: ${category}` : ''}
-
-${carFeatures.length > 0 ? '⭐ FEATURES:\n' + carFeatures.join('\n') : ''}
-
-${carSafetyFeatures.length > 0 ? '🛡️ SAFETY FEATURES:\n' + carSafetyFeatures.join('\n') : ''}
+${listing.description ? listing.description.substring(0, 200) + '...' : ''}
 
 📞 PLEASE CALL FOR MORE INFORMATION
 ✅ TEST DRIVE WELCOME
 🚚 DELIVERY OPTIONS AVAILABLE
-📋 VEHICLE FULLY CHECKED AND WARRANTED
 
 🌐 View more details and photos: ${baseUrl}/cars/${listing._id}
 
-#${listing.make?.toLowerCase().replace(/\s+/g, '') || 'car'} #${listing.model?.toLowerCase().replace(/\s+/g, '') || 'auto'} #globaldrivemotors #${listing.itemCondition?.toLowerCase() || 'used'}cars
+#${listing.make?.toLowerCase().replace(/\s+/g, '') || 'car'} #${listing.model?.toLowerCase().replace(/\s+/g, '') || 'auto'} #globaldrivemotors
       `.trim();
 
-      // Create clean HTML version for RSS readers that includes multiple images
-      const htmlDescription = `
-        <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
-          <div style="display: flex; overflow-x: auto; gap: 10px; margin-bottom: 15px;">
-            <img src="${imageUrl}" alt="${listing.year} ${listing.make} ${listing.model}" style="min-width: 280px; height: 210px; object-fit: cover; border-radius: 8px;"/>
-            ${additionalImages.map(img => `<img src="${img}" alt="${listing.year} ${listing.make} ${listing.model}" style="min-width: 280px; height: 210px; object-fit: cover; border-radius: 8px;"/>`).join('')}
-          </div>
-          
-          <h2 style="font-size: 24px; margin: 15px 0 10px;">${listing.year} ${listing.make} ${listing.model} - ${listing.color || ''}</h2>
-          <h3 style="font-size: 20px; margin: 0 0 15px; color: #e63946;">${formattedPrice}</h3>
-          
-          <div style="background: #f8f9fa; padding: 15px; border-radius: 8px; margin-bottom: 15px;">
-            <p style="font-size: 16px; line-height: 1.5; white-space: pre-line;">${listing.description || ''}</p>
-          </div>
-          
-          <div style="background: #e8f4f8; padding: 15px; border-radius: 8px; margin-bottom: 15px;">
-            <h4 style="margin-top: 0;">Car Overview</h4>
-            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
-              <div><strong>Stock Number:</strong> ${listing.stockNumber || ''}</div>
-              <div><strong>VIN:</strong> ${listing.vin || ''}</div>
-              <div><strong>Mileage:</strong> ${formattedMileage}</div>
-              <div><strong>Condition:</strong> ${listing.itemCondition || ''}</div>
-              <div><strong>Body Type:</strong> ${listing.bodyType || ''}</div>
-              <div><strong>Color:</strong> ${listing.color || ''}</div>
-              <div><strong>Drive Wheel:</strong> ${listing.driveWheelConfiguration || ''}</div>
-              <div><strong>Doors:</strong> ${listing.numberOfDoors || ''}</div>
-              <div><strong>Fuel Type:</strong> ${listing.fuelType || ''}</div>
-              <div><strong>Engine:</strong> ${listing.vehicleEngine || ''}</div>
-              <div><strong>Seating:</strong> ${listing.vehicleSeatingCapacity || ''}</div>
-              <div><strong>Transmission:</strong> ${listing.vehicleTransmission || ''}</div>
-              <div><strong>Cylinders:</strong> ${listing.cylinders || ''}</div>
-              <div><strong>Country:</strong> ${listing.country || ''}</div>
-              ${category ? `<div><strong>Category:</strong> ${category}</div>` : ''}
-            </div>
-          </div>
-          
-          ${carFeatures.length > 0 ? `
-          <div style="background: #f0f8f0; padding: 15px; border-radius: 8px; margin-bottom: 15px;">
-            <h4 style="margin-top: 0;">Features</h4>
-            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
-              ${listing.carFeature.map(feature => `<div>✅ ${feature}</div>`).join('')}
-            </div>
-          </div>` : ''}
-          
-          ${carSafetyFeatures.length > 0 ? `
-          <div style="background: #fff8f0; padding: 15px; border-radius: 8px; margin-bottom: 15px;">
-            <h4 style="margin-top: 0;">Safety Features</h4>
-            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
-              ${listing.carSafetyFeature.map(feature => `<div>🛡️ ${feature}</div>`).join('')}
-            </div>
-          </div>` : ''}
-          
-          <a href="${baseUrl}/cars/${listing._id}" style="display: inline-block; background: #e63946; color: white; padding: 12px 25px; text-decoration: none; border-radius: 5px; font-weight: bold; margin-top: 15px;">View Full Details</a>
+      // Create more Facebook-friendly HTML content
+      const htmlContent = `
+        <div>
+          <img src="${imageUrl}" alt="${listing.year} ${listing.make} ${listing.model}" style="max-width:100%; height:auto; display:block; margin-bottom:15px;" />
+          <h2>${listing.year} ${listing.make} ${listing.model} - ${formattedPrice}</h2>
+          <p>${listing.description || ''}</p>
+          <p>
+            <strong>Mileage:</strong> ${formattedMileage}<br>
+            <strong>Transmission:</strong> ${listing.vehicleTransmission || ''}<br>
+            <strong>Fuel Type:</strong> ${listing.fuelType || ''}<br>
+            <strong>Engine:</strong> ${listing.vehicleEngine || ''}
+          </p>
+          <p>View more details and photos: <a href="${baseUrl}/cars/${listing._id}?utm_source=facebook&utm_medium=post&utm_campaign=listing&t=${currentTimestamp}">${baseUrl}/cars/${listing._id}</a></p>
         </div>
       `;
 
-      // Feed item with simplified content
+      // SIMPLIFIED FEED ITEM FOR BETTER FACEBOOK COMPATIBILITY
       feed.addItem({
-        title: `🚗 NEW: ${listing.year} ${listing.make} ${listing.model} - ${formattedPrice} - ${currentTimestamp}`,
+        title: `🚗 NEW: ${listing.year} ${listing.make} ${listing.model} - ${formattedPrice}`,
         id: uniqueId,
-        link: `${baseUrl}/cars/${listing._id}?utm_source=facebook&utm_medium=post&utm_campaign=listing&t=${currentTimestamp}`, // Add tracking param
+        link: `${baseUrl}/cars/${listing._id}?utm_source=facebook&utm_medium=post&utm_campaign=listing&t=${currentTimestamp}`,
         description: detailedDescription,
-        content: htmlDescription,
+        content: htmlContent,
         date: itemDate,
-        // Simplified image inclusion to ensure it works with Facebook
-        image: {
-          url: imageUrl,
-          title: `${listing.year} ${listing.make} ${listing.model}`
-        },
+        // IMPORTANT: Facebook seems to prefer the simpler enclosure tag for images
         enclosure: {
           url: imageUrl,
           type: 'image/jpeg',
           length: '0'
         },
+        // SIMPLIFIED CUSTOM ELEMENTS
         custom_elements: [
+          // This format is particularly important for Facebook's RSS reader
           {'media:content': {
             _attr: {
               url: imageUrl,
@@ -246,51 +190,54 @@ ${carSafetyFeatures.length > 0 ? '🛡️ SAFETY FEATURES:\n' + carSafetyFeature
               url: imageUrl
             }
           }},
-          {'timestamp': currentTimestamp}, // Add explicit timestamp
+          // Remove excessive custom elements that might confuse Facebook
+          {'vehicle:make': listing.make || ''},
+          {'vehicle:model': listing.model || ''},
+          {'vehicle:year': listing.year || ''},
           {'pubDate': itemDate.toUTCString()},
-          {'lastBuildDate': new Date().toUTCString()}
+          {'guid': uniqueId, isPermaLink: "false"}
         ]
       });
     });
 
-    // Similarly simplify the blog posts to ensure they trigger properly
+    // Similarly update blog posts for better Facebook compatibility
     blogPosts.forEach(post => {
       hasContent = true;
       
-      // Create a unique timestamp for this request
-      const currentTimestamp = Date.now() + 1; // Add 1 to ensure uniqueness from car listings
+      const currentTimestamp = Date.now() + 1;
       const uniqueId = `blog-${post._id.toString()}-${currentTimestamp}`;
       
-      // Handle Cloudinary image URL for blog posts
+      // IMPROVED IMAGE HANDLING FOR FACEBOOK
       let imageUrl = post.image || `${baseUrl}/default-blog.jpg`;
       if (imageUrl && !imageUrl.startsWith('http')) {
         imageUrl = imageUrl.replace(/^\/+/, '');
-        imageUrl = `https://res.cloudinary.com/globaldrivemotors/image/upload/${imageUrl}`;
+        // Use these transformation parameters for better Facebook compatibility
+        imageUrl = `https://res.cloudinary.com/globaldrivemotors/image/upload/c_fill,f_auto,q_auto,w_1200,h_630/${imageUrl}`;
       }
 
-      const itemDate = new Date(); // Always use current date
+      const itemDate = new Date();
       
+      // MODIFIED: Start with an image tag for better Facebook scraping
       const simplifiedBlogDescription = `
+<img src="${imageUrl}" alt="${post.title}" />
+
 📝 NEW BLOG POST: ${post.title}
 
 ${post.excerpt || (post.content ? post.content.substring(0, 200) + '...' : '')}
 
-🌐 Read the full article: ${baseUrl}/blog/${post._id}?utm_source=facebook&utm_medium=post&utm_campaign=blog&t=${currentTimestamp}
+🌐 Read the full article: ${baseUrl}/blog/${post._id}
 
 #globaldrivemotors #autoblog #carnews
       `.trim();
       
+      // SIMPLIFIED FEED ITEM FOR BETTER FACEBOOK COMPATIBILITY
       feed.addItem({
-        title: `📝 NEW BLOG: ${post.title} - ${currentTimestamp}`,
+        title: `📝 NEW BLOG: ${post.title}`,
         id: uniqueId,
         link: `${baseUrl}/blog/${post._id}?utm_source=facebook&utm_medium=post&utm_campaign=blog&t=${currentTimestamp}`,
         description: simplifiedBlogDescription,
-        content: simplifiedBlogDescription,
+        content: `<div><img src="${imageUrl}" alt="${post.title}" style="max-width:100%; height:auto; display:block; margin-bottom:15px;" /><h2>${post.title}</h2><p>${post.excerpt || (post.content ? post.content.substring(0, 200) + '...' : '')}</p></div>`,
         date: itemDate,
-        image: {
-          url: imageUrl,
-          title: post.title
-        },
         enclosure: {
           url: imageUrl,
           type: 'image/jpeg',
@@ -309,41 +256,47 @@ ${post.excerpt || (post.content ? post.content.substring(0, 200) + '...' : '')}
               url: imageUrl
             }
           }},
-          {'timestamp': currentTimestamp}, // Add explicit timestamp
           {'pubDate': itemDate.toUTCString()},
-          {'lastBuildDate': new Date().toUTCString()}
+          {'guid': uniqueId, isPermaLink: "false"}
         ]
       });
     });
 
-    // Default item with timestamp to ensure it's always seen as "new"
+    // Update default item too
     if (!hasContent) {
       const defaultDate = new Date();
-      const currentTimestamp = Date.now() + 2; // Add 2 to ensure uniqueness
+      const currentTimestamp = Date.now() + 2;
       let defaultImageUrl = `${baseUrl}/logo.png`;
       if (!defaultImageUrl.startsWith('http')) {
-        defaultImageUrl = `https://res.cloudinary.com/globaldrivemotors/image/upload/f_auto,q_auto/${defaultImageUrl.replace(`${baseUrl}/`, '')}`;
+        defaultImageUrl = `https://res.cloudinary.com/globaldrivemotors/image/upload/c_fill,f_auto,q_auto,w_1200,h_630/${defaultImageUrl.replace(`${baseUrl}/`, '')}`;
       }
 
       feed.addItem({
-        title: `🚗 Global Drive Motors Updates - ${currentTimestamp}`,
+        title: `🚗 Global Drive Motors Updates`,
         id: `default-${currentTimestamp}`,
         link: `${baseUrl}?t=${currentTimestamp}`,
-        description: 'New vehicles and blog posts will appear here soon. Check back later!',
+        description: `<img src="${defaultImageUrl}" alt="Global Drive Motors" /><p>New vehicles and blog posts will appear here soon. Check back later!</p>`,
         date: defaultDate,
         enclosure: {
           url: defaultImageUrl,
-          type: 'image/png'
+          type: 'image/png',
+          length: '0'
         },
         custom_elements: [
-          {'timestamp': currentTimestamp},
+          {'media:content': {
+            _attr: {
+              url: defaultImageUrl,
+              medium: 'image',
+              type: 'image/png'
+            }
+          }},
           {'pubDate': defaultDate.toUTCString()},
-          {'lastBuildDate': defaultDate.toUTCString()}
+          {'guid': `default-${currentTimestamp}`, isPermaLink: "false"}
         ]
       });
     }
 
-    // Ensure clean caching headers to prevent stale data
+    // Add headers that can help with image display on Facebook
     return new Response(feed.rss2(), {
       headers: {
         'Content-Type': 'application/xml',
@@ -351,13 +304,14 @@ ${post.excerpt || (post.content ? post.content.substring(0, 200) + '...' : '')}
         'Pragma': 'no-cache',
         'Expires': '0',
         'Access-Control-Allow-Origin': '*',
+        'X-Content-Type-Options': 'nosniff',
       },
     });
 
   } catch (error) {
     console.error('RSS Feed Error:', error);
     return new Response(
-      `<?xml version="1.0" encoding="UTF-8"?><rss version="2.0"><channel><title>Error</title><description>Error generating RSS feed: ${error.message}</description></channel></rss>`, 
+      `<?xml version="1.0" encoding="UTF-8"?><rss version="2.0" xmlns:media="http://search.yahoo.com/mrss/"><channel><title>Error</title><description>Error generating RSS feed: ${error.message}</description></channel></rss>`, 
       { 
         status: 500,
         headers: {
