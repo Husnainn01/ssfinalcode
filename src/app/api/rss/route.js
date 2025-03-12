@@ -60,7 +60,18 @@ export async function GET() {
     listings.forEach(listing => {
       hasContent = true;
       const price = listing.price ? `$${listing.price.toLocaleString()}` : 'Contact for Price';
-      const imageUrl = listing.image || `${baseUrl}/default-car.jpg`;
+      
+      // Handle Cloudinary image URL
+      let imageUrl = listing.image || `${baseUrl}/default-car.jpg`;
+      // If it's a Cloudinary URL and doesn't start with http/https, add the protocol
+      if (imageUrl && imageUrl.includes('res.cloudinary.com') && !imageUrl.startsWith('http')) {
+        imageUrl = `https://${imageUrl}`;
+      }
+      // If it's just the Cloudinary public ID, construct the full URL
+      if (imageUrl && !imageUrl.includes('://')) {
+        imageUrl = `https://res.cloudinary.com/globaldrivemotors/image/upload/${imageUrl}`;
+      }
+
       const itemDate = listing.createdAt ? new Date(listing.createdAt) : new Date();
       
       // Create a detailed description with all car specifications
@@ -147,7 +158,18 @@ ${listing.description || ''}
     // Add blog posts to feed
     blogPosts.forEach(post => {
       hasContent = true;
-      const imageUrl = post.image || `${baseUrl}/default-blog.jpg`;
+      
+      // Handle Cloudinary image URL for blog posts
+      let imageUrl = post.image || `${baseUrl}/default-blog.jpg`;
+      // If it's a Cloudinary URL and doesn't start with http/https, add the protocol
+      if (imageUrl && imageUrl.includes('res.cloudinary.com') && !imageUrl.startsWith('http')) {
+        imageUrl = `https://${imageUrl}`;
+      }
+      // If it's just the Cloudinary public ID, construct the full URL
+      if (imageUrl && !imageUrl.includes('://')) {
+        imageUrl = `https://res.cloudinary.com/globaldrivemotors/image/upload/${imageUrl}`;
+      }
+
       const itemDate = post.createdAt ? new Date(post.createdAt) : new Date();
       
       feed.addItem({
@@ -180,13 +202,28 @@ ${listing.description || ''}
     // Only add default item if no real content exists
     if (!hasContent) {
       const defaultDate = new Date();
+      // Handle Cloudinary URL for default logo
+      let defaultImageUrl = `${baseUrl}/logo.png`;
+      if (defaultImageUrl && defaultImageUrl.includes('res.cloudinary.com') && !defaultImageUrl.startsWith('http')) {
+        defaultImageUrl = `https://${defaultImageUrl}`;
+      }
+      if (defaultImageUrl && !defaultImageUrl.includes('://')) {
+        defaultImageUrl = `https://res.cloudinary.com/globaldrivemotors/image/upload/${defaultImageUrl}`;
+      }
+
       feed.addItem({
         title: '🚗 Welcome to Global Drive Motors Feed',
         id: `default-${Date.now()}`,
         link: baseUrl,
         description: 'New vehicles and blog posts will appear here automatically.',
-        content: 'Stay tuned for new listings and blog posts!',
+        content: `
+          <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
+            <img src="${defaultImageUrl}" alt="Global Drive Motors" style="width: 100%; max-width: 300px; height: auto; margin: 0 auto; display: block;"/>
+            <p style="text-align: center; margin-top: 20px;">Stay tuned for new listings and blog posts!</p>
+          </div>
+        `,
         date: defaultDate,
+        image: defaultImageUrl,
         custom_elements: [
           {'feed:type': 'default'},
           {'pubDate': defaultDate.toUTCString()},
