@@ -63,13 +63,10 @@ export async function GET() {
       
       // Handle Cloudinary image URL
       let imageUrl = listing.image || `${baseUrl}/default-car.jpg`;
-      // If it's a Cloudinary URL and doesn't start with http/https, add the protocol
-      if (imageUrl && imageUrl.includes('res.cloudinary.com') && !imageUrl.startsWith('http')) {
-        imageUrl = `https://${imageUrl}`;
-      }
-      // If it's just the Cloudinary public ID, construct the full URL
-      if (imageUrl && !imageUrl.includes('://')) {
-        imageUrl = `https://res.cloudinary.com/globaldrivemotors/image/upload/${imageUrl}`;
+      // Ensure we have the full Cloudinary URL
+      if (imageUrl && !imageUrl.startsWith('http')) {
+        // If it's a Cloudinary public ID, construct the full optimized URL
+        imageUrl = `https://res.cloudinary.com/globaldrivemotors/image/upload/f_auto,q_auto/${imageUrl}`;
       }
 
       const itemDate = listing.createdAt ? new Date(listing.createdAt) : new Date();
@@ -132,6 +129,20 @@ ${listing.description || ''}
           { name: listing.bodyType || 'Vehicle' }
         ],
         custom_elements: [
+          {'media:content': {
+            _attr: {
+              url: imageUrl,
+              medium: 'image',
+              type: 'image/jpeg'
+            }
+          }},
+          {'enclosure': {
+            _attr: {
+              url: imageUrl,
+              type: 'image/jpeg',
+              length: '0'
+            }
+          }},
           {'vehicle:make': listing.make || ''},
           {'vehicle:model': listing.model || ''},
           {'vehicle:year': listing.year || ''},
@@ -155,19 +166,14 @@ ${listing.description || ''}
       });
     });
 
-    // Add blog posts to feed
+    // Add blog posts to feed with similar image handling
     blogPosts.forEach(post => {
       hasContent = true;
       
       // Handle Cloudinary image URL for blog posts
       let imageUrl = post.image || `${baseUrl}/default-blog.jpg`;
-      // If it's a Cloudinary URL and doesn't start with http/https, add the protocol
-      if (imageUrl && imageUrl.includes('res.cloudinary.com') && !imageUrl.startsWith('http')) {
-        imageUrl = `https://${imageUrl}`;
-      }
-      // If it's just the Cloudinary public ID, construct the full URL
-      if (imageUrl && !imageUrl.includes('://')) {
-        imageUrl = `https://res.cloudinary.com/globaldrivemotors/image/upload/${imageUrl}`;
+      if (imageUrl && !imageUrl.startsWith('http')) {
+        imageUrl = `https://res.cloudinary.com/globaldrivemotors/image/upload/f_auto,q_auto/${imageUrl}`;
       }
 
       const itemDate = post.createdAt ? new Date(post.createdAt) : new Date();
@@ -189,6 +195,20 @@ ${listing.description || ''}
         image: imageUrl,
         category: [{ name: 'Blog' }],
         custom_elements: [
+          {'media:content': {
+            _attr: {
+              url: imageUrl,
+              medium: 'image',
+              type: 'image/jpeg'
+            }
+          }},
+          {'enclosure': {
+            _attr: {
+              url: imageUrl,
+              type: 'image/jpeg',
+              length: '0'
+            }
+          }},
           {'blog:category': post.category || 'General'},
           {'blog:type': 'post'},
           {'blog:status': 'published'},
