@@ -17,8 +17,7 @@ export async function GET() {
     updated: new Date(),
     generator: 'Global Drive Motors RSS Feed',
     feedLinks: {
-      rss2: `${baseUrl}/api/rss`,
-      json: `${baseUrl}/api/rss/json`
+      rss2: `${baseUrl}/api/rss`
     },
     author: {
       name: 'Global Drive Motors',
@@ -31,26 +30,31 @@ export async function GET() {
     await dbConnect();
     const db = mongoose.connection;
 
-    // Fetch latest car listings
+    // Fetch latest car listings with proper date handling
     const listings = await db.collection('Listing')
       .find({ 
-        status: 'active',
-        createdAt: { $exists: true }
+        status: 'active'
       })
-      .sort({ createdAt: -1 })
-      .limit(20)
+      .sort({ 
+        createdAt: -1,
+        _id: -1  // Secondary sort by _id if createdAt is same
+      })
+      .limit(50)  // Increased limit to ensure we have items
       .toArray();
 
-    // Add car listings to feed
+    // Add car listings to feed with proper date handling
     listings.forEach(listing => {
       const price = listing.price ? `$${listing.price.toLocaleString()}` : 'Contact for Price';
       const imageUrl = listing.image || `${baseUrl}/default-car.jpg`;
       
+      // Ensure we have a valid date
+      const itemDate = listing.createdAt ? new Date(listing.createdAt) : new Date();
+      
       feed.addItem({
-        title: `[NEW VEHICLE] ${listing.year} ${listing.make} ${listing.model}`,
-        id: `car-${listing._id.toString()}`,
+        title: `[NEW VEHICLE] ${listing.year} ${listing.make} ${listing.model} - ${price}`,
+        id: listing._id.toString(),
         link: `${baseUrl}/cars/${listing._id}`,
-        description: `${listing.year} ${listing.make} ${listing.model} - ${price}`,
+        description: `${listing.year} ${listing.make} ${listing.model} - ${price}${listing.mileage ? ` - ${listing.mileage.toLocaleString()} miles` : ''}`,
         content: `
           <div>
             <img src="${imageUrl}" alt="${listing.year} ${listing.make} ${listing.model}" style="max-width: 100%; height: auto;"/>
@@ -63,45 +67,40 @@ export async function GET() {
             <p><a href="${baseUrl}/cars/${listing._id}">View Full Details</a></p>
           </div>
         `,
-        date: new Date(listing.createdAt),
+        date: itemDate,
         image: imageUrl,
-        category: [
-          { name: 'Cars' },
-          { name: listing.make },
-          { name: listing.type || 'Vehicle' }
-        ],
+        category: [{ name: 'Cars' }],
         custom_elements: [
-          { 'vehicle:make': listing.make },
-          { 'vehicle:model': listing.model },
-          { 'vehicle:year': listing.year },
-          { 'vehicle:price': listing.price },
-          { 'vehicle:type': listing.type || 'Not Specified' },
-          { 'vehicle:mileage': listing.mileage || 'Not Specified' },
-          { 'vehicle:transmission': listing.transmission || 'Not Specified' },
-          { 'vehicle:engineSize': listing.engineSize || 'Not Specified' },
-          { 'listing:status': 'active' },
-          { 'listing:location': listing.location || 'Not Specified' }
+          {'vehicle:make': listing.make || ''},
+          {'vehicle:model': listing.model || ''},
+          {'vehicle:year': listing.year || ''},
+          {'vehicle:price': price},
+          {'pubDate': itemDate.toUTCString()},
+          {'lastBuildDate': new Date().toUTCString()}
         ]
       });
     });
 
-    // Fetch latest blog posts
+    // Fetch latest blog posts with proper date handling
     const blogPosts = await db.collection('BlogPost')
       .find({ 
-        status: 'published',
-        createdAt: { $exists: true }
+        status: 'published'
       })
-      .sort({ createdAt: -1 })
-      .limit(10)
+      .sort({ 
+        createdAt: -1,
+        _id: -1  // Secondary sort by _id if createdAt is same
+      })
+      .limit(20)
       .toArray();
 
-    // Add blog posts to feed
+    // Add blog posts to feed with proper date handling
     blogPosts.forEach(post => {
       const imageUrl = post.image || `${baseUrl}/default-blog.jpg`;
+      const itemDate = post.createdAt ? new Date(post.createdAt) : new Date();
       
       feed.addItem({
         title: `[BLOG] ${post.title}`,
-        id: `blog-${post._id.toString()}`,
+        id: post._id.toString(),
         link: `${baseUrl}/blog/${post._id}`,
         description: post.excerpt || (post.content ? post.content.substring(0, 200) + '...' : ''),
         content: `
@@ -112,26 +111,40 @@ export async function GET() {
             <p><a href="${baseUrl}/blog/${post._id}">Read Full Article</a></p>
           </div>
         `,
-        date: new Date(post.createdAt),
+        date: itemDate,
         image: imageUrl,
-        category: [
-          { name: 'Blog' },
-          { name: post.category || 'General' }
-        ],
+        category: [{ name: 'Blog' }],
         custom_elements: [
-          { 'blog:category': post.category || 'General' },
-          { 'blog:author': post.author || 'Global Drive Motors' },
-          { 'content:type': 'blog_post' },
-          { 'post:status': 'published' }
+          {'blog:category': post.category || 'General'},
+          {'pubDate': itemDate.toUTCString()},
+          {'lastBuildDate': new Date().toUTCString()}
         ]
       });
     });
 
-    // Return the feed as RSS 2.0 with proper headers
+    // If no items were added, add a default item to prevent empty feed
+    if (listings.length === 0 && blogPosts.length === 0) {
+      feed.addItem({
+        title: '[INFO] Global Drive Motors Feed',
+        id: 'default-feed-item',
+        link: baseUrl,
+        description: 'Welcome to Global Drive Motors RSS Feed',
+        content: 'New vehicles and blog posts will appear here as they are added.',
+        date: new Date(),
+        custom_elements: [
+          {'pubDate': new Date().toUTCString()},
+          {'lastBuildDate': new Date().toUTCString()}
+        ]
+      });
+    }
+
+    // Return the feed with proper headers for Zapier
     return new Response(feed.rss2(), {
       headers: {
         'Content-Type': 'application/xml',
-        'Cache-Control': 'max-age=0, s-maxage=300', // Cache for 5 minutes on CDN
+        'Cache-Control': 'no-cache, no-store, must-revalidate',
+        'Pragma': 'no-cache',
+        'Expires': '0',
         'Access-Control-Allow-Origin': '*',
       },
     });
@@ -139,11 +152,12 @@ export async function GET() {
   } catch (error) {
     console.error('RSS Feed Error:', error);
     return new Response(
-      `<?xml version="1.0" encoding="UTF-8"?><error>Error generating RSS feed</error>`, 
+      `<?xml version="1.0" encoding="UTF-8"?><rss version="2.0"><channel><title>Error</title><description>Error generating RSS feed</description></channel></rss>`, 
       { 
         status: 500,
         headers: {
-          'Content-Type': 'application/xml'
+          'Content-Type': 'application/xml',
+          'Cache-Control': 'no-cache'
         }
       }
     );
