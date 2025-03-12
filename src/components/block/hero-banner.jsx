@@ -89,7 +89,7 @@ export default function HeroBanner() {
 
   return (
     <div className="relative overflow-hidden group">
-      <div className="h-[500px] relative">
+      <div className="h-[400px] relative">
         <AnimatePresence initial={false} custom={direction}>
           <motion.div
             key={currentSlide}
@@ -111,7 +111,6 @@ export default function HeroBanner() {
               priority
               className="object-cover"
             />
-            <div className="absolute inset-0 bg-gradient-to-r from-black/60 via-black/40 to-transparent" />
             
             <motion.div 
               initial={{ opacity: 0, y: 20 }}
@@ -120,7 +119,7 @@ export default function HeroBanner() {
               className="absolute inset-0 flex items-center"
             >
               <div className="container mx-auto px-4">
-                <div className="max-w-[550px] text-white space-y-4">
+                <div className="max-w-[550px] text-white space-y-4 [text-shadow:_0_1px_2px_rgba(0,0,0,0.6)]">
                   {currentSlider.highlight && (
                     <motion.div
                       initial={{ opacity: 0, y: 10 }}
@@ -137,7 +136,7 @@ export default function HeroBanner() {
                     initial={{ opacity: 0, y: 10 }}
                     animate={{ opacity: 1, y: 0 }}
                     transition={{ delay: 0.4 }}
-                    className="text-4xl font-bold"
+                    className="text-4xl font-bold [text-shadow:_0_2px_4px_rgba(0,0,0,0.8)]"
                   >
                     {currentSlider.title}
                   </motion.h1>
@@ -147,7 +146,7 @@ export default function HeroBanner() {
                       initial={{ opacity: 0, y: 10 }}
                       animate={{ opacity: 1, y: 0 }}
                       transition={{ delay: 0.5 }}
-                      className="text-base text-gray-200"
+                      className="text-base text-white [text-shadow:_0_1px_2px_rgba(0,0,0,0.6)]"
                     >
                       {currentSlider.description}
                     </motion.p>

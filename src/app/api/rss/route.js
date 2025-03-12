@@ -49,10 +49,10 @@ export async function GET() {
       const imageUrl = listing.image || `${baseUrl}/default-car.jpg`;
       
       feed.addItem({
-        title: `${listing.year} ${listing.make} ${listing.model} - ${formattedPrice}`,
+        title: `[CAR LISTING] ${listing.year} ${listing.make} ${listing.model} - ${formattedPrice}`,
         id: listing._id.toString(),
         link: `${baseUrl}/cars/${listing._id}`,
-        description: listing.description || `${listing.year} ${listing.make} ${listing.model}`,
+        description: `${listing.year} ${listing.make} ${listing.model} - ${formattedPrice}${listing.mileage ? ` - ${listing.mileage.toLocaleString()} miles` : ''}`,
         content: `
           <div style="font-family: Arial, sans-serif;">
             <h2>${listing.year} ${listing.make} ${listing.model}</h2>
@@ -65,7 +65,15 @@ export async function GET() {
         `,
         date: new Date(listing.createdAt || new Date()),
         image: imageUrl,
-        category: [{ name: 'Cars' }]
+        category: [{ name: 'Cars' }],
+        custom_elements: [
+          {'content:encoded': { _cdata: `${listing.description || ''}` }},
+          {'content:type': 'car_listing'},
+          {'vehicle:make': listing.make},
+          {'vehicle:model': listing.model},
+          {'vehicle:year': listing.year},
+          {'vehicle:price': listing.price}
+        ]
       });
     });
 
@@ -75,7 +83,7 @@ export async function GET() {
       const excerpt = post.excerpt || (post.content ? post.content.substring(0, 200) + '...' : '');
       
       feed.addItem({
-        title: post.title,
+        title: `[BLOG] ${post.title}`,
         id: post._id.toString(),
         link: `${baseUrl}/blog/${post._id}`,
         description: excerpt,
@@ -89,7 +97,12 @@ export async function GET() {
         `,
         date: new Date(post.createdAt || post.date || new Date()),
         image: imageUrl,
-        category: post.category ? [{ name: post.category }] : [{ name: 'Blog' }]
+        category: [{ name: 'Blog' }],
+        custom_elements: [
+          {'content:encoded': { _cdata: `${post.content || ''}` }},
+          {'content:type': 'blog_post'},
+          {'blog:category': post.category || 'Uncategorized'}
+        ]
       });
     });
 
