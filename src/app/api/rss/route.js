@@ -63,9 +63,7 @@ export async function GET() {
       
       // Handle Cloudinary image URL
       let imageUrl = listing.image || `${baseUrl}/default-car.jpg`;
-      // Ensure we have the full Cloudinary URL
       if (imageUrl && !imageUrl.startsWith('http')) {
-        // If it's a Cloudinary public ID, construct the full optimized URL
         imageUrl = `https://res.cloudinary.com/globaldrivemotors/image/upload/f_auto,q_auto/${imageUrl}`;
       }
 
@@ -99,50 +97,12 @@ ${listing.description || ''}
         id: `vehicle-${listing._id.toString()}-${Date.now()}`,
         link: `${baseUrl}/cars/${listing._id}`,
         description: detailedDescription,
-        content: `
-          <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
-            <img src="${imageUrl}" alt="${listing.year} ${listing.make} ${listing.model}" style="width: 100%; height: auto; border-radius: 8px;"/>
-            <h2 style="color: #333; margin-top: 15px;">${listing.year} ${listing.make} ${listing.model}</h2>
-            <div style="background: #f5f5f5; padding: 15px; border-radius: 8px; margin: 10px 0;">
-              <p style="margin: 5px 0;"><strong>💰 Price:</strong> ${price}</p>
-              ${listing.mileage ? `<p style="margin: 5px 0;"><strong>📊 Mileage:</strong> ${listing.mileage.toLocaleString()} miles</p>` : ''}
-              ${listing.engineSize ? `<p style="margin: 5px 0;"><strong>🔧 Engine:</strong> ${listing.engineSize}</p>` : ''}
-              ${listing.transmission ? `<p style="margin: 5px 0;"><strong>⚙️ Transmission:</strong> ${listing.transmission}</p>` : ''}
-              ${listing.fuelType ? `<p style="margin: 5px 0;"><strong>⛽ Fuel Type:</strong> ${listing.fuelType}</p>` : ''}
-              ${listing.bodyType ? `<p style="margin: 5px 0;"><strong>🚘 Body Type:</strong> ${listing.bodyType}</p>` : ''}
-              ${listing.color ? `<p style="margin: 5px 0;"><strong>🎨 Color:</strong> ${listing.color}</p>` : ''}
-              ${listing.seats ? `<p style="margin: 5px 0;"><strong>💺 Seats:</strong> ${listing.seats}</p>` : ''}
-              ${listing.doors ? `<p style="margin: 5px 0;"><strong>🚪 Doors:</strong> ${listing.doors}</p>` : ''}
-              ${listing.steering ? `<p style="margin: 5px 0;"><strong>🎯 Steering:</strong> ${listing.steering}</p>` : ''}
-              ${listing.drive ? `<p style="margin: 5px 0;"><strong>⚡ Drive:</strong> ${listing.drive}</p>` : ''}
-            </div>
-            ${listing.description ? `<p style="color: #666;">${listing.description}</p>` : ''}
-            <a href="${baseUrl}/cars/${listing._id}" style="display: inline-block; background: #007bff; color: white; padding: 10px 20px; text-decoration: none; border-radius: 5px; margin-top: 15px;">View Full Details</a>
-          </div>
-        `,
         date: itemDate,
-        image: imageUrl,
-        category: [
-          { name: 'Cars' },
-          { name: listing.make },
-          { name: listing.model },
-          { name: listing.bodyType || 'Vehicle' }
-        ],
+        enclosure: {
+          url: imageUrl,
+          type: 'image/jpeg'
+        },
         custom_elements: [
-          {'media:content': {
-            _attr: {
-              url: imageUrl,
-              medium: 'image',
-              type: 'image/jpeg'
-            }
-          }},
-          {'enclosure': {
-            _attr: {
-              url: imageUrl,
-              type: 'image/jpeg',
-              length: '0'
-            }
-          }},
           {'vehicle:make': listing.make || ''},
           {'vehicle:model': listing.model || ''},
           {'vehicle:year': listing.year || ''},
@@ -183,32 +143,12 @@ ${listing.description || ''}
         id: `blog-${post._id.toString()}-${Date.now()}`,
         link: `${baseUrl}/blog/${post._id}`,
         description: post.excerpt || (post.content ? post.content.substring(0, 200) + '...' : ''),
-        content: `
-          <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
-            <img src="${imageUrl}" alt="${post.title}" style="width: 100%; height: auto; border-radius: 8px;"/>
-            <h1 style="color: #333;">${post.title}</h1>
-            ${post.content || ''}
-            <a href="${baseUrl}/blog/${post._id}" style="display: inline-block; background: #007bff; color: white; padding: 10px 20px; text-decoration: none; border-radius: 5px; margin-top: 15px;">Read Full Article</a>
-          </div>
-        `,
         date: itemDate,
-        image: imageUrl,
-        category: [{ name: 'Blog' }],
+        enclosure: {
+          url: imageUrl,
+          type: 'image/jpeg'
+        },
         custom_elements: [
-          {'media:content': {
-            _attr: {
-              url: imageUrl,
-              medium: 'image',
-              type: 'image/jpeg'
-            }
-          }},
-          {'enclosure': {
-            _attr: {
-              url: imageUrl,
-              type: 'image/jpeg',
-              length: '0'
-            }
-          }},
           {'blog:category': post.category || 'General'},
           {'blog:type': 'post'},
           {'blog:status': 'published'},
@@ -222,13 +162,9 @@ ${listing.description || ''}
     // Only add default item if no real content exists
     if (!hasContent) {
       const defaultDate = new Date();
-      // Handle Cloudinary URL for default logo
       let defaultImageUrl = `${baseUrl}/logo.png`;
-      if (defaultImageUrl && defaultImageUrl.includes('res.cloudinary.com') && !defaultImageUrl.startsWith('http')) {
-        defaultImageUrl = `https://${defaultImageUrl}`;
-      }
-      if (defaultImageUrl && !defaultImageUrl.includes('://')) {
-        defaultImageUrl = `https://res.cloudinary.com/globaldrivemotors/image/upload/${defaultImageUrl}`;
+      if (!defaultImageUrl.startsWith('http')) {
+        defaultImageUrl = `https://res.cloudinary.com/globaldrivemotors/image/upload/f_auto,q_auto/${defaultImageUrl.replace(`${baseUrl}/`, '')}`;
       }
 
       feed.addItem({
@@ -236,14 +172,11 @@ ${listing.description || ''}
         id: `default-${Date.now()}`,
         link: baseUrl,
         description: 'New vehicles and blog posts will appear here automatically.',
-        content: `
-          <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
-            <img src="${defaultImageUrl}" alt="Global Drive Motors" style="width: 100%; max-width: 300px; height: auto; margin: 0 auto; display: block;"/>
-            <p style="text-align: center; margin-top: 20px;">Stay tuned for new listings and blog posts!</p>
-          </div>
-        `,
         date: defaultDate,
-        image: defaultImageUrl,
+        enclosure: {
+          url: defaultImageUrl,
+          type: 'image/png'
+        },
         custom_elements: [
           {'feed:type': 'default'},
           {'pubDate': defaultDate.toUTCString()},
