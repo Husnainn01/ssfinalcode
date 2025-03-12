@@ -42,27 +42,38 @@ export async function GET() {
       .limit(50)
       .toArray();
 
+    // Fetch latest blog posts with proper date handling
+    const blogPosts = await db.collection('BlogPost')
+      .find({ 
+        status: 'published'
+      })
+      .sort({ 
+        createdAt: -1,
+        _id: -1  // Secondary sort by _id if createdAt is same
+      })
+      .limit(20)
+      .toArray();
+
     // Add car listings to feed with proper date handling
+    let hasContent = false;
+    
     listings.forEach(listing => {
+      hasContent = true;
       const price = listing.price ? `$${listing.price.toLocaleString()}` : 'Contact for Price';
       const imageUrl = listing.image || `${baseUrl}/default-car.jpg`;
       const itemDate = listing.createdAt ? new Date(listing.createdAt) : new Date();
       
-      // Create a more structured title and description for better Zapier detection
-      const title = `🚗 NEW LISTING: ${listing.year} ${listing.make} ${listing.model}`;
-      const description = `
-        🚘 Vehicle: ${listing.year} ${listing.make} ${listing.model}
-        💰 Price: ${price}
-        ${listing.mileage ? `📊 Mileage: ${listing.mileage.toLocaleString()} miles` : ''}
-        ${listing.engineSize ? `🔧 Engine: ${listing.engineSize}` : ''}
-        ${listing.transmission ? `⚙️ Transmission: ${listing.transmission}` : ''}
-      `.trim();
-
       feed.addItem({
-        title: title,
-        id: `vehicle-${listing._id.toString()}-${Date.now()}`, // Add timestamp for uniqueness
+        title: `🚗 NEW LISTING: ${listing.year} ${listing.make} ${listing.model}`,
+        id: `vehicle-${listing._id.toString()}-${Date.now()}`,
         link: `${baseUrl}/cars/${listing._id}`,
-        description: description,
+        description: `
+          🚘 ${listing.year} ${listing.make} ${listing.model}
+          💰 Price: ${price}
+          ${listing.mileage ? `📊 Mileage: ${listing.mileage.toLocaleString()} miles\n` : ''}
+          
+          Click to view full details and more photos!
+        `.trim(),
         content: `
           <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
             <img src="${imageUrl}" alt="${listing.year} ${listing.make} ${listing.model}" style="width: 100%; height: auto; border-radius: 8px;"/>
@@ -101,34 +112,23 @@ export async function GET() {
       });
     });
 
-    // Fetch latest blog posts with proper date handling
-    const blogPosts = await db.collection('BlogPost')
-      .find({ 
-        status: 'published'
-      })
-      .sort({ 
-        createdAt: -1,
-        _id: -1  // Secondary sort by _id if createdAt is same
-      })
-      .limit(20)
-      .toArray();
-
-    // Add blog posts to feed with proper date handling
+    // Add blog posts to feed
     blogPosts.forEach(post => {
+      hasContent = true;
       const imageUrl = post.image || `${baseUrl}/default-blog.jpg`;
       const itemDate = post.createdAt ? new Date(post.createdAt) : new Date();
       
       feed.addItem({
-        title: `[BLOG] ${post.title}`,
-        id: post._id.toString(),
+        title: `📝 NEW BLOG: ${post.title}`,
+        id: `blog-${post._id.toString()}-${Date.now()}`,
         link: `${baseUrl}/blog/${post._id}`,
         description: post.excerpt || (post.content ? post.content.substring(0, 200) + '...' : ''),
         content: `
-          <div>
-            <img src="${imageUrl}" alt="${post.title}" style="max-width: 100%; height: auto;"/>
-            <h1>${post.title}</h1>
+          <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
+            <img src="${imageUrl}" alt="${post.title}" style="width: 100%; height: auto; border-radius: 8px;"/>
+            <h1 style="color: #333;">${post.title}</h1>
             ${post.content || ''}
-            <p><a href="${baseUrl}/blog/${post._id}">Read Full Article</a></p>
+            <a href="${baseUrl}/blog/${post._id}" style="display: inline-block; background: #007bff; color: white; padding: 10px 20px; text-decoration: none; border-radius: 5px; margin-top: 15px;">Read Full Article</a>
           </div>
         `,
         date: itemDate,
@@ -136,29 +136,34 @@ export async function GET() {
         category: [{ name: 'Blog' }],
         custom_elements: [
           {'blog:category': post.category || 'General'},
+          {'blog:type': 'post'},
+          {'blog:status': 'published'},
+          {'blog:timestamp': Date.now()},
           {'pubDate': itemDate.toUTCString()},
           {'lastBuildDate': new Date().toUTCString()}
         ]
       });
     });
 
-    // If no items were added, add a default item to prevent empty feed
-    if (listings.length === 0 && blogPosts.length === 0) {
+    // Only add default item if no real content exists
+    if (!hasContent) {
+      const defaultDate = new Date();
       feed.addItem({
-        title: '[INFO] Global Drive Motors Feed',
-        id: 'default-feed-item',
+        title: '🚗 Welcome to Global Drive Motors Feed',
+        id: `default-${Date.now()}`,
         link: baseUrl,
-        description: 'Welcome to Global Drive Motors RSS Feed',
-        content: 'New vehicles and blog posts will appear here as they are added.',
-        date: new Date(),
+        description: 'New vehicles and blog posts will appear here automatically.',
+        content: 'Stay tuned for new listings and blog posts!',
+        date: defaultDate,
         custom_elements: [
-          {'pubDate': new Date().toUTCString()},
-          {'lastBuildDate': new Date().toUTCString()}
+          {'feed:type': 'default'},
+          {'pubDate': defaultDate.toUTCString()},
+          {'lastBuildDate': defaultDate.toUTCString()}
         ]
       });
     }
 
-    // Return the feed with proper headers for Zapier
+    // Return the feed with proper headers
     return new Response(feed.rss2(), {
       headers: {
         'Content-Type': 'application/xml',
