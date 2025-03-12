@@ -30,35 +30,40 @@ export async function GET() {
     await dbConnect();
     const db = mongoose.connection;
 
-    // Calculate the time threshold (1 hour ago)
+    // Calculate a more generous time threshold (24 hours ago instead of 1 hour)
+    // This helps during testing to make sure content is visible
     const timeThreshold = new Date();
-    timeThreshold.setHours(timeThreshold.getHours() - 1);
+    timeThreshold.setHours(timeThreshold.getHours() - 24); // Extended to 24 hours for testing
 
-    // Fetch only recent car listings
+    // For debugging, get at least one item, even if it's older
     const listings = await db.collection('Listing')
       .find({ 
         status: 'active',
-        createdAt: { $gte: timeThreshold } // Only items created in the last hour
+        // Temporarily comment out the time filter for testing
+        // createdAt: { $gte: timeThreshold }
       })
       .sort({ 
         createdAt: -1,
         _id: -1
       })
-      .limit(10) // Limit to fewer items since we're only getting recent ones
+      .limit(5)
       .toArray();
 
-    // Fetch only recent blog posts
+    // For debugging, get at least one item, even if it's older
     const blogPosts = await db.collection('BlogPost')
       .find({ 
         status: 'published',
-        createdAt: { $gte: timeThreshold } // Only items created in the last hour
+        // Temporarily comment out the time filter for testing
+        // createdAt: { $gte: timeThreshold }
       })
       .sort({ 
         createdAt: -1,
         _id: -1
       })
-      .limit(5) // Limit to fewer items since we're only getting recent ones
+      .limit(5)
       .toArray();
+
+    console.log(`Found ${listings.length} listings and ${blogPosts.length} blog posts for the feed`);
 
     // Add car listings to feed with proper date handling
     let hasContent = false;
@@ -72,13 +77,15 @@ export async function GET() {
       if (imageUrl && !imageUrl.startsWith('http')) {
         // Remove any leading slashes
         imageUrl = imageUrl.replace(/^\/+/, '');
+        // Use a direct Cloudinary URL format
         imageUrl = `https://res.cloudinary.com/globaldrivemotors/image/upload/${imageUrl}`;
       }
 
-      const itemDate = listing.createdAt ? new Date(listing.createdAt) : new Date();
+      // Force a current date for testing purposes
+      const itemDate = new Date(); // Always use current date during testing
       
-      // Create a unique ID that Zapier can use to detect new items
-      const uniqueId = `vehicle-${listing._id.toString()}-${itemDate.getTime()}`;
+      // Create a unique ID that always changes for testing
+      const uniqueId = `vehicle-${listing._id.toString()}-${Date.now()}`;
 
       // Create a detailed description with all car specifications
       const detailedDescription = `<p><img src="${imageUrl}" alt="${listing.year} ${listing.make} ${listing.model}" /></p>
@@ -100,10 +107,10 @@ ${listing.description || ''}
 
 🌐 View more details and photos: ${baseUrl}/cars/${listing._id}
 
-#${listing.make.toLowerCase().replace(/\s+/g, '')} #${listing.model.toLowerCase().replace(/\s+/g, '')} #globaldrivemotors #newlisting`;
+#${listing.make.toLowerCase().replace(/\s+/g, '')} #${listing.model.toLowerCase().replace(/\s+/g, '')} #globaldrivemotors #newlisting #testingzapier`;
 
       feed.addItem({
-        title: `🚗 NEW LISTING: ${listing.year} ${listing.make} ${listing.model}`,
+        title: `🚗 LISTING UPDATE: ${listing.year} ${listing.make} ${listing.model} - ${new Date().toLocaleTimeString()}`,
         id: uniqueId,
         link: `${baseUrl}/cars/${listing._id}`,
         description: detailedDescription,
@@ -154,7 +161,7 @@ ${listing.description || ''}
       });
     });
 
-    // Add blog posts to feed with similar image handling
+    // Add blog posts to feed with similar handling for testing
     blogPosts.forEach(post => {
       hasContent = true;
       
@@ -166,15 +173,16 @@ ${listing.description || ''}
         imageUrl = `https://res.cloudinary.com/globaldrivemotors/image/upload/${imageUrl}`;
       }
 
-      const itemDate = post.createdAt ? new Date(post.createdAt) : new Date();
+      // Force a current date for testing purposes
+      const itemDate = new Date(); // Always use current date during testing
       
-      // Create a unique ID that Zapier can use to detect new items
-      const uniqueId = `blog-${post._id.toString()}-${itemDate.getTime()}`;
+      // Create a unique ID that always changes for testing
+      const uniqueId = `blog-${post._id.toString()}-${Date.now()}`;
 
       const postDescription = `<p><img src="${imageUrl}" alt="${post.title}" /></p>${post.excerpt || (post.content ? post.content.substring(0, 200) + '...' : '')}`;
       
       feed.addItem({
-        title: `📝 NEW BLOG: ${post.title}`,
+        title: `📝 BLOG UPDATE: ${post.title} - ${new Date().toLocaleTimeString()}`,
         id: uniqueId,
         link: `${baseUrl}/blog/${post._id}`,
         description: postDescription,
