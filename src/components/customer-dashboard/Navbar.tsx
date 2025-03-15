@@ -179,11 +179,11 @@ export function Navbar({ toggleSidebar }: NavbarProps) {
             <div className="flex items-center space-x-3">
               <Link href="/" className="hover:opacity-90 transition-opacity">
                 <Image
-                  src="/sss-logo.png"
-                  alt="Logo"
-                  width={200}
-                  height={60}
-                  className="rounded-lg"
+                  src="/newlogo4.png"
+                  alt="JDM GLOBAL"
+                  width={800}
+                  height={800}
+                  className="h-[180px] w-auto object-contain" 
                 />
               </Link>
               <span className="text-xs font-semibold hidden sm:block">

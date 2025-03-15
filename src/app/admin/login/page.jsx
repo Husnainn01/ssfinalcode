@@ -87,13 +87,18 @@ const LoginPage = () => {
           className="w-full max-w-md"
         >
           <div className="mb-8">
-            <Image
-              src="/images/logo.png"
-              alt="Company Logo"
-              width={150}
-              height={40}
-              className="mb-8"
-            />
+            <div className="flex justify-center w-full">
+              <div className="relative w-[300px] h-[200px]">
+                <Image
+                  src="/newlogo4.png"
+                  alt="Company Logo"
+                  width={300}
+                  height={300}
+                  className="object-contain"
+                  priority
+                />
+              </div>
+            </div>
             <h1 className="text-2xl font-bold text-gray-900">Welcome back</h1>
             <p className="text-gray-500 mt-2">Please enter your credentials to access your account</p>
           </div>
@@ -261,7 +266,7 @@ const LoginPage = () => {
             transition={{ duration: 0.5, delay: 1 }}
           >
             <p className="text-purple-200/60 text-sm text-center">
-              © 2024 SS Holdings Admin. All rights reserved.
+              © 2024 JDM Global Admin. All rights reserved.
             </p>
           </motion.div>
         </motion.div>

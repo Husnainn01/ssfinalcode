@@ -28,7 +28,7 @@ import { MainNav } from '@/components/block/main-nav'
 import { toast } from "@/components/ui/use-toast"
 import { MobileMenu } from '@/components/block/MobileMenu'
 import { MobileSearch } from '@/components/block/MobileSearch'
-
+import Image from 'next/image'
 export default function NavigationHeader() {
   const { user, isAuthenticated, isLoading } = useCustomerAuth()
   const router = useRouter()
@@ -156,7 +156,7 @@ export default function NavigationHeader() {
       <div className="hidden md:block border-b border-theme-primary-hover px-4 py-1 text-sm relative z-50">
         <div className="mx-auto flex max-w-7xl items-center justify-between">
           <div className="flex items-center gap-4 overflow-x-auto whitespace-nowrap">
-            <span className="font-semibold">HSW Global - Dream Car Click Away</span>
+            <span className="font-semibold">JDM Global - Dream Car Click Away</span>
             <span className="hidden lg:flex items-center gap-1">
               {isLoading ? (
                 <span className="animate-pulse">Loading...</span>
@@ -190,19 +190,23 @@ export default function NavigationHeader() {
         {/* Logo and Search */}
         <div className="flex items-center gap-2 w-full lg:w-[60%]">
           <Link 
-            href="/" 
-            className="flex-shrink-0 hover:opacity-80 transition-opacity cursor-pointer"
+            href="/"
+            className="flex-shrink-0 hover:opacity-80 transition-opacity cursor-pointer relative"
           >
-            <img
-              src="/hswlogo.svg"
-              alt="HSW Global"
-              className="h-[30px] md:h-[40px] w-auto"
-            />
+            <div className="relative w-[200px] h-[50px]"> {/* Adjust these values for your desired size */}
+              <Image
+                src="/newlogo3.png"
+                alt="JDM Global"
+                width={200}
+                height={50}
+                className="absolute top-1/2 -translate-y-1/2 w-full h-auto object-contain"
+              />
+            </div>
           </Link>
 
           
           {/* Search Form - Hide on mobile */}
-          <form onSubmit={handleSearch} className="hidden md:flex w-full max-w-2xl">
+          <form onSubmit={handleSearch} className="hidden md:flex w-full max-w-xl">
             <Select 
               value={searchType}
               onValueChange={setSearchType}
@@ -225,7 +229,7 @@ export default function NavigationHeader() {
               <Input 
                 type="text"
                 placeholder={searchType === 'keyword' ? "Search for cars, makes, or models" : "Enter stock number"}
-                className="w-[600px] rounded-l-none border-l-0 text-black"
+                className="w-[400px] rounded-l-none border-l-0 text-black"
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
                 aria-label={searchType === 'keyword' ? "Search cars by keyword" : "Search cars by stock number"}
@@ -256,7 +260,7 @@ export default function NavigationHeader() {
         />
 
         {/* User Actions - Hide on mobile */}
-        <div className="hidden md:flex items-center justify-end gap-8 lg:w-[40%]">
+        <div className="hidden md:flex items-center justify-end gap-8 lg:w-[30%]">
           {isAuthenticated && user ? (
             <div className="flex items-center gap-8">
               <Button 

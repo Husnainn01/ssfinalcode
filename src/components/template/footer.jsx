@@ -52,15 +52,14 @@ export default function Footer() {
         {/* Logo and Contact Section */}
         <div className="mb-12 grid gap-8 md:grid-cols-12">
           <div className="md:col-span-4">
-            <div className="mb-8">
+            <div className="mb-8 relative h-[100px]">
               <Image
-                src="/hswlogo.svg"
-                alt="HSW Global"
+                src="/newlogo3.png"
+                alt="JDM Global"
                 width={300}
-                height={100}
-                className="h-[100px] w-auto object-contain"
+                height={300}
+                className="h-[180px] w-auto object-contain" 
                 priority
-
               />
             </div>
             <div className="space-y-8">
@@ -397,7 +396,7 @@ export default function Footer() {
       <div className="bg-[#1A1A1A] py-6 text-sm">
         <div className="mx-auto flex max-w-7xl flex-col items-center justify-between gap-4 px-4 text-center md:flex-row md:text-left">
           <div className="text-gray-400">
-            © {new Date().getFullYear()} HSW Global CO.,LTD. All rights reserved.
+            © {new Date().getFullYear()} JDM Global All rights reserved.
           </div>
           <div className="flex flex-wrap justify-center gap-6 text-gray-400">
 
