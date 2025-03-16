@@ -1,9 +1,9 @@
 "use client"
-import React, { useState } from 'react';
-import { Input, Button, Card, CardBody, Divider } from "@nextui-org/react";
+import React, { useState, useEffect } from 'react';
+import { Input, Button, Card, CardBody, Divider, Tooltip } from "@nextui-org/react";
 import { useRouter } from 'next/navigation';
 import { motion } from "framer-motion";
-import { EyeIcon, EyeOffIcon, LockIcon, MailIcon, ShieldIcon, ActivityIcon, UserIcon, Settings2Icon } from 'lucide-react';
+import { EyeIcon, EyeOffIcon, LockIcon, MailIcon, ShieldIcon, ActivityIcon, UserIcon, Settings2Icon, AlertTriangleIcon, CheckCircleIcon } from 'lucide-react';
 import { useAuth } from '@/hooks/useAuth';
 import Image from 'next/image';
 
@@ -13,8 +13,125 @@ const LoginPage = () => {
   const [isVisible, setIsVisible] = useState(false);
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
+  const [systemStatus, setSystemStatus] = useState({
+    status: 'checking',
+    message: 'Checking system status...',
+    details: []
+  });
   const router = useRouter();
   const auth = useAuth();
+
+  // Check system status on component mount
+  useEffect(() => {
+    checkSystemStatus();
+    // Set up interval to check status every 30 seconds
+    const intervalId = setInterval(checkSystemStatus, 30000);
+    
+    // Clean up interval on component unmount
+    return () => clearInterval(intervalId);
+  }, []);
+
+  const checkSystemStatus = async () => {
+    try {
+      // Define the endpoints to check with more generic service names
+      const endpoints = [
+        { name: 'Authentication Service', url: '/api/admin/auth/status' },
+        { name: 'Content Management', url: '/api/admin/qna/status' },
+        { name: 'Notification System', url: '/api/admin/notices/status' },
+        { name: 'User Management', url: '/api/admin/users/status' },
+        { name: 'System Status', url: '/api/admin/status' },
+        { name: 'Database', url: '/api/admin/db/status' },
+        { name: 'API Gateway', url: '/api/admin/gateway/status' },
+        { name: 'File Storage', url: '/api/admin/storage/status' },
+        { name: 'Payment Gateway', url: '/api/admin/payment/status' },
+        { name: 'Email Service', url: '/api/admin/email/status' },
+        { name: 'Monitoring System', url: '/api/admin/monitoring/status' }
+      ];
+      
+      // Set to checking status
+      setSystemStatus({
+        status: 'checking',
+        message: 'Checking system status...',
+        details: []
+      });
+      
+      // For development/demo purposes - simulate all services as operational
+      // Remove this in production and use the actual fetch calls below
+      const simulatedDetails = endpoints.map(endpoint => ({
+        name: endpoint.name,
+        status: 'operational',
+        message: 'Operational'
+      }));
+      
+      setSystemStatus({
+        status: 'operational',
+        message: 'All systems operational',
+        details: simulatedDetails
+      });
+      
+      // Comment out the actual API checks for now until the endpoints are implemented
+      /*
+      // Check each endpoint
+      const results = await Promise.allSettled(
+        endpoints.map(async (endpoint) => {
+          try {
+            const response = await fetch(endpoint.url, { 
+              method: 'GET',
+              headers: { 'Content-Type': 'application/json' },
+              // Short timeout to avoid long waits
+              signal: AbortSignal.timeout(3000)
+            });
+            
+            return {
+              name: endpoint.name,
+              status: response.ok ? 'operational' : 'issue',
+              message: response.ok ? 'Operational' : 'Service issue detected'
+            };
+          } catch (error) {
+            return {
+              name: endpoint.name,
+              status: 'down',
+              message: 'Service unavailable'
+            };
+          }
+        })
+      );
+      
+      // Process results
+      const details = results.map((result, index) => {
+        if (result.status === 'fulfilled') {
+          return result.value;
+        } else {
+          return {
+            name: endpoints[index].name,
+            status: 'down',
+            message: 'Connection failed'
+          };
+        }
+      });
+      
+      // Determine overall status
+      const hasIssues = details.some(detail => detail.status !== 'operational');
+      const hasDownServices = details.some(detail => detail.status === 'down');
+      
+      setSystemStatus({
+        status: hasDownServices ? 'down' : (hasIssues ? 'issues' : 'operational'),
+        message: hasDownServices 
+          ? 'System partially down' 
+          : (hasIssues ? 'System issues detected' : 'All systems operational'),
+        details
+      });
+      */
+      
+    } catch (error) {
+      console.error('Error checking system status:', error);
+      setSystemStatus({
+        status: 'unknown',
+        message: 'Unable to determine system status',
+        details: []
+      });
+    }
+  };
 
   const handleLogin = async (e) => {
     e.preventDefault();
@@ -46,6 +163,30 @@ const LoginPage = () => {
       setError('An error occurred during login');
     } finally {
       setLoading(false);
+    }
+  };
+
+  const getStatusIcon = () => {
+    switch (systemStatus.status) {
+      case 'operational':
+        return <CheckCircleIcon className="w-4 h-4 text-green-500" />;
+      case 'issues':
+        return <AlertTriangleIcon className="w-4 h-4 text-yellow-500" />;
+      case 'down':
+        return <AlertTriangleIcon className="w-4 h-4 text-red-500" />;
+      case 'checking':
+      case 'unknown':
+      default:
+        return <ActivityIcon className="w-4 h-4 text-gray-400 animate-pulse" />;
+    }
+  };
+
+  const getStatusColor = () => {
+    switch (systemStatus.status) {
+      case 'operational': return 'text-green-600';
+      case 'issues': return 'text-yellow-600';
+      case 'down': return 'text-red-600';
+      default: return 'text-gray-500';
     }
   };
 
@@ -176,10 +317,57 @@ const LoginPage = () => {
 
           <div className="mt-8">
             <Divider className="my-4" />
-            <div className="flex items-center justify-center gap-4 text-sm text-gray-500">
-              <ActivityIcon className="w-4 h-4" />
-              <span>System Status: Operational</span>
-            </div>
+            <Tooltip 
+              content={
+                <div className="p-2 max-w-xs">
+                  <p className="font-medium mb-2">System Status:</p>
+                  <ul className="space-y-1 max-h-[200px] overflow-y-auto">
+                    {systemStatus.details.length > 0 ? (
+                      systemStatus.details.slice(0, 5).map((detail, index) => (
+                        <li key={index} className="flex items-center text-sm">
+                          <span className={
+                            detail.status === 'operational' ? 'text-green-500' : 
+                            (detail.status === 'issues' ? 'text-yellow-500' : 'text-red-500')
+                          }>●</span>
+                          <span className="ml-2">{detail.name}: {detail.message}</span>
+                        </li>
+                      ))
+                    ) : (
+                      <li>No detailed status information available</li>
+                    )}
+                    {systemStatus.details.length > 5 && (
+                      <li className="text-xs text-gray-500 mt-1">
+                        {systemStatus.details.length - 5} more services...
+                      </li>
+                    )}
+                  </ul>
+                  <div className="flex justify-between items-center mt-2">
+                    <p className="text-xs text-gray-400">Last checked: {new Date().toLocaleTimeString()}</p>
+                    <p className="text-xs text-gray-400">v1.0</p>
+                  </div>
+                </div>
+              }
+              placement="bottom"
+            >
+              <div className="flex items-center justify-center gap-4 text-sm cursor-help">
+                {getStatusIcon()}
+                <span className={getStatusColor()}>System Status: {systemStatus.message}</span>
+                {systemStatus.status !== 'checking' && (
+                  <Button 
+                    isIconOnly 
+                    size="sm" 
+                    variant="light" 
+                    onClick={(e) => {
+                      e.preventDefault();
+                      checkSystemStatus();
+                    }}
+                    className="p-0 min-w-0 h-auto"
+                  >
+                    <ActivityIcon className="w-3 h-3 text-gray-400" />
+                  </Button>
+                )}
+              </div>
+            </Tooltip>
           </div>
         </motion.div>
       </div>
