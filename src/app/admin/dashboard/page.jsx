@@ -1,6 +1,6 @@
 "use client"
 import { motion } from "framer-motion"
-import { Car, FileText, BarChart3 } from 'lucide-react'
+import { Car, FileText, BarChart3, HelpCircle } from 'lucide-react'
 import { Button } from "@nextui-org/react"
 import { useRouter } from 'next/navigation'
 import { useAuth } from "@/hooks/useAuth"

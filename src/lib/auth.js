@@ -12,6 +12,7 @@ export async function verifyAuth(request) {
     const token = cookieStore.get('admin_token');
 
     if (!token) {
+      console.log('No token found');
       return { success: false };
     }
 

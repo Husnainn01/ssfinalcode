@@ -1,5 +1,5 @@
 "use client";
-import { FaHome, FaCar, FaPlus, FaList, FaBlogger, FaTags, FaUserShield, FaGlobe, FaImages, FaShippingFast, FaAnchor } from 'react-icons/fa';
+import { FaHome, FaCar, FaPlus, FaList, FaBlogger, FaTags, FaUserShield, FaGlobe, FaImages, FaShippingFast, FaAnchor, FaQuestionCircle } from 'react-icons/fa';
 import { IoIosColorPalette } from "react-icons/io";
 import { SiRollsroyce } from "react-icons/si";
 import { GiCarDoor } from "react-icons/gi";
@@ -107,6 +107,19 @@ const AdminMenu = ({ children }) => {
                 href="/admin/dashboard/blog/cat" 
                 icon={FaTags} 
                 label="Categories" 
+              />
+            </MenuSection>
+
+            <MenuSection title="Q&A Management">
+              <MenuItem 
+                href="/admin/dashboard/qna" 
+                icon={FaQuestionCircle} 
+                label="All Q&A" 
+              />
+              <MenuItem 
+                href="/admin/dashboard/qna/new" 
+                icon={FaPlus} 
+                label="Add New Q&A" 
               />
             </MenuSection>
 
