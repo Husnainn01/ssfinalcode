@@ -1,5 +1,5 @@
 "use client";
-import { FaHome, FaCar, FaPlus, FaList, FaBlogger, FaTags, FaUserShield, FaGlobe, FaImages, FaShippingFast, FaAnchor, FaQuestionCircle } from 'react-icons/fa';
+import { FaHome, FaCar, FaPlus, FaList, FaBlogger, FaTags, FaUserShield, FaGlobe, FaImages, FaShippingFast, FaAnchor, FaQuestionCircle, FaBullhorn } from 'react-icons/fa';
 import { IoIosColorPalette } from "react-icons/io";
 import { SiRollsroyce } from "react-icons/si";
 import { GiCarDoor } from "react-icons/gi";
@@ -120,6 +120,19 @@ const AdminMenu = ({ children }) => {
                 href="/admin/dashboard/qna/new" 
                 icon={FaPlus} 
                 label="Add New Q&A" 
+              />
+            </MenuSection>
+
+            <MenuSection title="Notices">
+              <MenuItem 
+                href="/admin/dashboard/notices" 
+                icon={FaBullhorn} 
+                label="All Notices" 
+              />
+              <MenuItem 
+                href="/admin/dashboard/notices/new" 
+                icon={FaPlus} 
+                label="Add New Notice" 
               />
             </MenuSection>
 

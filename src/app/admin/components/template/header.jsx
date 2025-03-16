@@ -39,12 +39,12 @@ export default function Header() {
     <>
       <header className="sticky top-0 z-50 bg-gradient-to-r from-gray-900 to-gray-800 text-white shadow-lg">
         <div className="max-w-[2520px] mx-auto">
-          <div className="flex items-center justify-between px-4 md:px-8 py-4">
+          <div className="flex items-center justify-between px-4 md:px-8 py-3">
             <Link href="/" className="flex items-center space-x-3">
               <img 
-                src="/hswlogo.svg" 
+                src="/newlogo3.png" 
                 alt="HSW Global Logo" 
-                className="h-8 w-auto transition-transform duration-200 hover:scale-105" 
+                className="h-20 md:h-20 w-auto transition-transform duration-200 hover:scale-105" 
               />
               <span className="hidden md:block font-semibold text-xl">
                 Admin Dashboard

@@ -6,6 +6,7 @@ import { FavoritesProvider } from '@/context/FavoritesContext'
 import { SpeedInsights } from "@vercel/speed-insights/next"
 import { Analytics } from "@vercel/analytics/react"
 import GoogleAnalytics from '@/components/GoogleAnalytics'
+import NoticeBar from '@/components/ui/NoticeBar'
 
 const inter = Inter({ subsets: ['latin'] })
 
@@ -24,6 +25,7 @@ export default function RootLayout({ children }) {
         />
       </head>
       <body className={inter.className}>
+        <NoticeBar />
         <FavoritesProvider>
           <RootLayoutClient>
             {children}
