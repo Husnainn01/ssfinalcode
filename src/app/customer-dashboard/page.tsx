@@ -130,9 +130,8 @@ export default function CustomerDashboard() {
     },
     {
       title: "Active Shipments",
-      value: "Coming Soon",
+      value: "0",
       icon: <Truck className="h-4 w-4 text-blue-500" />,
-      comingSoon: true,
       href: '/customer-dashboard/track-shipment'
     },
     {
@@ -264,20 +263,8 @@ export default function CustomerDashboard() {
           variants={itemVariants}
           className="relative bg-white rounded-xl shadow-sm p-6 transition-all hover:shadow-md"
         >
-          {/* Blur overlay */}
-          <div className="absolute inset-0 bg-white/80 backdrop-blur-sm rounded-xl z-10 flex items-center justify-center">
-            <motion.div
-              initial={{ opacity: 0, scale: 0.9 }}
-              animate={{ opacity: 1, scale: 1 }}
-              className="text-center"
-            >
-              <Construction className="w-12 h-12 text-primary mx-auto mb-3" />
-              <h3 className="text-xl font-semibold text-gray-900 mb-2">Coming Soon</h3>
-              <p className="text-sm text-gray-500">Shipment tracking will be available shortly</p>
-            </motion.div>
-          </div>
-
-          {/* Original content (blurred) */}
+          {/* Removed blur overlay for shipment tracking */}
+          
           <motion.h3 
             className="text-lg font-semibold mb-4"
             whileHover={{ x: 5 }}

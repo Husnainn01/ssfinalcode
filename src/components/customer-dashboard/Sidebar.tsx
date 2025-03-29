@@ -13,7 +13,9 @@ import {
   ChevronRight,
   Package,
   FileText,
-  Search
+  Search,
+  MessageSquare,
+  Car
 } from "lucide-react"
 import { cn } from "@/lib/utils"
 
@@ -34,28 +36,37 @@ const menuItems = [
     href: "/customer-dashboard/favorites" 
   },
   { 
-    icon: ShoppingBag, 
-    label: "Create Order", 
-    href: "/customer-dashboard/create-order",
-    comingSoon: true
+    icon: MessageSquare, 
+    label: "Inquiries", 
+    href: "/customer-dashboard/inquiries"
   },
+  { 
+    icon: Car, 
+    label: "My Vehicles", 
+    href: "/customer-dashboard/my-vehicles" 
+  },
+  // { 
+  //   icon: ShoppingBag, 
+  //   label: "Create Order", 
+  //   href: "/customer-dashboard/create-order",
+  //   comingSoon: true
+  // },
   { 
     icon: Search, 
     label: "Track Shipment", 
-    href: "/customer-dashboard/track-shipment",
-    comingSoon: true
+    href: "/customer-dashboard/track-shipment"
   },
-  { 
-    icon: Package, 
-    label: "My Orders", 
-    href: "/customer-dashboard/orders",
-    comingSoon: true
-  },
+  // { 
+  //   icon: Package, 
+  //   label: "My Orders", 
+  //   href: "/customer-dashboard/orders",
+  //   comingSoon: true
+  // },
+ 
   { 
     icon: FileText, 
     label: "Invoices & Documents", 
-    href: "/customer-dashboard/invoices",
-    comingSoon: true
+    href: "/customer-dashboard/invoices"
   },
   { 
     icon: User, 
@@ -92,7 +103,7 @@ export function Sidebar({ isOpen, setIsOpen }: SidebarProps) {
                     className={cn(
                       "flex items-center h-10 px-3 rounded-lg transition-colors relative group",
                       !isOpen && "justify-center",
-                      pathname === item.href 
+                      pathname === item.href || pathname.startsWith(`${item.href}/`)
                         ? "bg-gray-100 text-gray-900" 
                         : "text-gray-500 hover:bg-gray-50 hover:text-gray-900"
                     )}
@@ -101,21 +112,11 @@ export function Sidebar({ isOpen, setIsOpen }: SidebarProps) {
                     {isOpen && (
                       <div className="flex items-center ml-3">
                         <span>{item.label}</span>
-                        {item.comingSoon && (
-                          <span className="ml-2 text-xs px-1.5 py-0.5 bg-primary/10 text-primary rounded-full">
-                            Soon
-                          </span>
-                        )}
                       </div>
                     )}
                     {!isOpen && (
                       <div className="absolute left-full ml-2 px-2 py-1 bg-gray-900 text-white text-sm rounded-md opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap z-50">
                         {item.label}
-                        {item.comingSoon && (
-                          <span className="ml-1 text-xs px-1.5 py-0.5 bg-primary/20 text-primary-foreground rounded-full">
-                            Soon
-                          </span>
-                        )}
                       </div>
                     )}
                   </Link>

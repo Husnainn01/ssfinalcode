@@ -36,6 +36,14 @@ const roleSchema = new mongoose.Schema(
       roles: [{
         type: String,
         enum: ['view_roles', 'create_roles', 'edit_roles', 'delete_roles']
+      }],
+      inquiries: [{
+        type: String,
+        enum: ['view_inquiries', 'reply_inquiries', 'archive_inquiries']
+      }],
+      documents: [{
+        type: String,
+        enum: ['view_documents', 'create_documents', 'edit_documents', 'delete_documents']
       }]
     },
     status: {

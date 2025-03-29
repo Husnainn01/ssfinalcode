@@ -1,5 +1,12 @@
 import { NextResponse } from 'next/server';
 import nodemailer from 'nodemailer';
+import dbConnect from '@/lib/dbConnect';
+import mongoose from 'mongoose';
+import { cookies } from 'next/headers';
+import { jwtVerify } from 'jose';
+
+// Get the secret key in the same way as your auth system
+const secretKey = new TextEncoder().encode(process.env.JWT_SECRET || 'chendanvasu');
 
 const transporter = nodemailer.createTransport({
   host: process.env.SMTP_HOST,
@@ -167,6 +174,68 @@ export async function POST(request) {
     };
 
     await transporter.sendMail(mailOptions);
+
+    await dbConnect();
+    
+    const inquiryData = {
+      referenceId: inquiryId,
+      name,
+      email,
+      country,
+      city,
+      telephone,
+      carDetails,
+      createdAt: new Date(),
+      status: 'pending'
+    };
+    
+    const result = await mongoose.connection.db
+      .collection('inquiries')
+      .insertOne(inquiryData);
+    
+    // Check if user is logged in by examining cookies
+    const cookieStore = cookies();
+    const token = cookieStore.get('token'); // This matches your auth system
+    
+    if (token) {
+      try {
+        // Verify the token using jose like your auth system
+        const { payload } = await jwtVerify(token.value, secretKey);
+        
+        // Verify this is a customer token
+        if (payload.type === 'customer') {
+          // Get the user ID from the payload
+          const userId = payload.userId;
+          
+          // If user is logged in, also save to customerInquiries collection
+          await mongoose.connection.db
+            .collection('customerInquiries')
+            .insertOne({
+              userId: new mongoose.Types.ObjectId(userId),
+              inquiryId: result.insertedId,
+              referenceId: inquiryId,
+              subject: `Car Inquiry: ${carDetails.model} (${carDetails.year})`,
+              category: 'vehicle',
+              message: `I am interested in the ${carDetails.model} (${carDetails.year}) with stock number ${carDetails.stockNo || 'N/A'}. Please provide a quote for shipping to ${city}, ${country}.`,
+              status: 'pending',
+              createdAt: new Date(),
+              updatedAt: new Date(),
+              carDetails: {
+                id: carDetails.id,
+                model: carDetails.model,
+                year: carDetails.year,
+                price: carDetails.price,
+                make: carDetails.make,
+                images: carDetails.images?.[0] || '',
+                stockNo: carDetails.stockNo || 'N/A',
+              }
+            });
+        }
+      } catch (error) {
+        console.error('Token verification error:', error);
+        // Continue even if token verification fails
+      }
+    }
 
     return NextResponse.json({ 
       success: true, 

@@ -2,6 +2,7 @@ import { NextResponse } from 'next/server';
 import dbConnect from '@/lib/dbConnect';
 import AdminUser from '@/models/AdminUser';
 import { SignJWT } from 'jose';
+import { rateLimit } from '@/lib/rate-limit';
 
 const SECRET_KEY = new TextEncoder().encode('chendanvasu');
 
@@ -12,8 +13,31 @@ const VALID_ROLES = {
   'role_viewer': 'viewer'
 };
 
+// Configure the rate limiter for login
+const loginLimiter = rateLimit({
+  interval: 60 * 1000, // 1 minute
+  uniqueTokenPerInterval: 500, // Max 500 users per interval
+});
+
 export async function POST(request) {
   try {
+    // Get client IP for rate limiting
+    const ip = request.headers.get('x-forwarded-for') || 'unknown';
+    const loginToken = `login_${ip}`;
+    
+    // Apply rate limiting - 5 login attempts per minute per IP
+    try {
+      await loginLimiter.check(request, 5, loginToken);
+    } catch {
+      return NextResponse.json(
+        { 
+          success: false, 
+          message: 'Too many login attempts. Please try again in a minute.'
+        }, 
+        { status: 429 }
+      );
+    }
+    
     console.log('Connecting to database...');
     await dbConnect();
     console.log('Database connected');

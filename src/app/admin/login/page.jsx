@@ -139,6 +139,7 @@ const LoginPage = () => {
     setLoading(true);
 
     try {
+      console.log('Sending login request to API');
       const response = await fetch('/api/admin/auth/login', {
         method: 'POST',
         headers: {
@@ -148,9 +149,16 @@ const LoginPage = () => {
         credentials: 'include'
       });
 
+      console.log('API Response Status:', response.status);
+      console.log('API Response Headers:', Object.fromEntries([...response.headers]));
+      
       const data = await response.json();
+      console.log('API Response Data:', data);
       
       if (response.ok && data.success) {
+        // Check if cookies were set
+        console.log('Cookies after login:', document.cookie);
+        
         auth.setIsAuthenticated(true);
         auth.setAuthChecked(true);
         auth.setUser(data.user);
@@ -159,8 +167,8 @@ const LoginPage = () => {
         setError(data.message || 'Invalid credentials');
       }
     } catch (error) {
-      console.error('Login error:', error);
-      setError('An error occurred during login');
+      console.error('Login error details:', error);
+      setError(`An error occurred during login: ${error.message}`);
     } finally {
       setLoading(false);
     }

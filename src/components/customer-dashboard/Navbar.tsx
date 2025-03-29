@@ -20,8 +20,8 @@ interface NavbarProps {
   toggleSidebar: () => void
 }
 
-// Update the type definitions to keep them for future use
-type NotificationType = 'order' | 'document' | 'payment' | 'system' | 'alert' | 'update'
+// Update the type definitions
+type NotificationType = 'inquiry' | 'order' | 'document' | 'payment' | 'system' | 'alert' | 'update'
 
 interface NotificationDetail {
   label: string
@@ -29,66 +29,196 @@ interface NotificationDetail {
 }
 
 interface Notification {
-  id: number
+  _id: string
+  userId: string
   title: string
   message: string
-  time: string
-  isRead: boolean
   type: NotificationType
+  inquiryId?: string
+  createdAt: string
+  isRead: boolean
   details?: NotificationDetail[]
   priority?: 'low' | 'medium' | 'high'
 }
-
-// Replace hardcoded data with empty array
-const initialNotifications: Notification[] = []
 
 export function Navbar({ toggleSidebar }: NavbarProps) {
   const router = useRouter()
   const { toast } = useToast()
   const { user, isAuthenticated, isLoading } = useCustomerAuth()
-  const [notifications, setNotifications] = useState<Notification[]>(initialNotifications)
+  const [notifications, setNotifications] = useState<Notification[]>([])
   const [isOpen, setIsOpen] = useState(false)
   const [notificationSound, setNotificationSound] = useState<HTMLAudioElement | null>(null)
-  const [expandedNotification, setExpandedNotification] = useState<number | null>(null)
+  const [expandedNotification, setExpandedNotification] = useState<string | null>(null)
+  const [isLoadingNotifications, setIsLoadingNotifications] = useState(false)
 
   useEffect(() => {
     // Initialize Audio object on client side only
     if (typeof window !== 'undefined') {
-      setNotificationSound(new Audio("/sounds/notification.mp3"))
+      setNotificationSound(new Audio("/sounds/notification.wav"))
     }
   }, [])
 
-  const unreadCount = notifications.filter(n => !n.isRead).length
+  // Fetch notifications when dropdown is opened
+  useEffect(() => {
+    if (isOpen && isAuthenticated) {
+      fetchNotifications()
+    }
+  }, [isOpen, isAuthenticated])
 
-  const markAsRead = (notificationId: number) => {
-    setNotifications(prev => 
-      prev.map(notification => 
-        notification.id === notificationId 
-          ? { ...notification, isRead: true }
-          : notification
-      )
-    )
+  // Set up polling for new notifications
+  useEffect(() => {
+    if (isAuthenticated) {
+      // Initial fetch
+      fetchUnreadCount()
+      
+      // Set up polling every 30 seconds
+      const interval = setInterval(() => {
+        fetchUnreadCount()
+      }, 30000)
+      
+      return () => clearInterval(interval)
+    }
+  }, [isAuthenticated])
+
+  const fetchNotifications = async () => {
+    setIsLoadingNotifications(true)
+    try {
+      const response = await fetch('/api/customer/notifications', {
+        credentials: 'include'
+      })
+      
+      if (response.ok) {
+        const data = await response.json()
+        if (data.success) {
+          setNotifications(data.notifications)
+        }
+      }
+    } catch (error) {
+      console.error('Error fetching notifications:', error)
+    } finally {
+      setIsLoadingNotifications(false)
+    }
   }
 
-  const deleteNotification = (notificationId: number, e: React.MouseEvent) => {
+  const fetchUnreadCount = async () => {
+    try {
+      const response = await fetch('/api/customer/notifications?unreadOnly=true&limit=1', {
+        credentials: 'include'
+      })
+      
+      if (response.ok) {
+        const data = await response.json()
+        if (data.success && data.unreadCount > 0) {
+          // If there are new unread notifications since our last check
+          const currentUnreadCount = notifications.filter(n => !n.isRead).length
+          if (data.unreadCount > currentUnreadCount) {
+            // Play sound for new notifications
+            playNotificationSound()
+            // Fetch all notifications to update the list
+            fetchNotifications()
+          }
+        }
+      }
+    } catch (error) {
+      console.error('Error fetching unread count:', error)
+    }
+  }
+
+  const unreadCount = notifications.filter(n => !n.isRead).length
+
+  const markAsRead = async (notificationId: string) => {
+    try {
+      const response = await fetch('/api/customer/notifications', {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({ notificationId }),
+        credentials: 'include'
+      })
+      
+      if (response.ok) {
+        setNotifications(prev => 
+          prev.map(notification => 
+            notification._id === notificationId 
+              ? { ...notification, isRead: true }
+              : notification
+          )
+        )
+      }
+    } catch (error) {
+      console.error('Error marking notification as read:', error)
+    }
+  }
+
+  const deleteNotification = async (notificationId: string, e: React.MouseEvent) => {
     e.stopPropagation()
-    setNotifications(prev => prev.filter(n => n.id !== notificationId))
-    toast({
-      title: "Notification deleted",
-      description: "The notification has been removed",
-    })
+    try {
+      const response = await fetch('/api/customer/notifications', {
+        method: 'DELETE',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({ notificationId }),
+        credentials: 'include'
+      })
+      
+      if (response.ok) {
+        setNotifications(prev => prev.filter(n => n._id !== notificationId))
+        toast({
+          title: "Notification deleted",
+          description: "The notification has been removed",
+        })
+      }
+    } catch (error) {
+      console.error('Error deleting notification:', error)
+      toast({
+        title: "Error",
+        description: "Failed to delete notification",
+        variant: "destructive"
+      })
+    }
   }
 
   const handleNotificationClick = (notification: Notification) => {
-    markAsRead(notification.id)
+    // Mark as read
+    if (!notification.isRead) {
+      markAsRead(notification._id)
+    }
+    
+    // Navigate to the appropriate page based on notification type
+    if (notification.type === 'inquiry' && notification.inquiryId) {
+      router.push(`/customer-dashboard/inquiries/${notification.inquiryId}`)
+      setIsOpen(false)
+    }
   }
 
-  const markAllAsRead = () => {
-    setNotifications(prev => prev.map(n => ({ ...n, isRead: true })))
-    toast({
-      title: "All notifications marked as read",
-      description: "Your notifications have been updated",
-    })
+  const markAllAsRead = async () => {
+    try {
+      const response = await fetch('/api/customer/notifications', {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({ markAll: true }),
+        credentials: 'include'
+      })
+      
+      if (response.ok) {
+        setNotifications(prev => prev.map(n => ({ ...n, isRead: true })))
+        toast({
+          title: "All notifications marked as read",
+          description: "Your notifications have been updated",
+        })
+      }
+    } catch (error) {
+      console.error('Error marking all as read:', error)
+      toast({
+        title: "Error",
+        description: "Failed to update notifications",
+        variant: "destructive"
+      })
+    }
   }
 
   const handleLogout = async () => {
@@ -151,18 +281,31 @@ export function Navbar({ toggleSidebar }: NavbarProps) {
     }
   }
 
-  const addNotification = (newNotification: Notification) => {
-    setNotifications(prev => [newNotification, ...prev])
-    if (!document.hidden) {
-      playNotificationSound()
-    }
-  }
-
-  const toggleNotificationDetails = (notificationId: number, e: React.MouseEvent) => {
+  const toggleNotificationDetails = (notificationId: string, e: React.MouseEvent) => {
     e.stopPropagation()
     setExpandedNotification(current => 
       current === notificationId ? null : notificationId
     )
+  }
+
+  // Format date for notifications
+  const formatNotificationDate = (dateString: string) => {
+    const date = new Date(dateString)
+    const now = new Date()
+    const diffMs = now.getTime() - date.getTime()
+    const diffMins = Math.round(diffMs / 60000)
+    const diffHours = Math.round(diffMs / 3600000)
+    const diffDays = Math.round(diffMs / 86400000)
+    
+    if (diffMins < 1) return 'Just now'
+    if (diffMins < 60) return `${diffMins}m ago`
+    if (diffHours < 24) return `${diffHours}h ago`
+    if (diffDays < 7) return `${diffDays}d ago`
+    
+    return date.toLocaleDateString('en-US', {
+      month: 'short',
+      day: 'numeric'
+    })
   }
 
   return (
@@ -227,124 +370,134 @@ export function Navbar({ toggleSidebar }: NavbarProps) {
                   )}
                 </div>
                 <div className="max-h-[300px] overflow-y-auto">
-                  <AnimatePresence>
-                    {notifications.length > 0 ? (
-                      notifications.map((notification) => (
-                        <motion.div
-                          key={notification.id}
-                          initial={{ opacity: 0, y: -10 }}
-                          animate={{ opacity: 1, y: 0 }}
-                          exit={{ opacity: 0, height: 0 }}
-                          transition={{ duration: 0.2 }}
-                        >
-                          <DropdownMenuItem
-                            className={cn(
-                              "p-3 cursor-pointer hover:bg-gray-50 transition-colors relative group",
-                              !notification.isRead && "bg-blue-50/50"
-                            )}
-                            onClick={() => handleNotificationClick(notification)}
+                  {isLoadingNotifications ? (
+                    <div className="p-4 text-center">
+                      <div className="animate-spin rounded-full h-6 w-6 border-t-2 border-b-2 border-blue-500 mx-auto"></div>
+                      <p className="text-sm text-gray-500 mt-2">Loading notifications...</p>
+                    </div>
+                  ) : (
+                    <AnimatePresence>
+                      {notifications.length > 0 ? (
+                        notifications.map((notification) => (
+                          <motion.div
+                            key={notification._id}
+                            initial={{ opacity: 0, y: -10 }}
+                            animate={{ opacity: 1, y: 0 }}
+                            exit={{ opacity: 0, height: 0 }}
+                            transition={{ duration: 0.2 }}
                           >
-                            <div className="flex flex-col space-y-1">
-                              <div className="flex items-center justify-between">
-                                <p className="font-medium text-sm">{notification.title}</p>
-                                <span className="text-xs text-gray-400">{notification.time}</span>
-                              </div>
-                              <p className="text-sm text-gray-600">{notification.message}</p>
-                              
-                              {notification.details && (
-                                <div className="mt-2">
-                                  <button
-                                    onClick={(e) => toggleNotificationDetails(notification.id, e)}
-                                    className="text-xs text-blue-500 hover:text-blue-600 flex items-center"
-                                  >
-                                    {expandedNotification === notification.id ? (
-                                      <>
-                                        <ChevronUp className="h-3 w-3 mr-1" />
-                                        Hide details
-                                      </>
-                                    ) : (
-                                      <>
-                                        <ChevronDown className="h-3 w-3 mr-1" />
-                                        View details
-                                      </>
-                                    )}
-                                  </button>
-                                  
-                                  <AnimatePresence>
-                                    {expandedNotification === notification.id && (
-                                      <motion.div
-                                        initial={{ height: 0, opacity: 0 }}
-                                        animate={{ height: "auto", opacity: 1 }}
-                                        exit={{ height: 0, opacity: 0 }}
-                                        transition={{ duration: 0.2 }}
-                                        className="mt-2 pt-2 border-t"
-                                      >
-                                        <div className="space-y-2">
-                                          {notification.details.map((detail, index) => (
-                                            <div key={index} className="flex justify-between text-xs">
-                                              <span className="text-gray-500">{detail.label}:</span>
-                                              <span className="font-medium">{detail.value}</span>
-                                            </div>
-                                          ))}
-                                        </div>
-                                      </motion.div>
-                                    )}
-                                  </AnimatePresence>
-                                </div>
+                            <DropdownMenuItem
+                              className={cn(
+                                "p-3 cursor-pointer hover:bg-gray-50 transition-colors relative group",
+                                !notification.isRead && "bg-blue-50/50"
                               )}
-                              
-                              <div className="flex items-center justify-between mt-2 opacity-0 group-hover:opacity-100 transition-opacity">
+                              onClick={() => handleNotificationClick(notification)}
+                            >
+                              <div className="flex flex-col space-y-1">
+                                <div className="flex items-center justify-between">
+                                  <p className="font-medium text-sm">{notification.title}</p>
+                                  <span className="text-xs text-gray-400">
+                                    {formatNotificationDate(notification.createdAt)}
+                                  </span>
+                                </div>
+                                <p className="text-sm text-gray-600">{notification.message}</p>
+                                
                                 {notification.details && (
-                                  <button 
-                                    className="text-xs text-blue-500 hover:text-blue-600 flex items-center"
-                                    onClick={(e) => {
-                                      e.stopPropagation()
-                                      // router.push(notification.link!)
-                                    }}
-                                  >
-                                    <ExternalLink className="h-3 w-3 mr-1" />
-                                    View details
-                                  </button>
-                                )}
-                                <div className="flex items-center space-x-2">
-                                  {!notification.isRead && (
+                                  <div className="mt-2">
                                     <button
+                                      onClick={(e) => toggleNotificationDetails(notification._id, e)}
+                                      className="text-xs text-blue-500 hover:text-blue-600 flex items-center"
+                                    >
+                                      {expandedNotification === notification._id ? (
+                                        <>
+                                          <ChevronUp className="h-3 w-3 mr-1" />
+                                          Hide details
+                                        </>
+                                      ) : (
+                                        <>
+                                          <ChevronDown className="h-3 w-3 mr-1" />
+                                          View details
+                                        </>
+                                      )}
+                                    </button>
+                                    
+                                    <AnimatePresence>
+                                      {expandedNotification === notification._id && (
+                                        <motion.div
+                                          initial={{ height: 0, opacity: 0 }}
+                                          animate={{ height: "auto", opacity: 1 }}
+                                          exit={{ height: 0, opacity: 0 }}
+                                          transition={{ duration: 0.2 }}
+                                          className="mt-2 pt-2 border-t"
+                                        >
+                                          <div className="space-y-2">
+                                            {notification.details.map((detail, index) => (
+                                              <div key={index} className="flex justify-between text-xs">
+                                                <span className="text-gray-500">{detail.label}:</span>
+                                                <span className="font-medium">{detail.value}</span>
+                                              </div>
+                                            ))}
+                                          </div>
+                                        </motion.div>
+                                      )}
+                                    </AnimatePresence>
+                                  </div>
+                                )}
+                                
+                                <div className="flex items-center justify-between mt-2 opacity-0 group-hover:opacity-100 transition-opacity">
+                                  {notification.type === 'inquiry' && notification.inquiryId && (
+                                    <button 
+                                      className="text-xs text-blue-500 hover:text-blue-600 flex items-center"
                                       onClick={(e) => {
                                         e.stopPropagation()
-                                        markAsRead(notification.id)
+                                        router.push(`/customer-dashboard/inquiries/${notification.inquiryId}`)
+                                        setIsOpen(false)
                                       }}
-                                      className="text-xs text-green-500 hover:text-green-600 flex items-center"
                                     >
-                                      <CheckCircle className="h-3 w-3 mr-1" />
-                                      Mark as read
+                                      <ExternalLink className="h-3 w-3 mr-1" />
+                                      View inquiry
                                     </button>
                                   )}
-                                  <button
-                                    onClick={(e) => deleteNotification(notification.id, e)}
-                                    className="text-xs text-red-500 hover:text-red-600 flex items-center"
-                                  >
-                                    <Trash2 className="h-3 w-3 mr-1" />
-                                    Delete
-                                  </button>
+                                  <div className="flex items-center space-x-2">
+                                    {!notification.isRead && (
+                                      <button
+                                        onClick={(e) => {
+                                          e.stopPropagation()
+                                          markAsRead(notification._id)
+                                        }}
+                                        className="text-xs text-green-500 hover:text-green-600 flex items-center"
+                                      >
+                                        <CheckCircle className="h-3 w-3 mr-1" />
+                                        Mark as read
+                                      </button>
+                                    )}
+                                    <button
+                                      onClick={(e) => deleteNotification(notification._id, e)}
+                                      className="text-xs text-red-500 hover:text-red-600 flex items-center"
+                                    >
+                                      <Trash2 className="h-3 w-3 mr-1" />
+                                      Delete
+                                    </button>
+                                  </div>
                                 </div>
                               </div>
-                            </div>
-                            {!notification.isRead && (
-                              <span className="h-2 w-2 bg-blue-500 rounded-full absolute right-2 top-4" />
-                            )}
-                          </DropdownMenuItem>
+                              {!notification.isRead && (
+                                <span className="h-2 w-2 bg-blue-500 rounded-full absolute right-2 top-4" />
+                              )}
+                            </DropdownMenuItem>
+                          </motion.div>
+                        ))
+                      ) : (
+                        <motion.div
+                          initial={{ opacity: 0 }}
+                          animate={{ opacity: 1 }}
+                          className="p-4 text-center text-gray-500"
+                        >
+                          No notifications
                         </motion.div>
-                      ))
-                    ) : (
-                      <motion.div
-                        initial={{ opacity: 0 }}
-                        animate={{ opacity: 1 }}
-                        className="p-4 text-center text-gray-500"
-                      >
-                        No notifications
-                      </motion.div>
-                    )}
-                  </AnimatePresence>
+                      )}
+                    </AnimatePresence>
+                  )}
                 </div>
               </DropdownMenuContent>
             </DropdownMenu>

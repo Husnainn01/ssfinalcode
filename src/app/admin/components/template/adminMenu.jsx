@@ -1,5 +1,6 @@
 "use client";
-import { FaHome, FaCar, FaPlus, FaList, FaBlogger, FaTags, FaUserShield, FaGlobe, FaImages, FaShippingFast, FaAnchor, FaQuestionCircle, FaBullhorn } from 'react-icons/fa';
+import { FaHome, FaCar, FaPlus, FaList, FaBlogger, FaTags, FaUserShield, FaGlobe, FaImages, FaShippingFast, FaAnchor, FaQuestionCircle, FaBullhorn, FaInbox, FaComments, FaUsers } from 'react-icons/fa';
+import { FileText } from 'lucide-react';
 import { IoIosColorPalette } from "react-icons/io";
 import { SiRollsroyce } from "react-icons/si";
 import { GiCarDoor } from "react-icons/gi";
@@ -107,6 +108,47 @@ const AdminMenu = ({ children }) => {
                 href="/admin/dashboard/blog/cat" 
                 icon={FaTags} 
                 label="Categories" 
+              />
+            </MenuSection>
+
+            <MenuSection title="Customer Support">
+              <MenuItem 
+                href="/admin/dashboard/inquiries" 
+                icon={FaInbox} 
+                label="Customer Inquiries" 
+              />
+              <MenuItem 
+                href="/admin/dashboard/inquiries/archived" 
+                icon={FaComments} 
+                label="Archived Inquiries" 
+              />
+            </MenuSection>
+
+            <MenuSection title="Customer Management">
+              <MenuItem 
+                href="/admin/dashboard/customers" 
+                icon={FaUsers} 
+                label="All Customers" 
+              />
+              <MenuItem 
+                href="/admin/dashboard/vehicles" 
+                icon={FaCar} 
+                label="Customer Vehicles" 
+              />
+              <MenuItem 
+                href="/admin/dashboard/vehicles/add" 
+                icon={FaPlus} 
+                label="Add Vehicle" 
+              />
+              <MenuItem 
+                href="/admin/dashboard/vehicles/documents" 
+                icon={FileText} 
+                label="Vehicle Documents" 
+              />
+              <MenuItem 
+                href="/admin/dashboard/vehicles/shipping" 
+                icon={FaShippingFast} 
+                label="Vehicle Shipping" 
               />
             </MenuSection>
 

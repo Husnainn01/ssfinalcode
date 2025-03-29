@@ -1,9 +1,12 @@
 import { SignJWT, jwtVerify } from 'jose';
 import { cookies } from 'next/headers';
 import AdminUser from '@/models/AdminUser';
-import dbConnect from './mongodb';
+import dbConnect from './dbConnect';
 
-const secretKey = new TextEncoder().encode(process.env.JWT_SECRET || 'chendanvasu');
+const getSecretKey = () => {
+  const secret = process.env.JWT_SECRET || 'chendanvasu';
+  return new TextEncoder().encode(secret);
+};
 
 export async function verifyAuth(request) {
   try {
@@ -16,7 +19,12 @@ export async function verifyAuth(request) {
       return { success: false };
     }
 
-    const { payload } = await jwtVerify(token.value, secretKey);
+    const { payload } = await jwtVerify(token.value, getSecretKey());
+
+    // Verify if it's an admin token
+    if (!payload.role || !['admin', 'editor', 'viewer'].includes(payload.role)) {
+      return { success: false };
+    }
 
     const user = await AdminUser.findById(payload.userId)
       .select('-password')
@@ -51,5 +59,5 @@ export async function createAdminToken(user) {
   })
     .setProtectedHeader({ alg: 'HS256' })
     .setExpirationTime('24h')
-    .sign(secretKey);
+    .sign(getSecretKey());
 }
