@@ -24,6 +24,7 @@ export async function GET(request) {
     const category = searchParams.get('category');
     const search = searchParams.get('search');
     const sort = searchParams.get('sort') || 'newest';
+    const archived = searchParams.get('archived') || 'false';
     const page = parseInt(searchParams.get('page') || '1');
     const limit = parseInt(searchParams.get('limit') || '50');
     
@@ -40,22 +41,37 @@ export async function GET(request) {
       query.category = category;
     }
     
+    // Archived filter
+    if (archived === 'true') {
+      query.isArchived = true;
+    } else {
+      // For non-archived inquiries, include both where isArchived is false 
+      // AND where isArchived doesn't exist
+      query.$or = [
+        { isArchived: false },
+        { isArchived: { $exists: false } }
+      ];
+    }
+    
     // Search filter
     if (search) {
       query.$or = [
         { subject: { $regex: search, $options: 'i' } },
-        { 'customer.name': { $regex: search, $options: 'i' } },
-        { 'customer.email': { $regex: search, $options: 'i' } },
+        { customerName: { $regex: search, $options: 'i' } },
+        { customerEmail: { $regex: search, $options: 'i' } },
         { referenceId: { $regex: search, $options: 'i' } }
       ];
     }
     
+    // Use the correct collection - customerInquiries
+    const inquiryCollection = mongoose.connection.db.collection('customerInquiries');
+    
     // Count total documents for each status
     const counts = await Promise.all([
-      mongoose.connection.db.collection('customerInquiries').countDocuments({}),
-      mongoose.connection.db.collection('customerInquiries').countDocuments({ status: 'pending' }),
-      mongoose.connection.db.collection('customerInquiries').countDocuments({ status: 'answered' }),
-      mongoose.connection.db.collection('customerInquiries').countDocuments({ status: 'closed' })
+      inquiryCollection.countDocuments({ isArchived: false }),
+      inquiryCollection.countDocuments({ status: 'pending', isArchived: false }),
+      inquiryCollection.countDocuments({ status: 'answered', isArchived: false }),
+      inquiryCollection.countDocuments({ status: 'closed', isArchived: false })
     ]);
     
     // Get sort order
@@ -82,8 +98,7 @@ export async function GET(request) {
     
     // Get inquiries with pagination
     const skip = (page - 1) * limit;
-    const inquiries = await mongoose.connection.db
-      .collection('customerInquiries')
+    const inquiries = await inquiryCollection
       .find(query)
       .sort(sortOrder)
       .skip(skip)
@@ -101,6 +116,8 @@ export async function GET(request) {
         unreadMessages
       };
     });
+    
+    console.log("Fetching inquiries with query:", JSON.stringify(query, null, 2));
     
     return NextResponse.json({
       success: true,

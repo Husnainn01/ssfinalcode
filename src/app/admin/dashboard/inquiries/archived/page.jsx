@@ -9,10 +9,11 @@ import {
   FaSort, 
   FaEye, 
   FaReply, 
-  FaArchive,
+  FaUndo,
   FaSpinner,
   FaCar,
-  FaQuestionCircle
+  FaQuestionCircle,
+  FaArrowLeft
 } from "react-icons/fa";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -27,7 +28,6 @@ import {
 import {
   Card,
   CardContent,
-  CardDescription,
   CardFooter,
   CardHeader,
   CardTitle,
@@ -41,18 +41,8 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { toast } from "@/components/ui/use-toast";
-import {
-  AlertDialog,
-  AlertDialogAction,
-  AlertDialogCancel,
-  AlertDialogContent,
-  AlertDialogDescription,
-  AlertDialogFooter,
-  AlertDialogHeader,
-  AlertDialogTitle,
-} from "@/components/ui/alert-dialog";
 
-// Types
+// Same types as main inquiries page
 const statusColors = {
   pending: "bg-yellow-100 text-yellow-800 border-yellow-200",
   answered: "bg-green-100 text-green-800 border-green-200",
@@ -65,7 +55,7 @@ const categoryIcons = {
   support: <FaInbox className="w-4 h-4 mr-2" />
 };
 
-export default function InquiriesListPage() {
+export default function ArchivedInquiriesPage() {
   const router = useRouter();
   const [inquiries, setInquiries] = useState([]);
   const [filteredInquiries, setFilteredInquiries] = useState([]);
@@ -74,24 +64,17 @@ export default function InquiriesListPage() {
   const [statusFilter, setStatusFilter] = useState("all");
   const [categoryFilter, setCategoryFilter] = useState("all");
   const [sortBy, setSortBy] = useState("newest");
-  const [totalCount, setTotalCount] = useState({
-    all: 0,
-    pending: 0,
-    answered: 0,
-    closed: 0
-  });
-  const [archiveDialogOpen, setArchiveDialogOpen] = useState(false);
-  const [inquiryToArchive, setInquiryToArchive] = useState(null);
+  const [totalCount, setTotalCount] = useState(0);
 
   useEffect(() => {
-    fetchInquiries();
+    fetchArchivedInquiries();
   }, []);
 
   useEffect(() => {
     filterAndSortInquiries();
   }, [inquiries, searchQuery, statusFilter, categoryFilter, sortBy]);
 
-  const fetchInquiries = async () => {
+  const fetchArchivedInquiries = async () => {
     setIsLoading(true);
     try {
       // Build query parameters
@@ -100,7 +83,8 @@ export default function InquiriesListPage() {
       if (categoryFilter !== "all") params.append("category", categoryFilter);
       if (searchQuery) params.append("search", searchQuery);
       params.append("sort", sortBy);
-      params.append("archived", "false");
+      // This is key - fetch archived inquiries
+      params.append("archived", "true");
       
       const response = await fetch(`/api/admin/inquiries?${params.toString()}`, {
         credentials: 'include'
@@ -110,22 +94,17 @@ export default function InquiriesListPage() {
       
       if (response.ok && data.success) {
         setInquiries(data.inquiries || []);
-        setTotalCount(data.counts || {
-          all: 0,
-          pending: 0,
-          answered: 0,
-          closed: 0
-        });
+        setTotalCount(data.inquiries?.length || 0);
       } else {
         console.error("API Error:", data);
         toast({
           title: `Error (${response.status})`,
-          description: data.message || "Failed to load inquiries. Please try again.",
+          description: data.message || "Failed to load archived inquiries. Please try again.",
           variant: "destructive"
         });
       }
     } catch (error) {
-      console.error("Error fetching inquiries:", error);
+      console.error("Error fetching archived inquiries:", error);
       toast({
         title: "Error",
         description: "An unexpected error occurred. Please try again.",
@@ -169,10 +148,8 @@ export default function InquiriesListPage() {
           return new Date(a.createdAt) - new Date(b.createdAt);
         case "updated":
           return new Date(b.updatedAt) - new Date(a.updatedAt);
-        case "priority":
-          // Pending first, then answered, then closed
-          const priorityOrder = { pending: 0, answered: 1, closed: 2 };
-          return priorityOrder[a.status] - priorityOrder[b.status];
+        case "recent-archived":
+          return new Date(b.archivedAt || b.updatedAt) - new Date(a.archivedAt || a.updatedAt);
         default:
           return 0;
       }
@@ -196,34 +173,16 @@ export default function InquiriesListPage() {
     router.push(`/admin/dashboard/inquiries/${id}`);
   };
 
-  const handleQuickReply = (id) => {
-    router.push(`/admin/dashboard/inquiries/${id}?action=reply`);
-  };
-
-  const handleArchive = async (id) => {
-    // Find the inquiry in our local data to check its status
-    const inquiry = inquiries.find(inq => inq._id === id);
-    
-    // If inquiry is not closed, show dialog first
-    if (inquiry && inquiry.status !== "closed") {
-      setInquiryToArchive(id);
-      setArchiveDialogOpen(true);
-      return; // Stop here, wait for confirmation
-    }
-    
-    // If it's already closed, proceed directly
-    archiveInquiry(id);
-  };
-
-  const archiveInquiry = async (id) => {
+  const handleUnarchive = async (id) => {
     try {
       // Show a loading toast while processing
       toast({
-        title: "Archiving Inquiry",
+        title: "Unarchiving Inquiry",
         description: "Please wait...",
       });
       
-      const response = await fetch(`/api/admin/inquiries/${id}/archive`, {
+      // We can create a new endpoint or use the same one with a different action
+      const response = await fetch(`/api/admin/inquiries/${id}/unarchive`, {
         method: "PATCH",
         headers: {
           "Content-Type": "application/json",
@@ -235,21 +194,21 @@ export default function InquiriesListPage() {
       
       if (response.ok && data.success) {
         toast({
-          title: "Inquiry Archived",
-          description: "The inquiry has been moved to the archived section.",
+          title: "Inquiry Unarchived",
+          description: "The inquiry has been moved back to the active section.",
         });
         
         // Refresh the inquiries list
-        fetchInquiries();
+        fetchArchivedInquiries();
       } else {
         toast({
           title: "Error",
-          description: data.message || "Failed to archive inquiry. Please try again.",
+          description: data.message || "Failed to unarchive inquiry. Please try again.",
           variant: "destructive"
         });
       }
     } catch (error) {
-      console.error("Error archiving inquiry:", error);
+      console.error("Error unarchiving inquiry:", error);
       toast({
         title: "Error",
         description: "An unexpected error occurred. Please try again.",
@@ -258,85 +217,23 @@ export default function InquiriesListPage() {
     }
   };
 
-  // Mock data generator - will be replaced with actual API
-  const generateMockData = () => {
-    const statuses = ["pending", "answered", "closed"];
-    const categories = ["vehicle", "general", "support"];
-    
-    return Array.from({ length: 25 }, (_, i) => ({
-      _id: `inq_${i + 1}`,
-      subject: `Inquiry about ${i % 3 === 0 ? "vehicle purchase" : i % 3 === 1 ? "shipping options" : "account issues"}`,
-      customerName: `Customer ${i + 1}`,
-      customerEmail: `customer${i + 1}@example.com`,
-      status: statuses[i % 3],
-      category: categories[i % 3],
-      createdAt: new Date(Date.now() - (i * 86400000)).toISOString(), // Days ago
-      updatedAt: new Date(Date.now() - (i * 43200000)).toISOString(), // Half days ago
-      unreadMessages: i % 5 === 0 ? 1 : 0,
-      referenceId: i % 2 === 0 ? `REF-${1000 + i}` : null
-    }));
-  };
-
   return (
     <div className="space-y-6">
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
-          <h1 className="text-3xl font-bold tracking-tight">Customer Inquiries</h1>
+          <h1 className="text-3xl font-bold tracking-tight">Archived Inquiries</h1>
           <p className="text-muted-foreground mt-1">
-            Manage and respond to customer inquiries and support requests
+            View and manage previously archived inquiries
           </p>
         </div>
         <Button 
           variant="outline" 
-          onClick={() => router.push("/admin/dashboard/inquiries/archived")}
+          onClick={() => router.push("/admin/dashboard/inquiries")}
           className="flex items-center gap-2"
         >
-          <FaArchive className="w-4 h-4" />
-          <span>View Archived</span>
+          <FaArrowLeft className="w-4 h-4" />
+          <span>Back to Active Inquiries</span>
         </Button>
-      </div>
-
-      {/* Stats Cards */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-        <Card className="bg-white">
-          <CardHeader className="pb-2">
-            <CardTitle className="text-lg font-medium">Total</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="text-3xl font-bold">{totalCount.all}</div>
-            <p className="text-xs text-muted-foreground mt-1">All inquiries</p>
-          </CardContent>
-        </Card>
-        
-        <Card className="bg-white">
-          <CardHeader className="pb-2">
-            <CardTitle className="text-lg font-medium text-yellow-700">Pending</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="text-3xl font-bold text-yellow-700">{totalCount.pending}</div>
-            <p className="text-xs text-muted-foreground mt-1">Awaiting response</p>
-          </CardContent>
-        </Card>
-        
-        <Card className="bg-white">
-          <CardHeader className="pb-2">
-            <CardTitle className="text-lg font-medium text-green-700">Answered</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="text-3xl font-bold text-green-700">{totalCount.answered}</div>
-            <p className="text-xs text-muted-foreground mt-1">Responded but open</p>
-          </CardContent>
-        </Card>
-        
-        <Card className="bg-white">
-          <CardHeader className="pb-2">
-            <CardTitle className="text-lg font-medium text-gray-700">Closed</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="text-3xl font-bold text-gray-700">{totalCount.closed}</div>
-            <p className="text-xs text-muted-foreground mt-1">Resolved inquiries</p>
-          </CardContent>
-        </Card>
       </div>
 
       {/* Filters */}
@@ -391,14 +288,14 @@ export default function InquiriesListPage() {
                     <SelectItem value="newest">Newest First</SelectItem>
                     <SelectItem value="oldest">Oldest First</SelectItem>
                     <SelectItem value="updated">Recently Updated</SelectItem>
-                    <SelectItem value="priority">Priority</SelectItem>
+                    <SelectItem value="recent-archived">Recently Archived</SelectItem>
                   </SelectContent>
                 </Select>
               </div>
               
               <Button 
                 variant="outline" 
-                onClick={fetchInquiries}
+                onClick={fetchArchivedInquiries}
                 className="flex items-center gap-2"
               >
                 <FaFilter className="w-4 h-4" />
@@ -419,11 +316,11 @@ export default function InquiriesListPage() {
           ) : filteredInquiries.length === 0 ? (
             <div className="text-center py-12">
               <FaInbox className="w-12 h-12 mx-auto text-gray-300 mb-4" />
-              <h3 className="text-lg font-medium text-gray-900 mb-1">No inquiries found</h3>
+              <h3 className="text-lg font-medium text-gray-900 mb-1">No archived inquiries found</h3>
               <p className="text-gray-500">
                 {searchQuery || statusFilter !== "all" || categoryFilter !== "all" 
                   ? "Try adjusting your filters" 
-                  : "There are no customer inquiries yet"}
+                  : "There are no archived inquiries yet"}
               </p>
             </div>
           ) : (
@@ -435,7 +332,7 @@ export default function InquiriesListPage() {
                     <TableHead>Customer</TableHead>
                     <TableHead>Category</TableHead>
                     <TableHead>Status</TableHead>
-                    <TableHead>Date</TableHead>
+                    <TableHead>Archived Date</TableHead>
                     <TableHead className="text-right">Actions</TableHead>
                   </TableRow>
                 </TableHeader>
@@ -446,9 +343,6 @@ export default function InquiriesListPage() {
                         <div className="flex items-start">
                           <div>
                             <div className="flex items-center">
-                              {inquiry.unreadMessages > 0 && (
-                                <span className="w-2 h-2 bg-blue-600 rounded-full mr-2"></span>
-                              )}
                               <span className="line-clamp-1">{inquiry.subject}</span>
                             </div>
                             {inquiry.referenceId && (
@@ -478,12 +372,8 @@ export default function InquiriesListPage() {
                       </TableCell>
                       <TableCell>
                         <div className="text-sm">
-                          <div>{formatDate(inquiry.createdAt)}</div>
-                          {inquiry.updatedAt !== inquiry.createdAt && (
-                            <div className="text-xs text-gray-500">
-                              Updated: {formatDate(inquiry.updatedAt)}
-                            </div>
-                          )}
+                          {inquiry.archivedAt ? formatDate(inquiry.archivedAt) : 
+                           formatDate(inquiry.updatedAt)}
                         </div>
                       </TableCell>
                       <TableCell className="text-right">
@@ -500,20 +390,10 @@ export default function InquiriesListPage() {
                           <Button
                             variant="ghost"
                             size="icon"
-                            onClick={() => handleQuickReply(inquiry._id)}
-                            title="Reply"
-                            disabled={inquiry.status === "closed"}
+                            onClick={() => handleUnarchive(inquiry._id)}
+                            title="Unarchive"
                           >
-                            <FaReply className="w-4 h-4" />
-                          </Button>
-                          
-                          <Button
-                            variant="ghost"
-                            size="icon"
-                            onClick={() => handleArchive(inquiry._id)}
-                            title="Archive"
-                          >
-                            <FaArchive className="w-4 h-4" />
+                            <FaUndo className="w-4 h-4" />
                           </Button>
                         </div>
                       </TableCell>
@@ -526,27 +406,10 @@ export default function InquiriesListPage() {
         </CardContent>
         <CardFooter className="flex justify-between py-4">
           <div className="text-sm text-gray-500">
-            Showing {filteredInquiries.length} of {totalCount.all} inquiries
+            Showing {filteredInquiries.length} of {totalCount} archived inquiries
           </div>
-          {/* Pagination can be added here if needed */}
         </CardFooter>
       </Card>
-
-      {/* AlertDialog for Archive Confirmation */}
-      <AlertDialog open={archiveDialogOpen} onOpenChange={setArchiveDialogOpen}>
-        <AlertDialogContent>
-          <AlertDialogHeader>
-            <AlertDialogTitle>Confirm Archive</AlertDialogTitle>
-            <AlertDialogDescription>
-              Are you sure you want to archive this inquiry? This action cannot be undone.
-            </AlertDialogDescription>
-          </AlertDialogHeader>
-          <AlertDialogFooter>
-            <AlertDialogCancel>Cancel</AlertDialogCancel>
-            <AlertDialogAction onClick={() => archiveInquiry(inquiryToArchive)}>Archive</AlertDialogAction>
-          </AlertDialogFooter>
-        </AlertDialogContent>
-      </AlertDialog>
     </div>
   );
 } 

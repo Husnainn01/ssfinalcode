@@ -293,14 +293,19 @@ export async function DELETE(request, { params }) {
       }, { status: 400 });
     }
     
-    // Check if vehicle exists
+    // Check if vehicle exists in CarListing
     const vehicle = await mongoose.connection.db.collection('CarListing')
       .findOne({ _id: new ObjectId(id) });
     
-    if (!vehicle) {
+    // Check if vehicle exists in agreedvehicles - even if it was found in CarListing
+    const agreedVehicle = await mongoose.connection.db.collection('agreedvehicles')
+      .findOne({ _id: new ObjectId(id) });
+    
+    // If not found in both collections
+    if (!vehicle && !agreedVehicle) {
       return NextResponse.json({ 
         success: false,
-        message: 'Vehicle not found' 
+        message: 'Vehicle not found in any collection' 
       }, { status: 404 });
     }
     
@@ -308,6 +313,7 @@ export async function DELETE(request, { params }) {
     try {
       await mongoose.connection.db.collection('documents')
         .deleteMany({ vehicleId: id });
+      console.log('Associated documents deleted successfully');
     } catch (err) {
       console.error('Error deleting documents:', err);
       // Continue even if document deletion fails
@@ -317,6 +323,7 @@ export async function DELETE(request, { params }) {
     try {
       await mongoose.connection.db.collection('shipping')
         .deleteMany({ vehicleId: id });
+      console.log('Associated shipping info deleted successfully');
     } catch (err) {
       console.error('Error deleting shipping info:', err);
       // Continue even if shipping deletion fails
@@ -326,25 +333,47 @@ export async function DELETE(request, { params }) {
     try {
       await mongoose.connection.db.collection('timeline')
         .deleteMany({ vehicleId: id });
+      console.log('Associated timeline events deleted successfully');
     } catch (err) {
       console.error('Error deleting timeline events:', err);
       // Continue even if timeline deletion fails
     }
     
-    // Delete vehicle
-    const result = await mongoose.connection.db.collection('CarListing')
-      .deleteOne({ _id: new ObjectId(id) });
+    // Delete from CarListing if it exists there
+    let carListingDeleted = false;
+    if (vehicle) {
+      const result = await mongoose.connection.db.collection('CarListing')
+        .deleteOne({ _id: new ObjectId(id) });
+      
+      carListingDeleted = result.deletedCount > 0;
+      console.log('CarListing deletion result:', carListingDeleted ? 'Success' : 'Failed');
+    }
     
-    if (result.deletedCount === 0) {
+    // Delete from agreedvehicles if it exists there
+    let agreedVehicleDeleted = false;
+    if (agreedVehicle) {
+      const result = await mongoose.connection.db.collection('agreedvehicles')
+        .deleteOne({ _id: new ObjectId(id) });
+      
+      agreedVehicleDeleted = result.deletedCount > 0;
+      console.log('AgreedVehicles deletion result:', agreedVehicleDeleted ? 'Success' : 'Failed');
+    }
+    
+    // If nothing was deleted
+    if (!carListingDeleted && !agreedVehicleDeleted) {
       return NextResponse.json({ 
         success: false,
-        message: 'Failed to delete vehicle' 
+        message: 'Failed to delete vehicle from any collection' 
       }, { status: 500 });
     }
     
     return NextResponse.json({
       success: true,
-      message: 'Vehicle and associated data deleted successfully'
+      message: 'Vehicle and associated data deleted successfully',
+      details: {
+        carListingDeleted,
+        agreedVehicleDeleted
+      }
     });
   } catch (error) {
     console.error('Error deleting vehicle:', error);

@@ -71,6 +71,17 @@ import {
   Input
 } from "@/components/ui/input"
 import { format } from 'date-fns'
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from "@/components/ui/alert-dialog"
 
 export default function VehicleDetailPage() {
   const router = useRouter()
@@ -101,6 +112,7 @@ export default function VehicleDetailPage() {
   const [shippingUpdateSuccess, setShippingUpdateSuccess] = useState(false)
   const [shippingHistory, setShippingHistory] = useState([]);
   const [isLoadingShipping, setIsLoadingShipping] = useState(false);
+  const [isDeleting, setIsDeleting] = useState(false)
 
   useEffect(() => {
     fetchVehicleDetails()
@@ -550,6 +562,36 @@ export default function VehicleDetailPage() {
     }
   }
 
+  const handleDelete = async () => {
+    setIsDeleting(true)
+    try {
+      const response = await fetch(`/api/admin/vehicles/${vehicleId}`, {
+        method: 'DELETE',
+        credentials: 'include'
+      })
+      
+      if (response.ok) {
+        toast({
+          title: "Vehicle deleted",
+          description: "The vehicle has been successfully deleted",
+        })
+        router.push('/admin/dashboard/vehicles')
+      } else {
+        const data = await response.json()
+        throw new Error(data.error || "Failed to delete vehicle")
+      }
+    } catch (error) {
+      console.error("Error deleting vehicle:", error)
+      toast({
+        title: "Error",
+        description: error.message || "Something went wrong. Please try again.",
+        variant: "destructive",
+      })
+    } finally {
+      setIsDeleting(false)
+    }
+  }
+
   if (loading) {
     return (
       <div className="container mx-auto p-6">
@@ -634,14 +676,31 @@ export default function VehicleDetailPage() {
           Back
         </Button>
         <div className="space-x-2">
-          <Button variant="outline" onClick={() => router.push(`/admin/dashboard/vehicles/${vehicleId}/edit`)}>
-            <Pencil className="h-4 w-4 mr-1" />
-            Edit
-          </Button>
-          <Button variant="destructive" onClick={() => alert('Delete functionality would go here')}>
-            <Trash2 className="h-4 w-4 mr-1" />
-            Delete
-          </Button>
+          <AlertDialog>
+            <AlertDialogTrigger asChild>
+              <Button variant="destructive" disabled={isDeleting}>
+                {isDeleting ? "Deleting..." : "Delete"}
+              </Button>
+            </AlertDialogTrigger>
+            <AlertDialogContent>
+              <AlertDialogHeader>
+                <AlertDialogTitle>Are you absolutely sure?</AlertDialogTitle>
+                <AlertDialogDescription>
+                  This action cannot be undone. This will permanently delete the vehicle 
+                  and remove all associated data from our servers.
+                </AlertDialogDescription>
+              </AlertDialogHeader>
+              <AlertDialogFooter>
+                <AlertDialogCancel>Cancel</AlertDialogCancel>
+                <AlertDialogAction 
+                  onClick={handleDelete}
+                  className="bg-red-600 hover:bg-red-700 text-white"
+                >
+                  Delete
+                </AlertDialogAction>
+              </AlertDialogFooter>
+            </AlertDialogContent>
+          </AlertDialog>
         </div>
       </div>
 
@@ -1189,12 +1248,7 @@ export default function VehicleDetailPage() {
           </Button>
         )}
         
-        <Button variant="outline" className="flex-1" onClick={() => router.push(`/admin/dashboard/vehicles/${vehicleId}/edit`)}>
-          <Pencil className="h-4 w-4 mr-2" />
-          Edit Vehicle
-        </Button>
-        
-        <Button variant="outline" className="flex-1">
+        <Button variant="outline" className="flex-1" onClick={() => router.push(`/admin/dashboard/vehicles/${vehicleId}/documents/upload`)}>
           <FileUp className="h-4 w-4 mr-2" />
           Upload Documents
         </Button>

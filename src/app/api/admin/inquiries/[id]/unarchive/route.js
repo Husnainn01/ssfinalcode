@@ -18,7 +18,6 @@ export async function PATCH(request, { params }) {
     // Use the correct collection name - customerInquiries
     const inquiryCollection = mongoose.connection.db.collection('customerInquiries');
     
-    // Validate ObjectId format
     if (!mongoose.Types.ObjectId.isValid(id)) {
       return NextResponse.json({ 
         success: false, 
@@ -37,7 +36,7 @@ export async function PATCH(request, { params }) {
       }, { status: 404 });
     }
     
-    // Check if the inquiry has a related vehicle in agreedvehicles collection
+    // Check if there's a related vehicle to unarchive
     const vehicleId = inquiry.vehicleId || inquiry.vehicle?._id;
     let vehicleUpdated = false;
     
@@ -45,40 +44,37 @@ export async function PATCH(request, { params }) {
       const vehiclesCollection = mongoose.connection.db.collection('agreedvehicles');
       const updateVehicleResult = await vehiclesCollection.updateOne(
         { _id: new mongoose.Types.ObjectId(vehicleId) },
-        { $set: { isArchived: true, archivedAt: new Date() } }
+        { $set: { isArchived: false }, $unset: { archivedAt: "" } }
       );
       
       vehicleUpdated = updateVehicleResult.modifiedCount > 0;
-      console.log(`Related vehicle archive status: ${vehicleUpdated}`);
     }
     
-    // Update the inquiry in the customerInquiries collection
+    // Update the inquiry to remove archived status
     const result = await inquiryCollection.updateOne(
       { _id: new mongoose.Types.ObjectId(id) },
       { 
-        $set: { 
-          isArchived: true,
-          archivedAt: new Date(),
-          status: 'closed' // Ensure inquiry is closed when archived
-        } 
+        $set: { isArchived: false },
+        $unset: { archivedAt: "" }
+        // Note: we don't change the status back from 'closed'
       }
     );
     
     if (result.modifiedCount === 0) {
       return NextResponse.json({
         success: false,
-        message: 'Failed to archive inquiry'
+        message: 'Failed to unarchive inquiry'
       }, { status: 500 });
     }
     
     return NextResponse.json({
       success: true,
-      message: 'Inquiry successfully archived',
+      message: 'Inquiry successfully unarchived',
       vehicleUpdated: vehicleUpdated
     });
     
   } catch (error) {
-    console.error('Error archiving inquiry:', error);
+    console.error('Error unarchiving inquiry:', error);
     return NextResponse.json({ 
       success: false,
       message: 'Internal Server Error',
