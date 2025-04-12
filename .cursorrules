@@ -1,0 +1,48 @@
+# Shipping Management System - Project Rules
+
+## Database Collection Names
+- Use `customerInquiries` for customer inquiries (not "inquiries")
+- Use `agreedvehicles` for vehicle data after price agreement
+- Use `customerusers` for customer accounts
+- Use `cars` for general car listings
+
+## UI Component Patterns
+- Use AlertDialog for confirmation dialogs, not browser confirm()
+- Follow shadcn/ui patterns for component implementation
+- Use React Icons with consistent icon sets (FaIcons preferred)
+- Toast notifications for user feedback on actions
+
+## State Management
+- Use React hooks (useState, useEffect) for component state
+- Use separate handler functions for different stages of an operation
+  - Example: handleArchive() -> show dialog, archiveInquiry() -> perform action
+- Always include loading states for async operations
+- Include proper error handling with toast notifications
+
+## Database Queries
+- Handle cases where fields might not exist in documents:
+  - For isArchived filter: `{ $or: [{ isArchived: false }, { isArchived: { $exists: false } }] }`
+- Use MongoDB aggregation for complex queries
+- Ensure proper ObjectId conversion for IDs
+
+## Form Implementation
+- Use React Hook Form for form state management
+- Use Zod for form validation
+- Create form schemas at the top of components
+
+## API Patterns
+- Use appropriate HTTP methods (GET, POST, PATCH, DELETE)
+- Include success flag in all responses
+- Return detailed error messages for failures
+- Use HTTP status codes appropriately
+
+## Navigation Patterns
+- Use Next.js router for navigation
+- Include back buttons where appropriate
+- Maintain state during navigation when needed
+
+## Styling Patterns
+- Use Tailwind CSS utility classes
+- Follow consistent spacing (space-y-6 for page sections)
+- Use responsive utility classes (sm:, md:, lg:)
+- Card-based layout for major page sections 
