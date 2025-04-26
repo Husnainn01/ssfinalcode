@@ -2,6 +2,9 @@
 User-agent: *
 Allow: /
 
+# Explicitly allow RSS feed for third-party services like Zapier
+Allow: /api/rss
+
 # Disallow admin and auth pages
 Disallow: /admin/*
 Disallow: /auth/*

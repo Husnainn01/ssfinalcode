@@ -35,11 +35,12 @@ export default async function sitemap() {
     '/cars/ph',
     '/cars/pl',
     '/cars/ro',
+    '/api/rss',
   ].map((route) => ({
     url: `${baseUrl}${route}`,
     lastModified: new Date().toISOString(),
-    changeFrequency: 'daily',
-    priority: route === '' ? 1 : 0.8,
+    changeFrequency: route === '/api/rss' ? 'hourly' : 'daily',
+    priority: route === '' ? 1 : route === '/api/rss' ? 0.9 : 0.8,
   }))
 
   return routes
