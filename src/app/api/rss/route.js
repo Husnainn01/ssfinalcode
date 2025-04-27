@@ -36,7 +36,10 @@ export async function GET(request) {
     // Get the most recent listings - ONLY ACTIVE LISTINGS!
     const listings = await db.collection('CarListing')  // Using the correct collection name from Car.js
       .find({ 
-        visibility: { $ne: 'hidden' },  // Only visible cars
+        $or: [
+          { visibility: "Active" },
+          { visibility: { $ne: 'hidden' } }
+        ],
         offerType: 'In Stock'           // Only in-stock cars
       })
       .sort({ 
@@ -57,7 +60,7 @@ export async function GET(request) {
       .limit(5)
       .toArray();
 
-    console.log(`Found ${listings.length} listings and ${blogPosts.length} blog posts for the feed`);
+    console.log(`Found ${listings.length} listings for RSS feed. IDs: ${listings.map(l => l._id).join(', ')}`);
 
     // Track if we've added any real content
     let hasRealContent = false;
