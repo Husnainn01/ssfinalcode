@@ -2,6 +2,7 @@ import { NextResponse } from 'next/server';
 import dbConnect from '@/lib/dbConnect';
 import mongoose from 'mongoose';
 import { ObjectId } from 'mongodb';
+import { revalidatePath } from 'next/cache';
 
 // GET /api/admin/vehicles - Get all vehicles
 export async function GET(request) {
@@ -167,6 +168,17 @@ export async function POST(request) {
     
     // Insert directly into CarListing collection
     const result = await mongoose.connection.db.collection('CarListing').insertOne(newVehicle);
+    
+    // ADDED: Revalidate the RSS feed endpoints
+    try {
+      console.log('Revalidating RSS feed paths after vehicle creation');
+      revalidatePath('/api/rss');
+      revalidatePath('/api/rss/zapier-test');
+      revalidatePath('/api/rss/basic-test');
+    } catch (revalidateError) {
+      console.error('Error revalidating paths:', revalidateError);
+      // Continue with the response even if revalidation fails
+    }
     
     return NextResponse.json({
       success: true,

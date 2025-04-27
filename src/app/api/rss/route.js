@@ -1,6 +1,9 @@
 import { Feed } from 'feed';
 import mongoose from 'mongoose';
 import dbConnect from '@/lib/dbConnect';
+// Add export config to disable caching
+export const dynamic = 'force-dynamic';
+export const revalidate = 0;
 
 export async function GET(request) {
   const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || 'https://www.globaldrivemotors.com';
@@ -222,19 +225,21 @@ Read the full article: ${baseUrl}/blog/${post._id}
       });
     }
 
-    // Return the feed in RSS 2.0 format
+    // Return the feed in RSS 2.0 format with stronger cache control
     return new Response(feed.rss2(), {
       headers: {
         'Content-Type': 'application/rss+xml; charset=utf-8',
-        'Cache-Control': 'no-cache', // Set no-cache to ensure fresh content
+        'Cache-Control': 'no-store, no-cache, must-revalidate, proxy-revalidate, max-age=0',
+        'Pragma': 'no-cache',
+        'Expires': '0',
+        'Surrogate-Control': 'no-store',
         'Access-Control-Allow-Origin': '*' // Allow cross-origin requests
       }
     });
   } catch (error) {
     console.error('Error generating RSS feed:', error);
-    // Return a minimal valid RSS on error
+    // Return a minimal valid RSS on error to prevent Zapier from failing completely
     const timestamp = Date.now();
-    const currentDate = new Date();
     
     const feed = new Feed({
       title: 'Global Drive Motors Updates',
@@ -256,7 +261,10 @@ Read the full article: ${baseUrl}/blog/${post._id}
     return new Response(feed.rss2(), {
       headers: {
         'Content-Type': 'application/rss+xml; charset=utf-8',
-        'Cache-Control': 'no-cache',
+        'Cache-Control': 'no-store, no-cache, must-revalidate, proxy-revalidate, max-age=0',
+        'Pragma': 'no-cache', 
+        'Expires': '0',
+        'Surrogate-Control': 'no-store',
         'Access-Control-Allow-Origin': '*'
       }
     });
