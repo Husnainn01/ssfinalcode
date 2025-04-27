@@ -33,10 +33,11 @@ export async function GET(request) {
     await dbConnect();
     const db = mongoose.connection;
 
-    // Get the most recent listings
-    const listings = await db.collection('Listing')
+    // Get the most recent listings - ONLY ACTIVE LISTINGS!
+    const listings = await db.collection('CarListing')  // Using the correct collection name from Car.js
       .find({ 
-        status: 'active',
+        visibility: { $ne: 'hidden' },  // Only visible cars
+        offerType: 'In Stock'           // Only in-stock cars
       })
       .sort({ 
         createdAt: -1,
@@ -61,81 +62,110 @@ export async function GET(request) {
     // Track if we've added any real content
     let hasRealContent = false;
 
-    // Add car listings to feed with SIMPLIFIED format for Facebook
+    // Add car listings to feed with ENHANCED format for Facebook
     listings.forEach(listing => {
       hasRealContent = true;
       
-      // Get main image URL
-      let imageUrl = listing.image || '';
-      if (imageUrl && !imageUrl.startsWith('http')) {
-        imageUrl = imageUrl.replace(/^\/+/, '');
-        imageUrl = `https://res.cloudinary.com/globaldrivemotors/image/upload/c_fill,f_auto,q_auto,w_1200,h_630/${imageUrl}`;
+      // Get main image URL with proper formatting for Facebook
+      let imageUrl = '';
+      if (listing.image) {
+        imageUrl = listing.image.startsWith('http') ? listing.image : 
+          `https://res.cloudinary.com/globaldrivemotors/image/upload/c_fill,f_auto,q_auto,w_1200,h_630/${listing.image.replace(/^\/+/, '')}`;
+      } else if (listing.images && listing.images.length > 0) {
+        const firstImage = listing.images[0];
+        imageUrl = firstImage.startsWith('http') ? firstImage : 
+          `https://res.cloudinary.com/globaldrivemotors/image/upload/c_fill,f_auto,q_auto,w_1200,h_630/${firstImage.replace(/^\/+/, '')}`;
       }
       
-      // Format price
+      // Format price with currency symbol
       const formattedPrice = listing.price ? 
         `${listing.priceCurrency || '$'}${listing.price.toLocaleString()}` : 
         'Contact for Price';
       
-      // Format mileage
+      // Format mileage with unit
       const formattedMileage = listing.mileage ? 
         `${listing.mileage.toLocaleString()} ${listing.mileageUnit || 'KM'}` : 
-        '';
+        'N/A';
       
-      // Create a SIMPLE description - Facebook prefers plain text with line breaks
+      // Create a detailed title that includes key car info
+      const detailedTitle = `${listing.year || ''} ${listing.make || ''} ${listing.model || ''} - ${formattedPrice}`;
+      
+      // Create a DETAILED, Facebook-friendly description
       const description = `
-${listing.year} ${listing.make} ${listing.model} - ${formattedPrice}
+🚗 NEW ARRIVAL: ${listing.year || ''} ${listing.make || ''} ${listing.model || ''} - ${formattedPrice}
 
-${listing.description ? listing.description.substring(0, 200) + '...' : ''}
+✅ Description: ${listing.description || listing.title || ''}
 
-• Mileage: ${formattedMileage}
-• Transmission: ${listing.vehicleTransmission || ''}
-• Fuel Type: ${listing.fuelType || ''}
-• Engine: ${listing.vehicleEngine || ''}
+✅ Mileage: ${formattedMileage}
+✅ Transmission: ${listing.vehicleTransmission || 'N/A'}
+✅ Fuel Type: ${listing.fuelType || 'N/A'}
+✅ Engine: ${listing.vehicleEngine || 'N/A'}
+✅ Color: ${listing.color || 'N/A'}
+✅ Body Type: ${listing.bodyType || 'N/A'}
+${listing.carFeature && listing.carFeature.length > 0 ? `✅ Features: ${listing.carFeature.slice(0, 3).join(', ')}${listing.carFeature.length > 3 ? '...' : ''}` : ''}
 
-View more details: ${baseUrl}/cars/${listing._id}
+View more details and photos: ${baseUrl}/cars/${listing._id}
+
+#globaldrivemotors #carsforsale ${listing.make ? '#' + listing.make.toLowerCase().replace(/\s+/g, '') : ''} ${listing.model ? '#' + listing.model.toLowerCase().replace(/\s+/g, '') : ''}
       `.trim();
 
       // Generate a publication date (use item date or current date)
       const pubDate = listing.createdAt ? new Date(listing.createdAt) : new Date();
       
-      // Add the item with MINIMAL custom elements
+      // Add the item with ENHANCED data for Facebook
       feed.addItem({
-        title: `${listing.year} ${listing.make} ${listing.model} - ${formattedPrice}`,
+        title: detailedTitle,
         id: `vehicle-${listing._id.toString()}`,
         link: `${baseUrl}/cars/${listing._id}`,
         description: description,
         content: description,
         date: pubDate,
         published: pubDate,
-        image: imageUrl
+        image: imageUrl,
+        // Add custom data that Zapier can access
+        custom_elements: [
+          {'car:image': imageUrl},
+          {'car:price': formattedPrice},
+          {'car:make': listing.make || ''},
+          {'car:model': listing.model || ''},
+          {'car:year': listing.year ? listing.year.toString() : ''},
+          {'enclosure': {
+            _attr: {
+              url: imageUrl,
+              type: 'image/jpeg',
+              length: '20000'
+            }
+          }}
+        ]
       });
     });
 
-    // Add blog posts with SIMPLIFIED format for Facebook
+    // Add blog posts with ENHANCED format for Facebook
     blogPosts.forEach(post => {
       hasRealContent = true;
       
-      // Get image URL
-      let imageUrl = post.image || '';
-      if (imageUrl && !imageUrl.startsWith('http')) {
-        imageUrl = imageUrl.replace(/^\/+/, '');
-        imageUrl = `https://res.cloudinary.com/globaldrivemotors/image/upload/c_fill,f_auto,q_auto,w_1200,h_630/${imageUrl}`;
+      // Get image URL with proper formatting for Facebook
+      let imageUrl = '';
+      if (post.image) {
+        imageUrl = post.image.startsWith('http') ? post.image : 
+          `https://res.cloudinary.com/globaldrivemotors/image/upload/c_fill,f_auto,q_auto,w_1200,h_630/${post.image.replace(/^\/+/, '')}`;
       }
       
-      // Create a SIMPLE description
+      // Create a detailed blog post description
       const description = `
-${post.title}
+📝 NEW BLOG: ${post.title}
 
 ${post.excerpt || (post.content ? post.content.substring(0, 200) + '...' : '')}
 
 Read the full article: ${baseUrl}/blog/${post._id}
+
+#globaldrivemotors #autoblog #carnews
       `.trim();
 
       // Generate a publication date (use item date or current date)
       const pubDate = post.createdAt ? new Date(post.createdAt) : new Date();
       
-      // Add the item with MINIMAL custom elements
+      // Add the item with ENHANCED data for Facebook
       feed.addItem({
         title: post.title,
         id: `blog-${post._id.toString()}`,
@@ -144,16 +174,29 @@ Read the full article: ${baseUrl}/blog/${post._id}
         content: description,
         date: pubDate,
         published: pubDate,
-        image: imageUrl
+        image: imageUrl,
+        // Add custom data that Zapier can access
+        custom_elements: [
+          {'blog:image': imageUrl},
+          {'enclosure': {
+            _attr: {
+              url: imageUrl,
+              type: 'image/jpeg',
+              length: '20000'
+            }
+          }}
+        ]
       });
     });
 
     // If no real content was added, add a default item
-    // This ensures Zapier always has something to process
     if (!hasRealContent) {
       // Create a timestamp to ensure uniqueness
       const timestamp = Date.now();
       const currentDate = new Date();
+      
+      // Default image
+      const defaultImage = `${baseUrl}/logo.png`;
       
       feed.addItem({
         title: "Global Drive Motors Updates",
@@ -162,7 +205,17 @@ Read the full article: ${baseUrl}/blog/${post._id}
         description: "Latest vehicles and blog posts from Global Drive Motors. Check back soon for new listings!",
         content: "Latest vehicles and blog posts from Global Drive Motors. Check back soon for new listings!",
         date: currentDate,
-        published: currentDate
+        published: currentDate,
+        image: defaultImage,
+        custom_elements: [
+          {'enclosure': {
+            _attr: {
+              url: defaultImage,
+              type: 'image/png',
+              length: '20000'
+            }
+          }}
+        ]
       });
     }
 
@@ -176,7 +229,7 @@ Read the full article: ${baseUrl}/blog/${post._id}
     });
   } catch (error) {
     console.error('Error generating RSS feed:', error);
-    // Return a minimal valid RSS on error to prevent Zapier from failing completely
+    // Return a minimal valid RSS on error
     const timestamp = Date.now();
     const currentDate = new Date();
     
