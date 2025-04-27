@@ -52,9 +52,13 @@ export async function GET(request) {
       .limit(5)
       .toArray();
 
+    // Get blog posts that are active/published
     const blogPosts = await db.collection('BlogPost')
       .find({ 
-        status: 'published',
+        $or: [
+          { visibility: "Active" },
+          { status: 'published' }
+        ]
       })
       .sort({ 
         createdAt: -1,
@@ -63,7 +67,7 @@ export async function GET(request) {
       .limit(5)
       .toArray();
 
-    console.log(`Found ${listings.length} listings for RSS feed. IDs: ${listings.map(l => l._id).join(', ')}`);
+    console.log(`Found ${listings.length} car listings and ${blogPosts.length} blog posts for RSS feed`);
 
     // Track if we've added any real content
     let hasRealContent = false;
@@ -138,7 +142,7 @@ View more details and photos: ${baseUrl}/cars/${listing._id}
           {'enclosure': {
             _attr: {
               url: imageUrl,
-              type: 'image/jpeg',
+              type: imageUrl.toLowerCase().endsWith('.jpg') || imageUrl.toLowerCase().endsWith('.jpeg') ? 'image/jpeg' : 'image/png',
               length: '20000'
             }
           }}
@@ -152,24 +156,53 @@ View more details and photos: ${baseUrl}/cars/${listing._id}
       
       // Get image URL with proper formatting for Facebook
       let imageUrl = '';
+      
+      // Check for various image field possibilities in the blog post
       if (post.image) {
         imageUrl = post.image.startsWith('http') ? post.image : 
-          `https://res.cloudinary.com/globaldrivemotors/image/upload/c_fill,f_auto,q_auto,w_1200,h_630/${post.image.replace(/^\/+/, '')}`;
+          `https://res.cloudinary.com/di2nkhwfy/image/upload/c_fill,f_auto,q_auto,w_1200,h_630/${post.image.replace(/^\/+/, '')}`;
+      } else if (post.thumbnail) {
+        imageUrl = post.thumbnail.startsWith('http') ? post.thumbnail : 
+          `https://res.cloudinary.com/di2nkhwfy/image/upload/c_fill,f_auto,q_auto,w_1200,h_630/${post.thumbnail.replace(/^\/+/, '')}`;
       }
+      
+      // Extract plain text from HTML content for description
+      let plainTextContent = '';
+      if (post.content) {
+        // Very basic HTML stripping - for a more robust solution, use a proper HTML parser
+        plainTextContent = post.content
+          .replace(/<[^>]*>/g, ' ') // Remove HTML tags
+          .replace(/\s+/g, ' ')     // Replace multiple spaces with a single space
+          .trim()
+          .substring(0, 300) + '...';
+      }
+      
+      // Use excerpt if available, otherwise use the content
+      const excerpt = post.excerpt || plainTextContent || '';
+      
+      // Get categories and tags
+      const categories = post.category ? post.category.split(',').map(c => c.trim()) : [];
+      const tags = post.tag ? post.tag.split(',').map(t => t.trim()) : [];
+      
+      // Create hashtags from categories and tags
+      const hashtags = [...categories, ...tags].map(item => 
+        `#${item.toLowerCase().replace(/\s+/g, '')}`
+      ).join(' ');
       
       // Create a detailed blog post description
       const description = `
 📝 NEW BLOG: ${post.title}
 
-${post.excerpt || (post.content ? post.content.substring(0, 200) + '...' : '')}
+${excerpt}
 
 Read the full article: ${baseUrl}/blog/${post._id}
 
-#globaldrivemotors #autoblog #carnews
+${hashtags} #globaldrivemotors #autoblog
       `.trim();
 
       // Generate a publication date (use item date or current date)
-      const pubDate = post.createdAt ? new Date(post.createdAt) : new Date();
+      const pubDate = post.createdAt ? new Date(post.createdAt) : 
+                      post.date ? new Date(post.date) : new Date();
       
       // Add the item with ENHANCED data for Facebook
       feed.addItem({
@@ -184,10 +217,13 @@ Read the full article: ${baseUrl}/blog/${post._id}
         // Add custom data that Zapier can access
         custom_elements: [
           {'blog:image': imageUrl},
+          {'blog:category': post.category || ''},
+          {'blog:tags': post.tag || ''},
           {'enclosure': {
             _attr: {
               url: imageUrl,
-              type: 'image/jpeg',
+              type: imageUrl.toLowerCase().endsWith('.jpg') || imageUrl.toLowerCase().endsWith('.jpeg') ? 'image/jpeg' : 
+                    imageUrl.toLowerCase().endsWith('.webp') ? 'image/webp' : 'image/png',
               length: '20000'
             }
           }}

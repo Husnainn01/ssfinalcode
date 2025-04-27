@@ -132,6 +132,7 @@
 import mongoose from 'mongoose';
 import { NextResponse } from 'next/server';
 import dbConnect from '@/lib/dbConnect';
+import { revalidatePath } from 'next/cache';
 
 // GET endpoint to fetch all posts
 export async function GET(req) {
@@ -174,6 +175,17 @@ export async function POST(req) {
         };
 
         const insertResult = await mainPostCollection.insertOne(dataToInsert);
+
+        // Revalidate the RSS feed to include the new blog post
+        try {
+            console.log('Revalidating RSS feed paths after blog post creation');
+            revalidatePath('/api/rss');
+            revalidatePath('/api/rss/zapier-test');
+            revalidatePath('/api/rss/basic-test');
+        } catch (revalidateError) {
+            console.error('Error revalidating paths:', revalidateError);
+            // Continue with the response even if revalidation fails
+        }
 
         return NextResponse.json({
             message: "Post added successfully",
@@ -234,6 +246,17 @@ export async function PUT(req) {
             query,
             { $set: { ...updateData, updatedAt: new Date() } }
         );
+
+        // Revalidate the RSS feed when a blog post is updated
+        try {
+            console.log('Revalidating RSS feed paths after blog post update');
+            revalidatePath('/api/rss');
+            revalidatePath('/api/rss/zapier-test');
+            revalidatePath('/api/rss/basic-test');
+        } catch (revalidateError) {
+            console.error('Error revalidating paths:', revalidateError);
+            // Continue with the response even if revalidation fails
+        }
 
         if (updateResult.matchedCount === 1) {
             return NextResponse.json({ message: "Post updated successfully" });
