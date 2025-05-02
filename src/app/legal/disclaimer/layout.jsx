@@ -2,8 +2,8 @@ import Header from '@/components/template/header'
 import Component from '@/components/template/leftsidebar'
 
 export const metadata = {
-  title: 'Disclaimer | SS Holdings',
-  description: 'Read our disclaimer to understand the limitations and terms of use for SS Holdings website and services.',
+  title: 'Disclaimer | JDM Global',
+  description: 'Read our disclaimer to understand the limitations and terms of use for JDM Global website and services.',
   openGraph: {
     title: 'Disclaimer | Global Drive Motors',
     description: 'Read our disclaimer to understand the limitations and terms of use for Global Drive Motors website and services.',

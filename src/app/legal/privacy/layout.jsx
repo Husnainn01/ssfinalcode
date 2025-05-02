@@ -2,8 +2,8 @@ import Header from '@/components/template/header'
 import Component from '@/components/template/leftsidebar'
 
 export const metadata = {
-    title: 'Privacy Policy | SS Holdings',
-    description: 'Learn how SS Holdings collects, uses, and protects your personal information.',
+    title: 'Privacy Policy | JDM Global',
+    description: 'Learn how JDM Global collects, uses, and protects your personal information.',
     openGraph: {
       title: 'Privacy Policy | Global Drive Motors',
       description: 'Learn how Global Drive Motors collects, uses, and protects your personal information.',

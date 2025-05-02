@@ -93,28 +93,28 @@ export default function ContactPage() {
       icon: Phone,
       title: "Call Us",
       details: [
-        "+81 5646 11111",
+        "+1 (262) 598-4435",
         "Mon-Fri: 9:00 AM - 6:00 PM"
       ],
-      action: "tel:+81564611111",
+      action: "tel:+1 (262) 598-4435",
       actionText: "Call Now"
     },
     {
       icon: Mail,
       title: "Email Us",
       details: [
-        "support@ss.holdings",
+        "support@jdmglobal.com",
         "Support available 24/7"
       ],
-      action: "mailto:support@ss.holdings",
+      action: "mailto:support@jdmglobal.com",
       actionText: "Send Email"
     },
     {
       icon: MapPin,
       title: "Visit Us",
       details: [
-        "Nishifukuta, 1-1506",
-        "Nagoya, Japan 455-0874"
+        "Nagoya, Japan",
+        "Support available 24/7"
       ],
       action: "https://maps.google.com",
       actionText: "Get Directions"
@@ -122,10 +122,10 @@ export default function ContactPage() {
   ]
 
   const socialLinks = [
-    { icon: Facebook, href: "https://www.facebook.com/ss.holdings", label: "Facebook" },
-    { icon: Instagram, href: "https://www.instagram.com/ss.holdings", label: "Instagram" },
-    { icon: Twitter, href: "https://www.twitter.com/ss.holdings", label: "Twitter" },
-    { icon: Linkedin, href: "https://www.linkedin.com/ss.holdings", label: "LinkedIn" }
+    { icon: Facebook, href: "https://www.facebook.com/profile.php?id=61573636123794", label: "Facebook" },
+    { icon: Instagram, href: "https://www.instagram.com/jdmglobal", label: "Instagram" },
+    { icon: Twitter, href: "https://www.twitter.com/jdmglobal", label: "Twitter" },
+    { icon: Linkedin, href: "https://www.linkedin.com/company/jdmglobal", label: "LinkedIn" }
   ]
 
   return (

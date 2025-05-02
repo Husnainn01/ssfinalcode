@@ -195,8 +195,8 @@ export async function POST(req) {
               </div>
 
               <div class="footer">
-                <p>This is an automated email from SS Holdings Contact Form</p>
-                <p>© ${new Date().getFullYear()} SS Holdings. All rights reserved.</p>
+                <p>This is an automated email from JDM Global Contact Form</p>
+                <p>© ${new Date().getFullYear()} JDM Global. All rights reserved.</p>
                 <div class="timestamp">
                   Received on ${new Date().toLocaleString('en-US', { 
                     weekday: 'long',
@@ -233,7 +233,7 @@ export async function POST(req) {
 
         Received on: ${new Date().toLocaleString()}
 
-        © ${new Date().getFullYear()} SS Holdings. All rights reserved.
+        © ${new Date().getFullYear()} JDM Global. All rights reserved.
       `
     }
 

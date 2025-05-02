@@ -10,7 +10,7 @@ export default function Navigation() {
     <header className="w-full border-b">
       <div className="container mx-auto px-4 py-2 flex justify-between items-center">
         <Link href="/" className="text-xl font-bold">
-          SS Holdings
+          JDM Global
         </Link>
 
         {isLoaded && (

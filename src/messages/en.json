@@ -16,5 +16,9 @@
       "dashboard": "Dashboard",
       "logout": "Logout"
     }
+  },
+  "Index": {
+    "company": "JDM Global: Japanese Used Cars for Sale",
+    "title": "Importing Japanese Used Cars"
   }
 } 

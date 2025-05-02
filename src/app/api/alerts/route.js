@@ -64,7 +64,7 @@ export async function POST(request) {
               </div>
 
               <div class="footer">
-                <p>© ${new Date().getFullYear()} SS Holdings Japan. All rights reserved.</p>
+                <p>© ${new Date().getFullYear()} JDM Global. All rights reserved.</p>
               </div>
             </div>
           </body>

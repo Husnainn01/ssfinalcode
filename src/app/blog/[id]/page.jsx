@@ -1,6 +1,7 @@
 import Blog from './blog'
 import Header from '@/components/template/header'
 import Footer from '@/components/template/footer'
+import LeftSidebar from '@/components/template/leftsidebar'
 import { BlogPostJsonLd } from '@/app/components/json-ld'
 
 // Generate metadata for the blog post
@@ -76,9 +77,21 @@ export default async function BlogPost({ params }) {
       <>
         <BlogPostJsonLd data={blogJsonLd} />
         <Header />
-        <main className="bg-[#E2F1E7] py-10">
-          <Blog id={params.id} />
-        </main>
+        <div className="flex">
+          {/* Left sidebar - scrolls with the page */}
+          <div className="hidden md:block w-64 bg-[#243642]">
+            <LeftSidebar />
+          </div>
+          
+          {/* Main content area */}
+          <div className="flex-1 bg-[#E2F1E7]">
+            <main className="py-10">
+              <div className="max-w-4xl mx-auto">
+                <Blog id={params.id} />
+              </div>
+            </main>
+          </div>
+        </div>
         <Footer />
       </>
     )
@@ -87,9 +100,21 @@ export default async function BlogPost({ params }) {
     return (
       <>
         <Header />
-        <main className="bg-[#E2F1E7] py-10">
-          <Blog id={params.id} />
-        </main>
+        <div className="flex">
+          {/* Left sidebar - scrolls with the page */}
+          <div className="hidden md:block w-64 bg-[#243642]">
+            <LeftSidebar />
+          </div>
+          
+          {/* Main content area */}
+          <div className="flex-1 bg-[#E2F1E7]">
+            <main className="py-10">
+              <div className="max-w-4xl mx-auto">
+                <Blog id={params.id} />
+              </div>
+            </main>
+          </div>
+        </div>
         <Footer />
       </>
     )

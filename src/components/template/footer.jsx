@@ -67,28 +67,28 @@ export default function Footer() {
                 {[
                   { 
                     icon: Facebook, 
-                    href: "https://facebook.com/ss-holdings",
+                    href: "https://www.facebook.com/profile.php?id=61573636123794",
                     label: "Facebook",
                     color: "#1877F2",
                     hoverBg: "#1864D9"
                   },
                   { 
                     icon: Twitter, 
-                    href: "https://twitter.com/ss_holdings",
+                    href: "https://twitter.com/jdmglobal",
                     label: "Twitter",
                     color: "#1DA1F2",
                     hoverBg: "#1A8CD8"
                   },
                   { 
                     icon: Instagram, 
-                    href: "https://instagram.com/ss_holdings",
+                    href: "https://instagram.com/jdmglobal",
                     label: "Instagram",
                     color: "#E4405F",
                     hoverBg: "#D62E4C"
                   },
                   { 
                     icon: Youtube, 
-                    href: "https://youtube.com/ss_holdings",
+                    href: "https://youtube.com/jdmglobal",
                     label: "Youtube",
                     color: "#FF0000",
                     hoverBg: "#DC0000"
@@ -122,7 +122,7 @@ export default function Footer() {
                       <MapPin className="h-5 w-5 text-white transition-all duration-300 group-hover:text-[#629584] group-hover:scale-110" />
                     </div>
                   </div>
-                  <p className="leading-relaxed pt-2">Aichi Ken Iga Shi Minato-ku Nishifukuta 1-1506</p>
+                  <p className="leading-relaxed pt-2">Aichi Ken Nagoya , Japan</p>
                 </div>
 
                 <div className="flex items-center gap-3 group">
@@ -132,8 +132,8 @@ export default function Footer() {
                       <Phone className="h-5 w-5 text-white transition-all duration-300 group-hover:text-[#629584] group-hover:scale-110" />
                     </div>
                   </div>
-                  <a href="tel:+81000-000-0000" className="pt-2 hover:text-[#629584] transition-colors">
-                    +81 000-000-0000
+                  <a href="tel:+1 (262) 598-4435" className="pt-2 hover:text-[#629584] transition-colors">
+                    +1 (262) 598-4435
                   </a>
                 </div>
 
@@ -144,8 +144,8 @@ export default function Footer() {
                       <Mail className="h-5 w-5 text-white transition-all duration-300 group-hover:text-[#629584] group-hover:scale-110" />
                     </div>
                   </div>
-                  <a href="mailto:csd@hsw.global" className="pt-2 hover:text-[#629584] transition-colors">
-                    csd@hsw.global
+                  <a href="mailto:csd@jdmglobal.com" className="pt-2 hover:text-[#629584] transition-colors">
+                    csd@jdmglobal.com
                   </a>
                 </div>
               </div>

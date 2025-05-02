@@ -43,7 +43,7 @@ export default function Header() {
             <Link href="/" className="flex items-center space-x-3">
               <img 
                 src="/newlogo3.png" 
-                alt="HSW Global Logo" 
+                alt="JDM Global Logo" 
                 className="h-20 md:h-20 w-auto transition-transform duration-200 hover:scale-105" 
               />
               <span className="hidden md:block font-semibold text-xl">

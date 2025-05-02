@@ -20,22 +20,22 @@ export async function sendVerificationEmail({ email, code }) {
     console.log('SMTP connection verified');
 
     const mailOptions = {
-      from: `"SS Holdings" <${process.env.SMTP_USER}>`,
+      from: `"JDM Global" <${process.env.SMTP_USER}>`,
       to: email,
-      subject: "Verify Your Email - SS Holdings",
+      subject: "Verify Your Email - JDM Global",
       text: `Your verification code is: ${code}. This code will expire in 10 minutes.`,
       html: `
         <div style="font-family: 'Arial', sans-serif; max-width: 600px; margin: 0 auto; padding: 20px; background-color: #ffffff;">
           <!-- Header with Logo -->
           <div style="text-align: center; padding: 20px 0; background-color: #f8f9fa; border-radius: 10px 10px 0 0;">
-            <img src="${process.env.NEXT_PUBLIC_APP_URL}/images/logo.png" alt="SS Holdings Logo" style="height: 60px; margin-bottom: 10px;">
+            <img src="${process.env.NEXT_PUBLIC_APP_URL}/images/logo.png" alt="JDM Global Logo" style="height: 60px; margin-bottom: 10px;">
             <h1 style="color: #1a365d; margin: 10px 0; font-size: 24px;">Email Verification</h1>
           </div>
 
           <!-- Main Content -->
           <div style="padding: 30px; background-color: #ffffff; border-radius: 0 0 10px 10px; box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);">
             <p style="color: #2d3748; font-size: 16px; line-height: 1.6;">
-              Thank you for choosing SS Holdings. To complete your registration, please use the verification code below:
+              Thank you for choosing JDM Global. To complete your registration, please use the verification code below:
             </p>
 
             <!-- Verification Code Box -->
@@ -81,7 +81,7 @@ export async function sendVerificationEmail({ email, code }) {
             <div style="margin-top: 30px; padding-top: 20px; border-top: 1px solid #e2e8f0; text-align: center;">
               <p style="color: #718096; font-size: 14px;">
                 Best regards,<br>
-                <strong>The SS Holdings Team</strong>
+                <strong>The JDM Global Team</strong>
               </p>
 
               <!-- Social Media Links -->
@@ -96,7 +96,7 @@ export async function sendVerificationEmail({ email, code }) {
 
               <!-- Legal Footer -->
               <p style="color: #a0aec0; font-size: 12px; margin-top: 20px;">
-                © ${new Date().getFullYear()} SS Holdings. All rights reserved.<br>
+                © ${new Date().getFullYear()} JDM Global. All rights reserved.<br>
                 This is an automated message, please do not reply to this email.
               </p>
             </div>
@@ -130,13 +130,13 @@ export async function sendWelcomeEmail({ email, firstName, lastName }) {
     const displayName = firstName ? `${firstName} ${lastName || ''}` : 'Valued Customer';
     
     const mailOptions = {
-      from: `"SS Holdings" <${process.env.SMTP_USER}>`,
+      from: `"JDM Global" <${process.env.SMTP_USER}>`,
       to: email,
-      subject: 'Welcome to SS Holdings - Your Trusted Shipping Partner',
+      subject: 'Welcome to JDM Global - Your Trusted Shipping Partner',
       text: `
         Dear ${displayName},
         
-        Welcome to SS Holdings! We're thrilled to have you join our global shipping community.
+        Welcome to JDM Global! We're thrilled to have you join our global shipping community.
         
         Your account has been successfully created, and you now have access to our comprehensive shipping services platform.
         
@@ -149,14 +149,14 @@ export async function sendWelcomeEmail({ email, firstName, lastName }) {
         Need assistance? Our dedicated support team is available 24/7.
         
         Best regards,
-        The SS Holdings Team
+        The JDM Global Team
       `,
       html: `
         <div style="font-family: 'Arial', sans-serif; max-width: 600px; margin: 0 auto; padding: 20px; background-color: #ffffff;">
           <!-- Header with Logo -->
           <div style="text-align: center; padding: 20px 0; background-color: #f8f9fa; border-radius: 10px 10px 0 0;">
-            <img src="${process.env.NEXT_PUBLIC_APP_URL}/images/logo.png" alt="SS Holdings Logo" style="height: 60px; margin-bottom: 10px;">
-            <h1 style="color: #1a365d; margin: 10px 0; font-size: 24px;">Welcome to SS Holdings</h1>
+            <img src="${process.env.NEXT_PUBLIC_APP_URL}/images/logo.png" alt="JDM Global Logo" style="height: 60px; margin-bottom: 10px;">
+            <h1 style="color: #1a365d; margin: 10px 0; font-size: 24px;">Welcome to JDM Global</h1>
           </div>
 
           <!-- Main Content -->
@@ -164,7 +164,7 @@ export async function sendWelcomeEmail({ email, firstName, lastName }) {
             <p style="color: #2d3748; font-size: 16px; line-height: 1.6;">Dear ${displayName},</p>
             
             <p style="color: #2d3748; font-size: 16px; line-height: 1.6;">
-              Welcome to SS Holdings! We're thrilled to have you join our global shipping community. Your account has been successfully created, and you now have access to our comprehensive shipping services platform.
+              Welcome to JDM Global! We're thrilled to have you join our global shipping community. Your account has been successfully created, and you now have access to our comprehensive shipping services platform.
             </p>
 
             <!-- Getting Started Section -->
@@ -211,7 +211,7 @@ export async function sendWelcomeEmail({ email, firstName, lastName }) {
             <div style="margin-top: 30px; padding-top: 20px; border-top: 1px solid #e2e8f0; text-align: center;">
               <p style="color: #718096; font-size: 14px;">
                 Best regards,<br>
-                <strong>The SS Holdings Team</strong>
+                <strong>The JDM Global Team</strong>
               </p>
               
               <!-- Social Media Links -->
@@ -226,8 +226,8 @@ export async function sendWelcomeEmail({ email, firstName, lastName }) {
 
               <!-- Legal Footer -->
               <p style="color: #a0aec0; font-size: 12px; margin-top: 20px;">
-                © ${new Date().getFullYear()} SS Holdings. All rights reserved.<br>
-                This email was sent to you as part of your registration at SS Holdings.
+                © ${new Date().getFullYear()} JDM Global. All rights reserved.<br>
+                This email was sent to you as part of your registration at JDM Global.
               </p>
             </div>
           </div>

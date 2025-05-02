@@ -89,11 +89,11 @@ export const metadata = {
 };
 
 export const adminMetadata = {
-  title: 'Admin Dashboard - HSW GLOBAL',
+  title: 'Admin Dashboard - JDM Global',
   description: 'Admin dashboard for managing Kei trucks, car listings and content',
 };
 
 export const customerMetadata = {
-  title: 'Customer Dashboard - HSW GLOBAL',
+  title: 'Customer Dashboard - JDM Global',
   description: 'Customer dashboard for managing vehicle orders and preferences',
 };

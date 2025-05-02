@@ -66,7 +66,7 @@ const fallbackFaqSections = [
     icon: HelpCircle,
     questions: [
       {
-        q: "What services does HSW GLOBAL provide?",
+        q: "What services does JDM Global provide?",
         a: "We provide vehicle sourcing, shipping, and import services for customers worldwide. Our comprehensive services include finding the right vehicle, handling all shipping logistics, and assisting with import documentation."
       }
     ]
@@ -219,7 +219,7 @@ export default function FAQ() {
               animate={{ y: 0, opacity: 1 }}
               transition={{ duration: 0.7, delay: 0.4 }}
             >
-              Find answers to common questions about buying and importing vehicles from HSW GLOBAL
+              Find answers to common questions about buying and importing vehicles from JDM Global
             </motion.p>
           </div>
         </motion.header>

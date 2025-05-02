@@ -1,0 +1,1 @@
+              <p>Powerd with 🖤 by JDM Global</p> 

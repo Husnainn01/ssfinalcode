@@ -115,7 +115,7 @@ const nextConfig = {
 const sentryWebpackPluginOptions = {
   hideSourceMaps: true,
   silent: true,
-  org: "SS Holdings",
+  org: "JDM Global",
   project: "ss-holdings",
   authToken: process.env.SENTRY_AUTH_TOKEN,
 };

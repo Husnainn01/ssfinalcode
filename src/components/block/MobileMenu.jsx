@@ -83,7 +83,7 @@ export function MobileMenu({ isAuthenticated, user, favoritesCount, onLogout }) 
             <Link href="/" onClick={() => setIsOpen(false)}>
               <img
                 src="/sss-logo.png"
-                alt="SS Holdings"
+                alt="JDM Global"
                 className="h-8 w-auto"
               />
             </Link>

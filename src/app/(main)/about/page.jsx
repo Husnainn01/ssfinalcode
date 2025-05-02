@@ -337,7 +337,7 @@ export default function InteractiveAboutUs() {
             >
               {[
                 { label: 'Years of Excellence', value: '28+' },
-                { label: 'HSW Global', value: '50+' },
+                { label: 'JDM Global', value: '50+' },
                 { label: 'Vehicles Delivered', value: '100K+' },
                 { label: 'Customer Satisfaction', value: '95%' },
               ].map((stat, index) => (
@@ -365,7 +365,7 @@ export default function InteractiveAboutUs() {
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true }}
             >
-              Experience Excellence with HSW Global
+              Experience Excellence with JDM Global
             </motion.h2>
             <motion.p 
               className="text-lg md:text-xl text-gray-300 mb-8 md:mb-12 max-w-2xl mx-auto px-4"

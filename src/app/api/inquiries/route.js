@@ -67,7 +67,7 @@ export async function POST(request) {
           <body>
             <div class="container">
               <div class="header">
-                <img src="https://ss-japan.com/ss-logo6.png" alt="SS Holdings" style="height: 40px; margin-bottom: 15px;">
+                <img src="https://ss-japan.com/ss-logo6.png" alt="JDM Global" style="height: 40px; margin-bottom: 15px;">
                 <h1>New Vehicle Inquiry</h1>
                 <p>Received on ${currentDate}</p>
                 <div class="inquiry-id">Reference ID: ${inquiryId}</div>
@@ -156,15 +156,15 @@ export async function POST(request) {
               </div>
 
               <div class="footer">
-                <img src="https://ss-japan.com/ss-logo6.png" alt="SS Holdings" />
-                <p><strong>SS Holdings Japan</strong></p>
+                <img src="https://ss-japan.com/ss-logo6.png" alt="JDM Global" />
+                <p><strong>JDM Global</strong></p>
                 <div class="contact-info">
                   <p>📞 Contact: +81-80-4278-4732</p>
                   <p>📧 Email: csd@ss-japan.com</p>
                   <p>🌐 Website: www.ss-japan.com</p>
                 </div>
                 <p style="margin-top: 20px; font-size: 11px; color: #666;">
-                  © ${new Date().getFullYear()} SS Holdings Japan. All rights reserved.
+                  © ${new Date().getFullYear()} JDM Global. All rights reserved.
                 </p>
               </div>
             </div>
