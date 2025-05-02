@@ -3,6 +3,19 @@ import { NextResponse } from 'next/server';
 import dbConnect from '@/lib/dbConnect';
 import slugify from 'slugify';
 
+// Helper function to add CORS headers
+function corsHeaders(response) {
+    response.headers.set('Access-Control-Allow-Origin', '*');
+    response.headers.set('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, OPTIONS');
+    response.headers.set('Access-Control-Allow-Headers', 'Content-Type, Authorization');
+    return response;
+}
+
+// Handle OPTIONS request for CORS preflight
+export async function OPTIONS() {
+    return corsHeaders(new NextResponse(null, { status: 200 }));
+}
+
 export async function GET(req) {
     try {
         await dbConnect();
@@ -28,15 +41,15 @@ export async function GET(req) {
             status: l.status
         }))); // Debug log with relevant fields
         
-        return NextResponse.json(listings);
+        return corsHeaders(NextResponse.json(listings));
         
     } catch (error) {
         console.error("Error fetching listings:", error);
-        return NextResponse.json({ 
+        return corsHeaders(NextResponse.json({ 
             success: false,
             error: "Failed to fetch listings",
             details: error.message
-        }, { status: 500 });
+        }, { status: 500 }));
     }
 }
 
@@ -47,32 +60,32 @@ export async function DELETE(req) {
         const { id } = await req.json();
         
         if (!mongoose.Types.ObjectId.isValid(id)) {
-            return NextResponse.json({ 
+            return corsHeaders(NextResponse.json({ 
                 success: false,
                 error: "Invalid ID format" 
-            }, { status: 400 });
+            }, { status: 400 }));
         }
         
         const objectId = new mongoose.Types.ObjectId(id);
         const deleteResult = await mainPostCollection.deleteOne({ _id: objectId });
         
         if (deleteResult.deletedCount === 1) {
-            return NextResponse.json({ 
+            return corsHeaders(NextResponse.json({ 
                 success: true,
                 message: "Listing deleted successfully" 
-            });
+            }));
         } else {
-            return NextResponse.json({ 
+            return corsHeaders(NextResponse.json({ 
                 success: false,
                 error: "Listing not found" 
-            }, { status: 404 });
+            }, { status: 404 }));
         }
     } catch (error) {
         console.error("Error deleting listing:", error);
-        return NextResponse.json({ 
+        return corsHeaders(NextResponse.json({ 
             success: false,
             error: "Failed to delete listing" 
-        }, { status: 500 });
+        }, { status: 500 }));
     }
 }
 
@@ -103,11 +116,11 @@ export async function POST(req) {
         console.log("Missing fields:", missingFields);
 
         if (missingFields.length > 0) {
-            return NextResponse.json({
+            return corsHeaders(NextResponse.json({
                 success: false,
                 error: `Missing required fields: ${missingFields.join(', ')}`,
                 receivedData: postData
-            }, { status: 400 });
+            }, { status: 400 }));
         }
 
         await dbConnect();
@@ -151,21 +164,21 @@ export async function POST(req) {
             console.error('Revalidation error:', revalidateError);
         }
 
-        return NextResponse.json({
+        return corsHeaders(NextResponse.json({
             success: true,
             message: "Listing created successfully",
             listing: {
                 ...listingData,
                 _id: result.insertedId.toString()
             }
-        }, { status: 201 });
+        }, { status: 201 }));
 
     } catch (error) {
         console.error("Error creating listing:", error);
-        return NextResponse.json({
+        return corsHeaders(NextResponse.json({
             success: false,
             error: "Failed to create listing",
             details: error.message
-        }, { status: 500 });
+        }, { status: 500 }));
     }
 }

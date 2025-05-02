@@ -9,7 +9,9 @@ const nextConfig = {
   images: {
     domains: [
       'res.cloudinary.com',  // Add Cloudinary domain
-      'www.globaldrivemotors.com'
+      'www.globaldrivemotors.com',
+      'www.jdmglobalcars.com',
+      'jdmglobalcars.com'
     ],
     remotePatterns: [
       {
