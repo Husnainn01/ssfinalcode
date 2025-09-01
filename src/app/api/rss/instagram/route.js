@@ -9,6 +9,22 @@ export const revalidate = 0;
 export async function GET(request) {
   const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || 'https://www.jdmglobalcars.com';
 
+  // Helper: normalize any image URL to an Instagram-safe Cloudinary JPG
+  // - For absolute URLs: use Cloudinary fetch with f_jpg and width 1080
+  // - For relative Cloudinary public IDs: use the cloud's upload delivery with f_jpg
+  const toInstagramSafeJpg = (sourceUrlOrId, cloudName) => {
+    if (!sourceUrlOrId) return '';
+    const width = 1080; // Instagram recommended width
+    if (typeof sourceUrlOrId === 'string' && sourceUrlOrId.startsWith('http')) {
+      // Use fetch to transform remote assets into JPG
+      const encoded = encodeURIComponent(sourceUrlOrId);
+      return `https://res.cloudinary.com/${cloudName}/image/fetch/f_jpg,q_auto,w_${width}/${encoded}`;
+    }
+    // Treat as public ID (remove any leading /)
+    const publicId = String(sourceUrlOrId).replace(/^\/+/, '');
+    return `https://res.cloudinary.com/${cloudName}/image/upload/f_jpg,q_auto,w_${width}/${publicId}`;
+  };
+
   // Create current date - ENSURE it's not in the future
   const currentDate = new Date();
   
@@ -81,12 +97,10 @@ export async function GET(request) {
       // IMPORTANT: Force JPG format for Instagram compatibility
       let imageUrl = '';
       if (listing.image) {
-        imageUrl = listing.image.startsWith('http') ? listing.image : 
-          `https://res.cloudinary.com/jdmglobalcars/image/upload/c_fill,f_jpg,q_auto,w_1200,h_630/${listing.image.replace(/^\/+/, '')}`;
+        imageUrl = toInstagramSafeJpg(listing.image, 'jdmglobalcars');
       } else if (listing.images && listing.images.length > 0) {
         const firstImage = listing.images[0];
-        imageUrl = firstImage.startsWith('http') ? firstImage : 
-          `https://res.cloudinary.com/jdmglobalcars/image/upload/c_fill,f_jpg,q_auto,w_1200,h_630/${firstImage.replace(/^\/+/, '')}`;
+        imageUrl = toInstagramSafeJpg(firstImage, 'jdmglobalcars');
       }
       
       // Format price with currency symbol
@@ -162,11 +176,9 @@ View more details and photos: ${baseUrl}/cars/${listing._id}
       
       // Check for various image field possibilities in the blog post
       if (post.image) {
-        imageUrl = post.image.startsWith('http') ? post.image : 
-          `https://res.cloudinary.com/di2nkhwfy/image/upload/c_fill,f_jpg,q_auto,w_1200,h_630/${post.image.replace(/^\/+/, '')}`;
+        imageUrl = toInstagramSafeJpg(post.image, 'di2nkhwfy');
       } else if (post.thumbnail) {
-        imageUrl = post.thumbnail.startsWith('http') ? post.thumbnail : 
-          `https://res.cloudinary.com/di2nkhwfy/image/upload/c_fill,f_jpg,q_auto,w_1200,h_630/${post.thumbnail.replace(/^\/+/, '')}`;
+        imageUrl = toInstagramSafeJpg(post.thumbnail, 'di2nkhwfy');
       }
       
       // Extract plain text from HTML content for description
