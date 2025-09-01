@@ -243,11 +243,11 @@ ${hashtags} #jdmglobalcars #autoblog
       const defaultImage = `${baseUrl}/logo.png`;
       
       feed.addItem({
-        title: "Global Drive Motors Updates",
+        title: "JDM Global Cars Updates",
         id: `default-${timestamp}`,
         link: `${baseUrl}?t=${timestamp}`,
-        description: "Latest vehicles and blog posts from Global Drive Motors. Check back soon for new listings!",
-        content: "Latest vehicles and blog posts from Global Drive Motors. Check back soon for new listings!",
+        description: "Latest vehicles and blog posts from JDM Global Cars. Check back soon for new listings!",
+        content: "Latest vehicles and blog posts from JDM Global Cars. Check back soon for new listings!",
         date: currentDate,
         published: currentDate,
         image: defaultImage,
@@ -280,8 +280,8 @@ ${hashtags} #jdmglobalcars #autoblog
     const timestamp = Date.now();
     
     const feed = new Feed({
-      title: 'Global Drive Motors Updates',
-      description: 'Latest vehicles and blog posts from Global Drive Motors',
+      title: 'JDM Global Cars Updates',
+      description: 'Latest vehicles and blog posts from JDM Global Cars',
       id: baseUrl,
       link: baseUrl,
       language: 'en',
@@ -289,7 +289,7 @@ ${hashtags} #jdmglobalcars #autoblog
     });
     
     feed.addItem({
-      title: "Global Drive Motors Updates",
+      title: "JDM Global Cars Updates",
       id: `error-${timestamp}`,
       link: baseUrl,
       description: "Please check back soon for new listings!",
