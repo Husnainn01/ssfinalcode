@@ -7,28 +7,28 @@ export const dynamic = 'force-dynamic';
 export const revalidate = 0;
 
 export async function GET(request) {
-  const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || 'https://www.globaldrivemotors.com';
+  const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || 'https://www.jdmglobalcars.com';
 
   // Create current date - ENSURE it's not in the future
   const currentDate = new Date();
   
   const feed = new Feed({
-    title: 'Global Drive Motors Updates',
-    description: 'Latest vehicles and blog posts from Global Drive Motors',
+    title: 'JDM Global Cars Updates',
+    description: 'Latest vehicles and blog posts from JDM Global Cars',
     id: baseUrl,
     link: baseUrl,
     language: 'en',
     image: `${baseUrl}/logo.png`,
     favicon: `${baseUrl}/favicon.ico`,
-    copyright: `All rights reserved ${currentDate.getFullYear()}, Global Drive Motors`,
+    copyright: `All rights reserved ${currentDate.getFullYear()}, JDM Global Cars`,
     updated: currentDate,
-    generator: 'Global Drive Motors Instagram Feed',
+    generator: 'JDM Global Cars Instagram Feed',
     feedLinks: {
       rss2: `${baseUrl}/api/rss/instagram`
     },
     author: {
-      name: 'Global Drive Motors',
-      email: 'info@globaldrivemotors.com',
+      name: 'JDM Global Cars',
+      email: 'info@jdmglobalcars.com',
       link: baseUrl
     }
   });
@@ -82,11 +82,11 @@ export async function GET(request) {
       let imageUrl = '';
       if (listing.image) {
         imageUrl = listing.image.startsWith('http') ? listing.image : 
-          `https://res.cloudinary.com/globaldrivemotors/image/upload/c_fill,f_jpg,q_auto,w_1200,h_630/${listing.image.replace(/^\/+/, '')}`;
+          `https://res.cloudinary.com/jdmglobalcars/image/upload/c_fill,f_jpg,q_auto,w_1200,h_630/${listing.image.replace(/^\/+/, '')}`;
       } else if (listing.images && listing.images.length > 0) {
         const firstImage = listing.images[0];
         imageUrl = firstImage.startsWith('http') ? firstImage : 
-          `https://res.cloudinary.com/globaldrivemotors/image/upload/c_fill,f_jpg,q_auto,w_1200,h_630/${firstImage.replace(/^\/+/, '')}`;
+          `https://res.cloudinary.com/jdmglobalcars/image/upload/c_fill,f_jpg,q_auto,w_1200,h_630/${firstImage.replace(/^\/+/, '')}`;
       }
       
       // Format price with currency symbol
@@ -118,7 +118,7 @@ ${listing.carFeature && listing.carFeature.length > 0 ? `✅ Features: ${listing
 
 View more details and photos: ${baseUrl}/cars/${listing._id}
 
-#globaldrivemotors #carsforsale ${listing.make ? '#' + listing.make.toLowerCase().replace(/\s+/g, '') : ''} ${listing.model ? '#' + listing.model.toLowerCase().replace(/\s+/g, '') : ''}
+#jdmglobalcars #carsforsale ${listing.make ? '#' + listing.make.toLowerCase().replace(/\s+/g, '') : ''} ${listing.model ? '#' + listing.model.toLowerCase().replace(/\s+/g, '') : ''}
       `.trim();
 
       // Generate a publication date (use item date or current date)
@@ -200,7 +200,7 @@ ${excerpt}
 
 Read the full article: ${baseUrl}/blog/${post._id}
 
-${hashtags} #globaldrivemotors #autoblog
+${hashtags} #jdmglobalcars #autoblog
       `.trim();
 
       // Generate a publication date (use item date or current date)
