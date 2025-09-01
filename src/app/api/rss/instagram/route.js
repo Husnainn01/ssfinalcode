@@ -10,19 +10,39 @@ export async function GET(request) {
   const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || 'https://www.jdmglobalcars.com';
 
   // Helper: normalize any image URL to an Instagram-safe Cloudinary JPG
-  // - For absolute URLs: use Cloudinary fetch with f_jpg and width 1080
-  // - For relative Cloudinary public IDs: use the cloud's upload delivery with f_jpg
-  const toInstagramSafeJpg = (sourceUrlOrId, cloudName) => {
+  // - If URL is already a Cloudinary upload URL, rewrite it IN-PLACE on its original cloud
+  //   with a 4:5 crop (1080x1350), sRGB JPG.
+  // - If it's a non-Cloudinary absolute URL, use Cloudinary fetch on the provided cloud
+  //   (requires fetch enabled in Cloudinary Security settings).
+  // - If it's a relative public ID, use the given cloud's upload delivery.
+  const toInstagramSafeJpg = (sourceUrlOrId, defaultCloud) => {
     if (!sourceUrlOrId) return '';
-    const width = 1080; // Instagram recommended width
-    if (typeof sourceUrlOrId === 'string' && sourceUrlOrId.startsWith('http')) {
-      // Use fetch to transform remote assets into JPG
-      const encoded = encodeURIComponent(sourceUrlOrId);
-      return `https://res.cloudinary.com/${cloudName}/image/fetch/f_jpg,q_auto,w_${width}/${encoded}`;
+    const width = 1080; // IG recommended width
+    const height = 1350; // 4:5 aspect
+
+    const str = String(sourceUrlOrId);
+    const cldMatch = str.match(/^https?:\/\/res\.cloudinary\.com\/([^/]+)\/image\/upload\/(.+)$/);
+    if (cldMatch) {
+      const cloud = cldMatch[1];
+      let rest = cldMatch[2]; // could be "v1234/..." or "<transformations>/v1234/..."
+      if (!rest.startsWith('v')) {
+        // drop existing transformation segment (first path segment)
+        const parts = rest.split('/');
+        rest = parts.slice(1).join('/');
+      }
+      // enforce IG-safe crop and jpg
+      return `https://res.cloudinary.com/${cloud}/image/upload/c_fill,g_auto,f_jpg,q_auto,w_${width},h_${height}/${rest}`;
     }
-    // Treat as public ID (remove any leading /)
-    const publicId = String(sourceUrlOrId).replace(/^\/+/, '');
-    return `https://res.cloudinary.com/${cloudName}/image/upload/f_jpg,q_auto,w_${width}/${publicId}`;
+
+    if (str.startsWith('http')) {
+      // Non-Cloudinary absolute URL -> fetch via defaultCloud
+      const encoded = encodeURIComponent(str);
+      return `https://res.cloudinary.com/${defaultCloud}/image/fetch/c_fill,g_auto,f_jpg,q_auto,w_${width},h_${height}/${encoded}`;
+    }
+
+    // Relative public ID -> upload delivery on defaultCloud
+    const publicId = str.replace(/^\/+/, '');
+    return `https://res.cloudinary.com/${defaultCloud}/image/upload/c_fill,g_auto,f_jpg,q_auto,w_${width},h_${height}/${publicId}`;
   };
 
   // Create current date - ENSURE it's not in the future
