@@ -170,6 +170,7 @@ View more details and photos: ${baseUrl}/cars/${listing._id}
         image: imageUrl,
         // Add custom data that Zapier can access
         custom_elements: [
+          {'media_url': imageUrl},
           {'car:image': imageUrl},
           {'car:price': formattedPrice},
           {'car:make': listing.make || ''},
@@ -251,6 +252,7 @@ ${hashtags} #jdmglobalcars #autoblog
         image: imageUrl,
         // Add custom data that Zapier can access
         custom_elements: [
+          {'media_url': imageUrl},
           {'blog:image': imageUrl},
           {'blog:category': post.category || ''},
           {'blog:tags': post.tag || ''},
